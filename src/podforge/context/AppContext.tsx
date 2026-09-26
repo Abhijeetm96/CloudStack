@@ -6,7 +6,7 @@ import type { KubeConcept } from '../data/topics';
 import { ProgressManager } from '../../progress/ProgressManager';
 import { parseCurrentRoute, syncUrlWithMode } from '../../platform/routing/urlRouter';
 
-export type AppMode = 'academy' | 'labs' | 'ide' | 'cluster' | 'lesson' | 'guided-lesson';
+export type AppMode = 'academy' | 'universe' | 'practice' | 'labs' | 'ide' | 'cluster' | 'reference' | 'lesson' | 'guided-lesson';
 
 interface TerminalHistoryItem {
   command?: string;
@@ -40,7 +40,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [mode, setMode] = useState<AppMode>(() => {
     try {
       const saved = localStorage.getItem('podforge_initial_mode') as AppMode;
-      if (saved && ['academy', 'labs', 'ide', 'cluster'].includes(saved)) {
+      if (saved && ['academy', 'universe', 'practice', 'labs', 'ide', 'cluster', 'reference'].includes(saved)) {
         localStorage.removeItem('podforge_initial_mode');
         return saved;
       }
