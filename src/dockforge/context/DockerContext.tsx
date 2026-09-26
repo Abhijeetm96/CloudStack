@@ -2,10 +2,11 @@ import React, { createContext, useContext, useState, useMemo, useCallback, useEf
 import { DockerEngine } from '../docker-engine/engine';
 import { Container, DockerImage, DockerVolume, DockerNetwork, DockerCommandResult } from '../docker-engine/types';
 import { DOCKER_14_TOPICS, DOCKER_UNIVERSAL_CONCEPTS, UniversalDockerConcept } from '../data/unifiedDockerData';
+import { ensureFullConceptData } from '../data/conceptDataEnricher';
 import { ProgressManager } from '../../progress/ProgressManager';
 import { parseCurrentRoute, syncUrlWithMode } from '../../platform/routing/urlRouter';
 
-export type DockMode = 'academy' | 'labs' | 'ide' | 'visualizer' | 'lesson' | 'guided-lesson';
+export type DockMode = 'academy' | 'universe' | 'practice' | 'labs' | 'ide' | 'visualizer' | 'reference' | 'lesson' | 'guided-lesson';
 
 interface TerminalEntry {
   command?: string;
@@ -54,7 +55,7 @@ export const DockerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [mode, setMode] = useState<DockMode>(() => {
     try {
       const saved = localStorage.getItem('dockforge_initial_mode') as DockMode;
-      if (saved && ['academy', 'labs', 'ide', 'visualizer'].includes(saved)) {
+      if (saved && ['academy', 'universe', 'practice', 'labs', 'ide', 'visualizer', 'reference'].includes(saved)) {
         localStorage.removeItem('dockforge_initial_mode');
         return saved;
       }
@@ -167,10 +168,10 @@ volumes:
   pgdata:`);
 
   const currentConcept = useMemo(() => {
-    return (
+    const raw =
       DOCKER_UNIVERSAL_CONCEPTS[activeConceptId] ||
-      DOCKER_UNIVERSAL_CONCEPTS['c-what-are-containers']
-    );
+      DOCKER_UNIVERSAL_CONCEPTS['c-what-are-containers'];
+    return ensureFullConceptData(raw);
   }, [activeConceptId]);
 
   const markConceptComplete = useCallback((id: string) => {
