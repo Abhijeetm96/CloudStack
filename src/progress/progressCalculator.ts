@@ -10,6 +10,7 @@ import {
 import { ACADEMY_18_TOPICS } from '../commitforge/data/unifiedAcademyData';
 import { DOCKER_14_TOPICS } from '../dockforge/data/unifiedDockerData';
 import { KUBE_CHAPTERS } from '../podforge/data/topics/index';
+import { LINUX_15_TOPICS } from '../linuxforge/data/topics/index';
 
 /**
  * Extracts a flattened list of all lessons/concepts for a given academy.
@@ -43,6 +44,16 @@ export function getCourseLessons(academyId: AcademyId): AcademyLessonSummary[] {
           title: concept.title,
           topicId: chapter.id,
           topicTitle: chapter.title,
+        }))
+      );
+
+    case 'linuxforge':
+      return LINUX_15_TOPICS.flatMap((topic) =>
+        topic.concepts.map((concept) => ({
+          id: concept.id,
+          title: concept.title,
+          topicId: topic.id,
+          topicTitle: topic.title,
         }))
       );
 
