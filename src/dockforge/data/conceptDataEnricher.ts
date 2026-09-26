@@ -392,7 +392,7 @@ function getCategoryCommonMistakes(category: TopicCategory, _title: string): Com
  * Ensures that EVERY concept passed to ConceptTeachingEngine has full, rich, 5-stage teaching data.
  * If static concept data lacks extended fields, this enriches them with concept-specific defaults.
  */
-export function ensureFullConceptData(concept: UniversalDockerConcept): UniversalDockerConcept {
+export function ensureFullConceptData(concept: any): UniversalDockerConcept {
   const title = concept.title || 'Docker Concept';
   const cmd = concept.command || 'docker run';
   const topicNum = concept.topicNumber || '01';
@@ -540,8 +540,49 @@ export function ensureFullConceptData(concept: UniversalDockerConcept): Universa
     ],
   };
 
+  const sandbox = {
+    initialCommands: concept.sandbox?.initialCommands || ['docker ps'],
+    guidedSteps:
+      concept.sandbox?.guidedSteps && concept.sandbox.guidedSteps.length > 0
+        ? concept.sandbox.guidedSteps
+        : [
+            {
+              instruction: `Execute ${cmd} to verify container functionality`,
+              command: cmd,
+              hint: `Run: ${cmd}`,
+            },
+          ],
+    targetTask: concept.sandbox?.targetTask || `Master ${title} with ${cmd}`,
+    solutionCommands:
+      concept.sandbox?.solutionCommands && concept.sandbox.solutionCommands.length > 0
+        ? concept.sandbox.solutionCommands
+        : [cmd],
+  };
+
+  const subtitle =
+    concept.subtitle ||
+    concept.inSimpleWords ||
+    `Mastering ${title} in the Docker ecosystem.`;
+
+  const badges =
+    concept.badges && concept.badges.length > 0
+      ? concept.badges
+      : ['Intermediate', 'Core', 'Docker'];
+
+  const difficulty = concept.difficulty || 'Intermediate';
+
   return {
     ...concept,
+    id: concept.id || 'docker-concept',
+    command: cmd,
+    title,
+    topicId,
+    topicNumber: topicNum,
+    topicTitle: concept.topicTitle || 'Docker Fundamentals',
+    subtitle,
+    badges,
+    difficulty,
+    sandbox,
     whatIsIt: concept.whatIsIt || `A core Docker capability allowing developers to master ${title}.`,
     inSimpleWords: concept.inSimpleWords || `Think of ${title} as an easy way to bundle and manage your app isolated on your computer.`,
     whyDoYouNeedIt: concept.whyDoYouNeedIt || `Without ${title}, software development suffers from version conflicts and deployment bugs.`,
@@ -559,5 +600,5 @@ export function ensureFullConceptData(concept: UniversalDockerConcept): Universa
     commonMistakes,
     recapChecklist,
     challenge,
-  };
+  } as UniversalDockerConcept;
 }
