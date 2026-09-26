@@ -24,6 +24,7 @@ export function createDefaultProgress(): ForgeSuiteProgress {
       commitforge: createDefaultCourseProgress('commitforge'),
       dockforge: createDefaultCourseProgress('dockforge'),
       podforge: createDefaultCourseProgress('podforge'),
+      linuxforge: createDefaultCourseProgress('linuxforge'),
     },
     preferences: {
       lastAcademy: 'commitforge',
@@ -126,6 +127,7 @@ export function migrateProgress(raw: any): ForgeSuiteProgress {
       commitforge: ensureAcademy('commitforge'),
       dockforge: ensureAcademy('dockforge'),
       podforge: ensureAcademy('podforge'),
+      linuxforge: ensureAcademy('linuxforge'),
     },
     preferences: {
       lastAcademy: raw.preferences?.lastAcademy || 'commitforge',
