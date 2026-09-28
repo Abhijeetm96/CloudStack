@@ -1,0 +1,1415 @@
+import React, { useState } from 'react';
+import { UniversalLinuxConcept, BlockDiagramNode } from '../../data/unifiedLinuxData';
+import {
+  BookOpen,
+  Terminal,
+  Activity,
+  CheckCircle2,
+  AlertTriangle,
+  HelpCircle,
+  ChevronRight,
+  ChevronLeft,
+  ArrowRight,
+  Layers,
+  Sparkles,
+  Info,
+  Zap,
+  Check,
+  X,
+  Workflow,
+  Shield,
+  Code2,
+  Cpu,
+  FolderTree,
+  FolderGit2,
+  Search,
+  FileCode,
+  FileText,
+  Lock,
+  Users,
+  ShieldAlert,
+  ShieldCheck,
+  PlayCircle,
+  Server,
+  History,
+  Share2,
+  HardDrive,
+  Network,
+  Wrench,
+  Key,
+  Compass,
+  FolderPlus,
+  Copy,
+  Trash2,
+  ArrowUpDown,
+  Clock,
+  Gauge,
+  Sliders,
+} from 'lucide-react';
+
+export function getLinuxConceptIcon(
+  conceptId?: string,
+  command?: string,
+  size = 24,
+  color?: string
+): React.ReactElement {
+  const iconProps = { size, ...(color ? { color } : {}) };
+  const cmd = (command || '').toLowerCase().trim();
+  const id = (conceptId || '').toLowerCase().trim();
+
+  // Exact ID checks
+  if (id === 'what-is-linux' || id === 'linux-distros') return <Terminal {...iconProps} />;
+  if (id === 'kernel-vs-os' || id === 'user-vs-kernel-space') return <Cpu {...iconProps} />;
+  if (id === 'filesystem-hierarchy' || id.startsWith('dir-')) return <FolderTree {...iconProps} />;
+  if (id.includes('permission') || id === 'chmod') return <ShieldCheck {...iconProps} />;
+  if (id === 'chown' || id === 'chgrp') return <Key {...iconProps} />;
+  if (id === 'umask') return <Lock {...iconProps} />;
+  if (id === 'sudo' || id.includes('security')) return <ShieldAlert {...iconProps} />;
+  if (id.includes('systemd') || id.includes('service') || id.includes('daemon')) return <Server {...iconProps} />;
+  if (id.includes('process') || id.includes('signals')) return <Activity {...iconProps} />;
+  if (id.includes('troubleshoot')) return <Wrench {...iconProps} />;
+
+  // Command checks
+  switch (cmd) {
+    case 'pwd':
+    case 'cd':
+      return <Compass {...iconProps} />;
+    case 'ls':
+    case 'tree':
+      return <FolderTree {...iconProps} />;
+    case 'mkdir':
+    case 'touch':
+      return <FolderPlus {...iconProps} />;
+    case 'cp':
+    case 'mv':
+      return <Copy {...iconProps} />;
+    case 'rm':
+      return <Trash2 {...iconProps} />;
+    case 'find':
+    case 'locate':
+    case 'which':
+    case 'whereis':
+    case 'type':
+      return <Search {...iconProps} />;
+    case 'file':
+    case 'stat':
+      return <Info {...iconProps} />;
+    case 'cat':
+    case 'less':
+    case 'more':
+    case 'head':
+    case 'tail':
+      return <FileText {...iconProps} />;
+    case 'grep':
+      return <Search {...iconProps} />;
+    case 'sort':
+    case 'uniq':
+      return <ArrowUpDown {...iconProps} />;
+    case 'wc':
+    case 'cut':
+    case 'awk':
+    case 'sed':
+    case 'tr':
+      return <Code2 {...iconProps} />;
+    case 'xargs':
+      return <Workflow {...iconProps} />;
+    case 'chmod':
+      return <ShieldCheck {...iconProps} />;
+    case 'chown':
+    case 'chgrp':
+      return <Key {...iconProps} />;
+    case 'umask':
+      return <Lock {...iconProps} />;
+    case 'sudo':
+    case 'su':
+      return <ShieldAlert {...iconProps} />;
+    case 'ps':
+    case 'top':
+    case 'htop':
+      return <Activity {...iconProps} />;
+    case 'kill':
+    case 'killall':
+    case 'pkill':
+      return <Zap {...iconProps} />;
+    case 'jobs':
+    case 'bg':
+    case 'fg':
+    case 'nohup':
+      return <PlayCircle {...iconProps} />;
+    case 'nice':
+    case 'renice':
+      return <Sliders {...iconProps} />;
+    case 'systemctl':
+    case 'service':
+      return <Server {...iconProps} />;
+    case 'journalctl':
+      return <BookOpen {...iconProps} />;
+    case 'echo':
+    case 'alias':
+      return <Terminal {...iconProps} />;
+    case 'export':
+    case 'env':
+      return <Code2 {...iconProps} />;
+    case 'history':
+      return <History {...iconProps} />;
+    case 'cron':
+    case 'crontab':
+      return <Clock {...iconProps} />;
+    case 'df':
+    case 'du':
+      return <HardDrive {...iconProps} />;
+    case 'free':
+    case 'uptime':
+    case 'vmstat':
+    case 'iostat':
+      return <Gauge {...iconProps} />;
+    case 'netstat':
+    case 'ss':
+    case 'ping':
+    case 'traceroute':
+    case 'curl':
+    case 'dig':
+      return <Network {...iconProps} />;
+    case 'dmesg':
+    case 'strace':
+      return <AlertTriangle {...iconProps} />;
+    default:
+      if (cmd.includes('systemctl')) return <Server {...iconProps} />;
+      if (cmd.includes('redirection') || cmd.includes('pipe') || cmd.includes('|')) return <Share2 {...iconProps} />;
+      if (cmd.endsWith('.sh')) return <FileCode {...iconProps} />;
+      return <Terminal {...iconProps} />;
+  }
+}
+
+interface LinuxTeachingEngineProps {
+  concept: UniversalLinuxConcept;
+  completedConceptIds: string[];
+  markConceptComplete: (id: string) => void;
+  executeCommand: (cmd: string) => any;
+  showToast: (msg: string) => void;
+  prevConcept?: { id: string; title: string } | null;
+  nextConcept?: { id: string; title: string } | null;
+  onSelectConcept?: (id: string) => void;
+}
+
+export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
+  concept,
+  completedConceptIds,
+  markConceptComplete,
+  executeCommand,
+  showToast,
+  prevConcept,
+  nextConcept,
+  onSelectConcept,
+}) => {
+  // 5 Learning Stages
+  const [stage, setStage] = useState<1 | 2 | 3 | 4 | 5>(1);
+
+  // Stage 2: Block Diagram & Terms
+  const [selectedDiagramNode, setSelectedDiagramNode] = useState<BlockDiagramNode | null>(
+    concept.blockDiagram?.nodes[0] || null
+  );
+  const [termViewMode, setTermViewMode] = useState<Record<string, 'simple' | 'technical'>>({});
+
+  // Stage 3: Syntax Token Explorer
+  const [selectedTokenIndex, setSelectedTokenIndex] = useState<number | null>(0);
+  const [selectedVariationIndex, setSelectedVariationIndex] = useState<number>(0);
+
+  // Stage 4: Internal Flow Step
+  const [activeInternalStep, setActiveInternalStep] = useState<number>(1);
+  const [inspectWhyStep, setInspectWhyStep] = useState<number | null>(null);
+
+  // Stage 5: Terminal Sandbox State
+  const [inputCommand, setInputCommand] = useState<string>('');
+  const [terminalHistory, setTerminalHistory] = useState<
+    Array<{ type: 'input' | 'output' | 'error' | 'hint'; text: string }>
+  >([
+    { type: 'output', text: '$ LinuxForge Kernel 6.8 Terminal Simulator' },
+    { type: 'output', text: `Target Goal: ${concept.sandbox?.targetTask || 'Run command'}` },
+  ]);
+  const [quizSelectedOption, setQuizSelectedOption] = useState<number | null>(null);
+  const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
+
+  const isCompleted = completedConceptIds.includes(concept.id);
+
+  const toggleTermMode = (termName: string) => {
+    setTermViewMode((prev) => ({
+      ...prev,
+      [termName]: prev[termName] === 'technical' ? 'simple' : 'technical',
+    }));
+  };
+
+  const handleTerminalSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!inputCommand.trim()) return;
+
+    const cmd = inputCommand.trim();
+    const newHistory = [...terminalHistory, { type: 'input' as const, text: `$ ${cmd}` }];
+
+    const solutionCmds = concept.sandbox?.solutionCommands || [];
+    const guidedSteps = concept.sandbox?.guidedSteps || [];
+    const isExactSolution = solutionCmds.some((sol) => cmd === sol || cmd.includes(sol));
+    const isGuidedCmd = guidedSteps.some((s) => cmd === s.command);
+
+    // Call underlying simulator
+    const simResult = executeCommand(cmd);
+
+    if (simResult.stdout && simResult.stdout.length > 0) {
+      simResult.stdout.forEach((line: string) => {
+        newHistory.push({ type: 'output', text: line });
+      });
+    }
+
+    if (isExactSolution) {
+      newHistory.push({
+        type: 'output',
+        text: `🟢 SUCCESS! Target completed: ${concept.sandbox.targetTask}`,
+      });
+      markConceptComplete(concept.id);
+      showToast(`🎉 "${concept.title}" mastered!`);
+    } else if (isGuidedCmd) {
+      const step = guidedSteps.find((s) => cmd === s.command);
+      newHistory.push({
+        type: 'output',
+        text: `✅ Step complete: ${step?.instruction || 'Command executed.'}`,
+      });
+    }
+
+    setTerminalHistory(newHistory);
+    setInputCommand('');
+  };
+
+  return (
+    <div
+      style={{
+        display: 'flex',
+        flexDirection: 'column',
+        height: '100%',
+        minHeight: 0,
+        overflow: 'hidden',
+        background: 'var(--bg-app)',
+        color: 'var(--text-primary)',
+      }}
+    >
+      {/* ================================================================ */}
+      {/* 5-STAGE PEDAGOGICAL SUB-TABS (Forge Suite Standard)             */}
+      {/* ================================================================ */}
+      <div
+        style={{
+          flexShrink: 0,
+          background: 'var(--bg-surface)',
+          borderBottom: '1px solid var(--border-color)',
+          padding: '0.4rem 1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: '0.75rem',
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', overflowX: 'auto' }}>
+          {[
+            { id: 1, label: '1. Meaning', icon: BookOpen },
+            { id: 2, label: '2. Architecture', icon: Workflow },
+            { id: 3, label: '3. Syntax', icon: Code2 },
+            { id: 4, label: '4. Kernel Flow', icon: Cpu },
+            { id: 5, label: '5. Hands-on & Quiz', icon: Terminal },
+          ].map((item) => {
+            const Icon = item.icon;
+            const isActive = stage === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setStage(item.id as any)}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.45rem 0.8rem',
+                  borderRadius: '8px',
+                  background: isActive ? 'rgba(6, 182, 212, 0.15)' : 'transparent',
+                  border: isActive ? '1px solid rgba(6, 182, 212, 0.4)' : '1px solid transparent',
+                  color: isActive ? '#06b6d4' : 'var(--text-muted)',
+                  fontSize: '0.78rem',
+                  fontWeight: isActive ? 700 : 500,
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                  whiteSpace: 'nowrap',
+                }}
+              >
+                <Icon size={14} color={isActive ? '#06b6d4' : 'var(--text-muted)'} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Concept Mastered Toggle */}
+        <button
+          onClick={() => {
+            markConceptComplete(concept.id);
+            showToast(`Marked "${concept.title}" as complete!`);
+          }}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            padding: '0.4rem 0.75rem',
+            borderRadius: '8px',
+            background: isCompleted ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+            border: isCompleted ? '1px solid rgba(34, 197, 94, 0.4)' : '1px solid var(--border-color)',
+            color: isCompleted ? '#4ade80' : 'var(--text-muted)',
+            fontSize: '0.75rem',
+            fontWeight: 700,
+            cursor: 'pointer',
+            flexShrink: 0,
+          }}
+        >
+          <CheckCircle2 size={14} color={isCompleted ? '#4ade80' : 'var(--text-muted)'} />
+          <span>{isCompleted ? 'Mastered' : 'Mark Done'}</span>
+        </button>
+      </div>
+
+      {/* ================================================================ */}
+      {/* SCROLLABLE STAGE CONTENT                                        */}
+      {/* ================================================================ */}
+      <div
+        style={{
+          flex: 1,
+          minHeight: 0,
+          overflowY: 'auto',
+          padding: '1.25rem 1.75rem',
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '1.25rem',
+        }}
+      >
+        {/* Concept Header Banner */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(6, 182, 212, 0.08) 0%, rgba(15, 23, 42, 0.6) 100%)',
+            border: '1px solid rgba(6, 182, 212, 0.25)',
+            borderRadius: '12px',
+            padding: '1.15rem 1.35rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '0.85rem',
+            boxShadow: '0 8px 24px -8px rgba(6, 182, 212, 0.2)',
+          }}
+        >
+          {/* Top metadata row */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                textTransform: 'uppercase',
+                letterSpacing: '0.05em',
+                background: 'rgba(6, 182, 212, 0.2)',
+                color: '#06b6d4',
+                padding: '0.2rem 0.55rem',
+                borderRadius: '6px',
+              }}
+            >
+              Topic {concept.topicNumber} · {concept.topicTitle}
+            </span>
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                background: 'rgba(148, 163, 184, 0.1)',
+                color: '#94a3b8',
+                padding: '0.2rem 0.55rem',
+                borderRadius: '6px',
+              }}
+            >
+              {concept.difficulty}
+            </span>
+            {concept.badges.map((b) => (
+              <span
+                key={b}
+                style={{
+                  fontSize: '0.68rem',
+                  fontWeight: 600,
+                  background: 'rgba(255, 255, 255, 0.04)',
+                  color: 'var(--text-muted)',
+                  padding: '0.2rem 0.45rem',
+                  borderRadius: '6px',
+                  border: '1px solid var(--border-color)',
+                }}
+              >
+                {b}
+              </span>
+            ))}
+          </div>
+
+          {/* Hero Row: 46x46 glowing icon box + Title/Command (Matching CommitForge) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.15rem' }}>
+            <div
+              style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #06b6d4 0%, #0284c7 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: '0 6px 20px rgba(6, 182, 212, 0.35)',
+                flexShrink: 0,
+              }}
+            >
+              {getLinuxConceptIcon(concept.id, concept.command, 24)}
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: 0 }}>
+              <h1 style={{ fontSize: '1.45rem', fontWeight: 900, color: '#f8fafc', margin: 0, lineHeight: 1.15 }}>
+                {concept.title}
+              </h1>
+              <div
+                style={{
+                  fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
+                  fontSize: '0.9rem',
+                  color: '#38bdf8',
+                  fontWeight: 600,
+                }}
+              >
+                $ {concept.command}
+              </div>
+            </div>
+          </div>
+
+          {concept.quote && (
+            <div
+              style={{
+                fontStyle: 'italic',
+                fontSize: '0.82rem',
+                color: 'var(--text-muted)',
+                borderLeft: '2px solid #06b6d4',
+                paddingLeft: '0.65rem',
+                marginTop: '0.1rem',
+              }}
+            >
+              "{concept.quote}"
+            </div>
+          )}
+        </div>
+
+        {/* -------------------------------------------------------------- */}
+        {/* STAGE 1: MEANING & MOTIVATION                                  */}
+        {/* -------------------------------------------------------------- */}
+        {stage === 1 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div
+              style={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+                gap: '1rem',
+              }}
+            >
+              {/* Card 1: What is it? */}
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  padding: '1.1rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.5rem' }}>
+                  <Info size={16} color="#06b6d4" />
+                  <h3 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>What is it?</h3>
+                </div>
+                <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0 }}>
+                  {concept.whatIsIt}
+                </p>
+              </div>
+
+              {/* Card 2: In Simple Words */}
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '10px',
+                  padding: '1.1rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.5rem' }}>
+                  <Sparkles size={16} color="#f59e0b" />
+                  <h3 style={{ fontSize: '0.9rem', fontWeight: 700, margin: 0 }}>In Simple Words</h3>
+                </div>
+                <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0 }}>
+                  {concept.inSimpleWords}
+                </p>
+              </div>
+            </div>
+
+            {/* Real World Analogy */}
+            <div
+              style={{
+                background: 'rgba(6, 182, 212, 0.05)',
+                border: '1px solid rgba(6, 182, 212, 0.2)',
+                borderRadius: '10px',
+                padding: '1rem 1.25rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.35rem' }}>
+                <Zap size={16} color="#06b6d4" />
+                <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#06b6d4', margin: 0 }}>
+                  Real-World Mental Analogy
+                </h4>
+              </div>
+              <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-primary)', margin: 0 }}>
+                {concept.realWorldAnalogy}
+              </p>
+            </div>
+
+            {/* Without vs With Comparison Matrix */}
+            {concept.withoutVsWith && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+                  gap: '1rem',
+                }}
+              >
+                {/* Without */}
+                <div
+                  style={{
+                    background: 'rgba(239, 68, 68, 0.05)',
+                    border: '1px solid rgba(239, 68, 68, 0.25)',
+                    borderRadius: '10px',
+                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#ef4444', textTransform: 'uppercase' }}>
+                    {concept.withoutVsWith.without.title}
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    {concept.withoutVsWith.without.items.map((it, idx) => (
+                      <li key={idx}>{it}</li>
+                    ))}
+                  </ul>
+                  <div style={{ marginTop: 'auto', fontSize: '0.8rem', fontWeight: 600, color: '#fca5a5' }}>
+                    {concept.withoutVsWith.without.outcome}
+                  </div>
+                </div>
+
+                {/* With */}
+                <div
+                  style={{
+                    background: 'rgba(16, 185, 129, 0.05)',
+                    border: '1px solid rgba(16, 185, 129, 0.25)',
+                    borderRadius: '10px',
+                    padding: '1rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.5rem',
+                  }}
+                >
+                  <div style={{ fontSize: '0.78rem', fontWeight: 700, color: '#10b981', textTransform: 'uppercase' }}>
+                    {concept.withoutVsWith.with.title}
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    {concept.withoutVsWith.with.items.map((it, idx) => (
+                      <li key={idx}>{it}</li>
+                    ))}
+                  </ul>
+                  <div style={{ marginTop: 'auto', fontSize: '0.8rem', fontWeight: 600, color: '#86efac' }}>
+                    {concept.withoutVsWith.with.outcome}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* -------------------------------------------------------------- */}
+        {/* STAGE 2: ARCHITECTURE & MENTAL MODEL                           */}
+        {/* -------------------------------------------------------------- */}
+        {stage === 2 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Interactive Block Diagram Nodes */}
+            {concept.blockDiagram && (
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1rem',
+                }}
+              >
+                <div>
+                  <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 0.25rem 0' }}>
+                    {concept.blockDiagram.title}
+                  </h3>
+                  <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                    {concept.blockDiagram.subtitle}
+                  </div>
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+                    gap: '0.75rem',
+                  }}
+                >
+                  {concept.blockDiagram.nodes.map((node) => {
+                    const isSelected = selectedDiagramNode?.id === node.id;
+                    return (
+                      <button
+                        key={node.id}
+                        onClick={() => setSelectedDiagramNode(node)}
+                        style={{
+                          background: isSelected ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                          border: isSelected ? '2px solid #06b6d4' : '1px solid var(--border-color)',
+                          borderRadius: '10px',
+                          padding: '0.85rem',
+                          textAlign: 'left',
+                          cursor: 'pointer',
+                          transition: 'all 0.15s ease',
+                        }}
+                      >
+                        <div style={{ fontSize: '0.7rem', fontWeight: 700, color: node.color || '#38bdf8', marginBottom: '0.25rem' }}>
+                          {node.badge || 'Component'}
+                        </div>
+                        <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.35rem' }}>
+                          {node.label}
+                        </div>
+                        <div style={{ fontSize: '0.78rem', color: 'var(--text-muted)', lineHeight: 1.4 }}>
+                          {node.simpleDef}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Selected Node Details Drawer */}
+                {selectedDiagramNode && (
+                  <div
+                    style={{
+                      background: 'rgba(6, 182, 212, 0.08)',
+                      border: '1px solid rgba(6, 182, 212, 0.3)',
+                      borderRadius: '8px',
+                      padding: '0.85rem 1rem',
+                    }}
+                  >
+                    <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#06b6d4', textTransform: 'uppercase' }}>
+                      Deep Kernel Inspection: {selectedDiagramNode.label}
+                    </div>
+                    <div style={{ fontSize: '0.82rem', marginTop: '0.35rem', color: 'var(--text-secondary)' }}>
+                      <strong>Technical Implementation:</strong> {selectedDiagramNode.techDef}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Essential Concepts Glossary */}
+            {concept.terms && concept.terms.length > 0 && (
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                }}
+              >
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 0.85rem 0' }}>
+                  Key Terminology & Glossary
+                </h3>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {concept.terms.map((term) => {
+                    const mode = termViewMode[term.term] || 'simple';
+                    return (
+                      <div
+                        key={term.term}
+                        style={{
+                          background: 'rgba(255, 255, 255, 0.02)',
+                          border: '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          padding: '0.75rem 1rem',
+                        }}
+                      >
+                        <div
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'space-between',
+                            marginBottom: '0.35rem',
+                          }}
+                        >
+                          <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f8fafc' }}>
+                            {term.term}
+                          </div>
+                          <button
+                            onClick={() => toggleTermMode(term.term)}
+                            style={{
+                              fontSize: '0.7rem',
+                              fontWeight: 700,
+                              background: 'rgba(6, 182, 212, 0.1)',
+                              border: '1px solid rgba(6, 182, 212, 0.3)',
+                              color: '#06b6d4',
+                              borderRadius: '6px',
+                              padding: '0.15rem 0.5rem',
+                              cursor: 'pointer',
+                            }}
+                          >
+                            View {mode === 'simple' ? 'Technical' : 'Simple'}
+                          </button>
+                        </div>
+                        <div style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                          {mode === 'simple' ? term.simple : term.technical}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* -------------------------------------------------------------- */}
+        {/* STAGE 3: SYNTAX & VARIATIONS                                   */}
+        {/* -------------------------------------------------------------- */}
+        {stage === 3 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Interactive Syntax Token Explorer */}
+            <div
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+              }}
+            >
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 0.5rem 0' }}>
+                Command Syntax Breakdown
+              </h3>
+              <div
+                style={{
+                  background: 'rgba(15, 23, 42, 0.8)',
+                  border: '1px solid rgba(148, 163, 184, 0.2)',
+                  borderRadius: '8px',
+                  padding: '0.85rem 1rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.95rem',
+                  color: '#38bdf8',
+                  marginBottom: '1rem',
+                  overflowX: 'auto',
+                }}
+              >
+                {concept.syntaxCode}
+              </div>
+
+              {/* Tokens */}
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                {concept.syntaxTokens.map((tok, idx) => (
+                  <div
+                    key={tok.token}
+                    onClick={() => setSelectedTokenIndex(idx)}
+                    style={{
+                      background: selectedTokenIndex === idx ? 'rgba(6, 182, 212, 0.12)' : 'rgba(255, 255, 255, 0.02)',
+                      border: selectedTokenIndex === idx ? '1px solid #06b6d4' : '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      padding: '0.65rem 0.85rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.75rem',
+                    }}
+                  >
+                    <code style={{ fontSize: '0.82rem', fontWeight: 800, color: '#38bdf8', minWidth: '100px' }}>
+                      {tok.token}
+                    </code>
+                    <span
+                      style={{
+                        fontSize: '0.7rem',
+                        fontWeight: 700,
+                        background: 'rgba(255, 255, 255, 0.05)',
+                        color: 'var(--text-muted)',
+                        padding: '0.15rem 0.45rem',
+                        borderRadius: '4px',
+                      }}
+                    >
+                      {tok.role}
+                    </span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', flex: 1 }}>
+                      {tok.explanation}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Variations Cards */}
+            {concept.variations && concept.variations.length > 0 && (
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                }}
+              >
+                <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 0.85rem 0' }}>
+                  Real-World Flag Variations & Use Cases
+                </h3>
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '0.85rem',
+                  }}
+                >
+                  {concept.variations.map((v, idx) => (
+                    <div
+                      key={v.syntax}
+                      style={{
+                        background: 'rgba(255, 255, 255, 0.02)',
+                        border: '1px solid var(--border-color)',
+                        borderRadius: '8px',
+                        padding: '0.85rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '0.4rem',
+                      }}
+                    >
+                      <code style={{ fontSize: '0.8rem', fontWeight: 700, color: '#06b6d4' }}>
+                        {v.syntax}
+                      </code>
+                      <div style={{ fontSize: '0.85rem', fontWeight: 800, color: '#f8fafc' }}>
+                        {v.title}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', lineHeight: 1.4 }}>
+                        {v.whatItDoes}
+                      </div>
+                      <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', marginTop: 'auto' }}>
+                        <strong>When:</strong> {v.whenToUse}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* -------------------------------------------------------------- */}
+        {/* STAGE 4: INTERNAL EXECUTION FLOW                               */}
+        {/* -------------------------------------------------------------- */}
+        {stage === 4 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            <div
+              style={{
+                background: 'var(--bg-surface)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '12px',
+                padding: '1.25rem',
+              }}
+            >
+              <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: '0 0 0.25rem 0' }}>
+                Kernel & Subsystem Execution Pipeline
+              </h3>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0 0 1rem 0' }}>
+                Trace how the Linux kernel, system calls, and subsystems process this operation step-by-step:
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                {concept.internalFlow.map((step) => {
+                  const isActive = activeInternalStep === step.step;
+                  return (
+                    <div
+                      key={step.step}
+                      onClick={() => setActiveInternalStep(step.step)}
+                      style={{
+                        background: isActive ? 'rgba(6, 182, 212, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+                        border: isActive ? '1px solid #06b6d4' : '1px solid var(--border-color)',
+                        borderRadius: '10px',
+                        padding: '0.85rem 1rem',
+                        cursor: 'pointer',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                          <span
+                            style={{
+                              width: '24px',
+                              height: '24px',
+                              borderRadius: '50%',
+                              background: isActive ? '#06b6d4' : 'rgba(255, 255, 255, 0.1)',
+                              color: isActive ? '#fff' : 'var(--text-muted)',
+                              fontSize: '0.75rem',
+                              fontWeight: 800,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                            }}
+                          >
+                            {step.step}
+                          </span>
+                          <span style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f8fafc' }}>
+                            {step.title}
+                          </span>
+                        </div>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setInspectWhyStep(inspectWhyStep === step.step ? null : step.step);
+                          }}
+                          style={{
+                            fontSize: '0.7rem',
+                            fontWeight: 700,
+                            background: 'rgba(6, 182, 212, 0.1)',
+                            border: '1px solid rgba(6, 182, 212, 0.3)',
+                            color: '#06b6d4',
+                            borderRadius: '6px',
+                            padding: '0.2rem 0.55rem',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          Why This Happens
+                        </button>
+                      </div>
+
+                      <p style={{ fontSize: '0.82rem', color: 'var(--text-secondary)', margin: '0.5rem 0 0 2rem', lineHeight: 1.5 }}>
+                        {step.desc}
+                      </p>
+
+                      {/* Technical Detail or Why Accordion */}
+                      {(isActive || inspectWhyStep === step.step) && (
+                        <div
+                          style={{
+                            marginTop: '0.65rem',
+                            marginLeft: '2rem',
+                            background: 'rgba(15, 23, 42, 0.6)',
+                            borderLeft: '2px solid #06b6d4',
+                            padding: '0.5rem 0.75rem',
+                            borderRadius: '0 6px 6px 0',
+                            fontSize: '0.78rem',
+                            color: 'var(--text-muted)',
+                          }}
+                        >
+                          <div style={{ color: '#38bdf8', fontWeight: 700, marginBottom: '0.2rem' }}>
+                            Technical Implementation:
+                          </div>
+                          <div>{step.techDetail}</div>
+                          <div style={{ color: '#f59e0b', fontWeight: 700, marginTop: '0.35rem', marginBottom: '0.2rem' }}>
+                            Rationale:
+                          </div>
+                          <div>{step.why}</div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* -------------------------------------------------------------- */}
+        {/* STAGE 5: HANDS-ON PRACTICE & QUIZ                              */}
+        {/* -------------------------------------------------------------- */}
+        {stage === 5 && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Terminal Sandbox Shell */}
+            <div
+              style={{
+                background: '#090d16',
+                border: '1px solid rgba(6, 182, 212, 0.3)',
+                borderRadius: '12px',
+                overflow: 'hidden',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <div
+                style={{
+                  background: '#0f172a',
+                  padding: '0.5rem 0.85rem',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <Terminal size={14} color="#06b6d4" />
+                  <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#cbd5e1' }}>
+                    LinuxForge Interactive Terminal Shell
+                  </span>
+                </div>
+                <button
+                  onClick={() => setTerminalHistory([{ type: 'output', text: '$ Shell reset.' }])}
+                  style={{
+                    fontSize: '0.68rem',
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-muted)',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Clear
+                </button>
+              </div>
+
+              {/* Guided Steps Bar */}
+              {concept.sandbox?.guidedSteps && concept.sandbox.guidedSteps.length > 0 && (
+                <div
+                  style={{
+                    background: 'rgba(6, 182, 212, 0.06)',
+                    padding: '0.5rem 0.85rem',
+                    borderBottom: '1px solid rgba(6, 182, 212, 0.15)',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '0.35rem',
+                  }}
+                >
+                  <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#06b6d4' }}>
+                    Guided Practice Steps:
+                  </div>
+                  {concept.sandbox.guidedSteps.map((step, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        fontSize: '0.75rem',
+                      }}
+                    >
+                      <span style={{ color: 'var(--text-secondary)' }}>
+                        {idx + 1}. {step.instruction}
+                      </span>
+                      <button
+                        onClick={() => setInputCommand(step.command)}
+                        style={{
+                          fontSize: '0.68rem',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          border: '1px solid var(--border-color)',
+                          color: '#38bdf8',
+                          borderRadius: '4px',
+                          padding: '0.1rem 0.4rem',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        Copy: {step.command}
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {/* Console Output */}
+              <div
+                style={{
+                  padding: '0.85rem',
+                  fontFamily: 'monospace',
+                  fontSize: '0.82rem',
+                  lineHeight: 1.5,
+                  minHeight: '160px',
+                  maxHeight: '260px',
+                  overflowY: 'auto',
+                }}
+              >
+                {terminalHistory.map((item, idx) => (
+                  <div
+                    key={idx}
+                    style={{
+                      color:
+                        item.type === 'input'
+                          ? '#f8fafc'
+                          : item.type === 'error'
+                          ? '#ef4444'
+                          : '#a5f3fc',
+                    }}
+                  >
+                    {item.text}
+                  </div>
+                ))}
+              </div>
+
+              {/* Command Input Box */}
+              <form
+                onSubmit={handleTerminalSubmit}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  background: '#030712',
+                  borderTop: '1px solid rgba(255, 255, 255, 0.05)',
+                  padding: '0.4rem 0.85rem',
+                }}
+              >
+                <span style={{ color: '#06b6d4', marginRight: '0.5rem', fontFamily: 'monospace' }}>$</span>
+                <input
+                  type="text"
+                  value={inputCommand}
+                  onChange={(e) => setInputCommand(e.target.value)}
+                  placeholder="Type Linux command (e.g. ls, uptime, systemctl status)..."
+                  style={{
+                    flex: 1,
+                    background: 'transparent',
+                    border: 'none',
+                    outline: 'none',
+                    color: '#f8fafc',
+                    fontFamily: 'monospace',
+                    fontSize: '0.82rem',
+                  }}
+                />
+                <button
+                  type="submit"
+                  style={{
+                    background: '#06b6d4',
+                    border: 'none',
+                    borderRadius: '6px',
+                    color: '#042f2e',
+                    fontSize: '0.72rem',
+                    fontWeight: 800,
+                    padding: '0.3rem 0.65rem',
+                    cursor: 'pointer',
+                  }}
+                >
+                  Run
+                </button>
+              </form>
+            </div>
+
+            {/* Common Mistakes */}
+            {concept.commonMistakes && concept.commonMistakes.length > 0 && (
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.85rem' }}>
+                  <AlertTriangle size={16} color="#f59e0b" />
+                  <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0 }}>
+                    Common Pitfalls & Mistakes to Avoid
+                  </h3>
+                </div>
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+                  {concept.commonMistakes.map((m, idx) => (
+                    <div
+                      key={idx}
+                      style={{
+                        background: 'rgba(245, 158, 11, 0.05)',
+                        border: '1px solid rgba(245, 158, 11, 0.2)',
+                        borderRadius: '8px',
+                        padding: '0.85rem',
+                      }}
+                    >
+                      <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f59e0b' }}>
+                        ❌ Mistake: {m.mistake}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: 'var(--text-secondary)', marginTop: '0.25rem' }}>
+                        <strong>Why it fails:</strong> {m.whyWrong}
+                      </div>
+                      <div style={{ fontSize: '0.78rem', color: '#86efac', marginTop: '0.25rem' }}>
+                        <strong>Correct approach:</strong> {m.correctWay}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Concept Quiz Challenge */}
+            {concept.challenge && (
+              <div
+                style={{
+                  background: 'var(--bg-surface)',
+                  border: '1px solid var(--border-color)',
+                  borderRadius: '12px',
+                  padding: '1.25rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.5rem' }}>
+                  <HelpCircle size={16} color="#06b6d4" />
+                  <h3 style={{ fontSize: '0.95rem', fontWeight: 800, margin: 0 }}>Concept Knowledge Check</h3>
+                </div>
+                <p style={{ fontSize: '0.85rem', color: 'var(--text-primary)', marginBottom: '1rem', lineHeight: 1.5 }}>
+                  {concept.challenge.question}
+                </p>
+
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+                  {concept.challenge.options.map((opt, idx) => {
+                    const isSelected = quizSelectedOption === idx;
+                    const showResult = quizSubmitted;
+                    return (
+                      <button
+                        key={idx}
+                        onClick={() => {
+                          if (!quizSubmitted) setQuizSelectedOption(idx);
+                        }}
+                        style={{
+                          background:
+                            showResult && opt.isCorrect
+                              ? 'rgba(34, 197, 94, 0.15)'
+                              : showResult && isSelected && !opt.isCorrect
+                              ? 'rgba(239, 68, 68, 0.15)'
+                              : isSelected
+                              ? 'rgba(6, 182, 212, 0.12)'
+                              : 'rgba(255, 255, 255, 0.02)',
+                          border:
+                            showResult && opt.isCorrect
+                              ? '1px solid #22c55e'
+                              : showResult && isSelected && !opt.isCorrect
+                              ? '1px solid #ef4444'
+                              : isSelected
+                              ? '1px solid #06b6d4'
+                              : '1px solid var(--border-color)',
+                          borderRadius: '8px',
+                          padding: '0.75rem',
+                          textAlign: 'left',
+                          cursor: quizSubmitted ? 'default' : 'pointer',
+                        }}
+                      >
+                        <div style={{ fontSize: '0.82rem', color: '#f8fafc', lineHeight: 1.4 }}>
+                          {opt.label}
+                        </div>
+                        {showResult && (
+                          <div
+                            style={{
+                              fontSize: '0.74rem',
+                              marginTop: '0.35rem',
+                              color: opt.isCorrect ? '#86efac' : '#fca5a5',
+                            }}
+                          >
+                            {opt.explanation}
+                          </div>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {!quizSubmitted ? (
+                  <button
+                    onClick={() => {
+                      if (quizSelectedOption !== null) {
+                        setQuizSubmitted(true);
+                        const isCorrect = concept.challenge.options[quizSelectedOption].isCorrect;
+                        if (isCorrect) {
+                          markConceptComplete(concept.id);
+                          showToast('🎉 Correct answer! Concept mastered.');
+                        }
+                      }
+                    }}
+                    disabled={quizSelectedOption === null}
+                    style={{
+                      marginTop: '1rem',
+                      background: quizSelectedOption !== null ? '#06b6d4' : 'rgba(255, 255, 255, 0.1)',
+                      border: 'none',
+                      borderRadius: '8px',
+                      color: quizSelectedOption !== null ? '#042f2e' : 'var(--text-muted)',
+                      fontSize: '0.78rem',
+                      fontWeight: 800,
+                      padding: '0.5rem 1rem',
+                      cursor: quizSelectedOption !== null ? 'pointer' : 'not-allowed',
+                    }}
+                  >
+                    Submit Answer
+                  </button>
+                ) : (
+                  <button
+                    onClick={() => {
+                      setQuizSubmitted(false);
+                      setQuizSelectedOption(null);
+                    }}
+                    style={{
+                      marginTop: '1rem',
+                      background: 'rgba(255, 255, 255, 0.08)',
+                      border: '1px solid var(--border-color)',
+                      borderRadius: '8px',
+                      color: 'var(--text-primary)',
+                      fontSize: '0.78rem',
+                      fontWeight: 700,
+                      padding: '0.45rem 0.9rem',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Retry Quiz
+                  </button>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ================================================================ */}
+      {/* LINEAR PREVIOUS / NEXT FOOTER NAVIGATION                         */}
+      {/* ================================================================ */}
+      <div
+        style={{
+          flexShrink: 0,
+          background: 'var(--bg-surface)',
+          borderTop: '1px solid var(--border-color)',
+          padding: '0.65rem 1.25rem',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {prevConcept ? (
+          <button
+            onClick={() => onSelectConcept?.(prevConcept.id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: 'transparent',
+              border: '1px solid var(--border-color)',
+              borderRadius: '8px',
+              color: 'var(--text-secondary)',
+              fontSize: '0.78rem',
+              fontWeight: 600,
+              padding: '0.4rem 0.75rem',
+              cursor: 'pointer',
+            }}
+          >
+            <ChevronLeft size={14} />
+            <span>Prev: {prevConcept.title}</span>
+          </button>
+        ) : (
+          <div />
+        )}
+
+        {nextConcept ? (
+          <button
+            onClick={() => onSelectConcept?.(nextConcept.id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: 'rgba(6, 182, 212, 0.15)',
+              border: '1px solid rgba(6, 182, 212, 0.4)',
+              borderRadius: '8px',
+              color: '#06b6d4',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              padding: '0.4rem 0.85rem',
+              cursor: 'pointer',
+            }}
+          >
+            <span>Next: {nextConcept.title}</span>
+            <ChevronRight size={14} />
+          </button>
+        ) : (
+          <div />
+        )}
+      </div>
+    </div>
+  );
+};
