@@ -20,6 +20,8 @@ import {
   Check,
   X,
   Workflow,
+  Flame,
+  Container,
 } from 'lucide-react';
 import { DockerSimulatorEngine } from './DockerSimulatorEngine';
 import { ensureFullConceptData } from '../../data/conceptDataEnricher';
@@ -174,6 +176,8 @@ export const ConceptTeachingEngine: React.FC<ConceptTeachingEngineProps> = ({
     setInputCommand('');
   };
 
+  const isCompleted = completedConceptIds.includes(concept.id);
+
   return (
     <div
       style={{
@@ -182,48 +186,187 @@ export const ConceptTeachingEngine: React.FC<ConceptTeachingEngineProps> = ({
         flexDirection: 'column',
         height: '100%',
         overflowY: 'auto',
-        background: 'var(--docker-bg)',
-        color: '#e2e8f0',
+        background: 'var(--bg-app)',
+        color: 'var(--text-primary)',
       }}
     >
       {/* ==================================================================== */}
-      {/* 1. TOP PROGRESSIVE DISCLOSURE ANCHOR NAVIGATION BAR */}
+      {/* 1. STANDARDIZED BREADCRUMBS & HERO HEADER (CommitForge Matching)     */}
       {/* ==================================================================== */}
       <div
         style={{
-          position: 'sticky',
-          top: 0,
-          zIndex: 40,
-          background: 'rgba(15, 23, 42, 0.95)',
-          backdropFilter: 'blur(12px)',
-          borderBottom: '1px solid var(--docker-border)',
-          padding: '0.85rem 1.5rem',
+          padding: '1.25rem 2rem 0.5rem 2rem',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          flexWrap: 'wrap',
+          flexDirection: 'column',
           gap: '1rem',
+          background: 'var(--bg-surface)',
+          borderBottom: '1px solid var(--border-color)',
         }}
       >
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span style={{ fontSize: '0.75rem', fontWeight: 800, color: 'var(--docker-blue)', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              Topic {concept.topicNumber} • {concept.topicTitle}
-            </span>
+        {/* Routed Breadcrumbs */}
+        <nav
+          aria-label="Breadcrumb"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.35rem',
+            fontSize: '0.8rem',
+            color: '#64748b',
+            flexWrap: 'wrap',
+          }}
+        >
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#94a3b8' }}>
+            <Flame size={13} color="#f05033" />
+            <span>Forge Suite</span>
+          </span>
+          <ChevronRight size={12} color="#475569" />
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#cbd5e1', fontWeight: 600 }}>
+            <Container size={13} color="#38bdf8" />
+            <span>DockForge</span>
+          </span>
+          <ChevronRight size={12} color="#475569" />
+          <span style={{ color: '#94a3b8' }}>
+            Topic {concept.topicNumber}: {concept.topicTitle}
+          </span>
+          <ChevronRight size={12} color="#475569" />
+          <span
+            style={{
+              background: 'rgba(14, 165, 233, 0.15)',
+              border: '1px solid rgba(14, 165, 233, 0.35)',
+              padding: '0.15rem 0.5rem',
+              borderRadius: '6px',
+              color: '#38bdf8',
+              fontFamily: 'var(--font-mono)',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+            }}
+          >
+            {concept.command || concept.title}
+          </span>
+        </nav>
+
+        {/* Hero Card */}
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(9, 14, 26, 0.9) 100%)',
+            border: '1px solid rgba(255, 255, 255, 0.08)',
+            borderRadius: '14px',
+            padding: '1.15rem 1.35rem',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '1.25rem',
+            flexWrap: 'wrap',
+            boxShadow: '0 8px 24px -8px rgba(0, 0, 0, 0.5)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', gap: '1.15rem' }}>
+            <div
+              style={{
+                width: '46px',
+                height: '46px',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                boxShadow: '0 6px 18px rgba(14, 165, 233, 0.35)',
+                flexShrink: 0,
+              }}
+            >
+              <Container size={24} />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+              <h1
+                style={{
+                  margin: 0,
+                  fontSize: '1.45rem',
+                  fontWeight: 900,
+                  color: '#f8fafc',
+                  letterSpacing: '-0.02em',
+                  lineHeight: 1.15,
+                }}
+              >
+                {concept.topicNumber}. {concept.title}
+              </h1>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <span
+                  style={{
+                    fontFamily: 'var(--font-mono)',
+                    fontSize: '0.78rem',
+                    fontWeight: 700,
+                    color: '#38bdf8',
+                    background: 'rgba(56, 189, 248, 0.1)',
+                    padding: '0.15rem 0.5rem',
+                    borderRadius: '5px',
+                    border: '1px solid rgba(56, 189, 248, 0.25)',
+                  }}
+                >
+                  $ {concept.command}
+                </span>
+                <span
+                  style={{
+                    fontSize: '0.72rem',
+                    fontWeight: 700,
+                    padding: '0.15rem 0.5rem',
+                    borderRadius: '999px',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                    color: 'var(--text-secondary)',
+                    textTransform: 'capitalize',
+                  }}
+                >
+                  {concept.difficulty}
+                </span>
+                <span style={{ fontSize: '0.74rem', color: 'var(--text-muted)' }}>
+                  Topic {concept.topicNumber} • {concept.topicTitle}
+                </span>
+              </div>
+            </div>
           </div>
-          <h1 style={{ fontSize: '1.25rem', fontWeight: 800, color: '#fff', margin: 0, letterSpacing: '-0.01em' }}>
-            {concept.topicNumber}. {concept.title}
-          </h1>
+
+          {/* Mark Complete Action Button */}
+          <button
+            onClick={() => markConceptComplete(concept.id)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: isCompleted ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.05)',
+              border: isCompleted ? '1px solid #22c55e' : '1px solid rgba(255, 255, 255, 0.12)',
+              color: isCompleted ? '#22c55e' : '#cbd5e1',
+              padding: '0.45rem 0.95rem',
+              borderRadius: '8px',
+              fontSize: '0.82rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            <CheckCircle2 size={15} />
+            {isCompleted ? 'Completed' : 'Mark as Complete'}
+          </button>
         </div>
 
-        {/* Anchor Pills */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', background: 'rgba(255,255,255,0.03)', padding: '0.3rem', borderRadius: '10px', border: '1px solid var(--docker-border)' }}>
+        {/* 5 Sub-Tabs Bar with Glowing Blue Underline (CommitForge Style) */}
+        <div
+          className="academy-subtabs-bar"
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+            overflowX: 'auto',
+            paddingTop: '0.2rem',
+            paddingBottom: '0.1rem',
+          }}
+        >
           {[
-            { id: 1, label: '1. Concept & Problem', icon: BookOpen },
-            { id: 2, label: '2. Block & Flow Diagram', icon: Workflow },
-            { id: 3, label: '3. Syntax & Tokens', icon: Zap },
-            { id: 4, label: '4. Internal Mechanics', icon: Layers },
-            { id: 5, label: isRuntimeSimulationRequired ? '5. Simulator & Practice' : '5. Practice & Quiz', icon: TerminalIcon },
+            { id: 1, label: 'Concept Overview', icon: BookOpen },
+            { id: 2, label: 'Block & Flow Diagram', icon: Workflow },
+            { id: 3, label: 'Syntax & Tokens', icon: Zap },
+            { id: 4, label: 'Internal Mechanics', icon: Layers },
+            { id: 5, label: isRuntimeSimulationRequired ? 'Simulator & Practice' : 'Sandbox & Quiz', icon: TerminalIcon },
           ].map((stg) => {
             const IconComp = stg.icon;
             const isActive = stage === stg.id;
@@ -232,22 +375,38 @@ export const ConceptTeachingEngine: React.FC<ConceptTeachingEngineProps> = ({
                 key={stg.id}
                 onClick={() => setStage(stg.id as any)}
                 style={{
-                  padding: '0.4rem 0.85rem',
-                  borderRadius: '7px',
+                  background: 'none',
                   border: 'none',
-                  background: isActive ? 'var(--docker-blue)' : 'transparent',
-                  color: isActive ? '#fff' : 'var(--docker-text-secondary)',
+                  color: isActive ? '#38bdf8' : '#94a3b8',
+                  fontSize: '0.86rem',
                   fontWeight: isActive ? 800 : 600,
-                  fontSize: '0.78rem',
+                  padding: '0.45rem 0.85rem',
+                  borderRadius: '6px',
                   cursor: 'pointer',
+                  position: 'relative',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.4rem',
-                  transition: 'all 0.2s ease',
+                  flexShrink: 0,
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <IconComp size={14} />
                 <span>{stg.label}</span>
+                {isActive && (
+                  <div
+                    style={{
+                      position: 'absolute',
+                      bottom: '-4px',
+                      left: '15%',
+                      right: '15%',
+                      height: '2px',
+                      background: '#38bdf8',
+                      borderRadius: '999px',
+                      boxShadow: '0 0 8px #38bdf8',
+                    }}
+                  />
+                )}
               </button>
             );
           })}
