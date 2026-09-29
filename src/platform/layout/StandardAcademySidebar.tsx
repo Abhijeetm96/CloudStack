@@ -15,6 +15,7 @@ export interface StandardConceptItem {
   id: string;
   command?: string;
   title: string;
+  subChapterNumber?: string;
   shortDesc?: string;
   icon?: LucideIcon | React.ReactNode;
 }
@@ -41,6 +42,7 @@ export interface StandardAcademySidebarProps {
   onCloseDrawer?: () => void;
   currentChapterNumber?: number;
   onSelectChapter?: (chapterNumber: number) => void;
+  showSyllabusCoverage?: boolean;
 }
 
 export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
@@ -54,6 +56,7 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
   onSelectConcept,
   isDrawer = false,
   onCloseDrawer,
+  showSyllabusCoverage = false,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -163,9 +166,9 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
         minHeight: 0,
         overflow: 'hidden',
         background: 'var(--bg-surface)',
-        width: isDrawer ? '100%' : '240px',
-        minWidth: isDrawer ? '100%' : '240px',
-        maxWidth: isDrawer ? '100%' : '240px',
+        width: isDrawer ? '100%' : '260px',
+        minWidth: isDrawer ? '100%' : '260px',
+        maxWidth: isDrawer ? '100%' : '260px',
         boxSizing: 'border-box',
       }}
     >
@@ -552,12 +555,12 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
                             if (isDrawer && onCloseDrawer) onCloseDrawer();
                           }}
                           style={{
-                            padding: '0.55rem 0.7rem',
+                            padding: '0.45rem 0.65rem',
                             borderRadius: '7px',
                             cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            gap: '0.55rem',
+                            gap: '0.5rem',
                             background: isActive ? `${accentColor}18` : 'transparent',
                             border: isActive ? `1px solid ${accentColor}45` : '1px solid transparent',
                             boxShadow: isActive ? `0 0 10px ${accentColor}25` : undefined,
@@ -575,26 +578,38 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
                             }}
                           >
                             {isDone ? (
-                              <CheckCircle2 size={14} color="#22c55e" />
-                            ) : concept.icon ? (
-                              React.isValidElement(concept.icon) ? (
-                                concept.icon
-                              ) : typeof concept.icon === 'function' ? (
-                                React.createElement(concept.icon as LucideIcon, { size: 14 })
-                              ) : (
-                                <Terminal size={14} />
-                              )
+                              <CheckCircle2 size={13} color="#22c55e" />
                             ) : (
-                              <Terminal size={14} />
+                              <Terminal size={13} />
                             )}
                           </span>
+
+                          {/* Sub-Chapter Number Badge (e.g. 01.3) */}
+                          {concept.subChapterNumber && (
+                            <span
+                              style={{
+                                fontFamily: 'ui-monospace, monospace',
+                                fontSize: '0.64rem',
+                                fontWeight: 800,
+                                color: isActive ? accentColor : 'var(--text-muted)',
+                                background: isActive ? `${accentColor}25` : 'rgba(255, 255, 255, 0.05)',
+                                border: isActive ? `1px solid ${accentColor}40` : '1px solid rgba(255, 255, 255, 0.06)',
+                                padding: '0.08rem 0.32rem',
+                                borderRadius: '4px',
+                                flexShrink: 0,
+                                letterSpacing: '0.02em',
+                              }}
+                            >
+                              {concept.subChapterNumber}
+                            </span>
+                          )}
 
                           <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
                             <span
                               title={primaryText}
                               style={{
-                                fontSize: '0.8rem',
-                                fontWeight: isActive ? 700 : 600,
+                                fontSize: '0.78rem',
+                                fontWeight: isActive ? 700 : 500,
                                 color: isActive ? '#ffffff' : isDone ? '#22c55e' : 'var(--text-primary)',
                                 overflow: 'hidden',
                                 textOverflow: 'ellipsis',
@@ -609,9 +624,9 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
                                 title={secondaryText}
                                 style={{
                                   fontFamily: hasDistinctCommand ? 'ui-monospace, monospace' : 'inherit',
-                                  fontSize: '0.71rem',
-                                  color: isActive ? `${accentColor}dd` : 'var(--text-secondary)',
-                                  lineHeight: 1.25,
+                                  fontSize: '0.66rem',
+                                  color: isActive ? `${accentColor}dd` : 'var(--text-muted)',
+                                  lineHeight: 1.2,
                                   overflow: 'hidden',
                                   textOverflow: 'ellipsis',
                                   whiteSpace: 'nowrap',
@@ -625,8 +640,8 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
                       );
                     })}
 
-                    {/* Curated Syllabus Subtopics Checklist (if provided) */}
-                    {topic.subtopics && topic.subtopics.length > 0 && (
+                    {/* Curated Syllabus Subtopics Checklist (only if explicitly enabled) */}
+                    {showSyllabusCoverage && topic.subtopics && topic.subtopics.length > 0 && (
                       <div
                         style={{
                           marginTop: '0.3rem',

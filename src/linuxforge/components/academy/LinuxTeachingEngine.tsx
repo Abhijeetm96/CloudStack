@@ -187,6 +187,13 @@ export function getLinuxConceptIcon(
   }
 }
 
+export interface ChapterSubChapterItem {
+  id: string;
+  title: string;
+  subChapterNumber?: string;
+  command?: string;
+}
+
 interface LinuxTeachingEngineProps {
   concept: UniversalLinuxConcept;
   completedConceptIds: string[];
@@ -196,6 +203,7 @@ interface LinuxTeachingEngineProps {
   prevConcept?: { id: string; title: string } | null;
   nextConcept?: { id: string; title: string } | null;
   onSelectConcept?: (id: string) => void;
+  chapterConcepts?: ChapterSubChapterItem[];
 }
 
 export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
@@ -207,6 +215,7 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
   prevConcept,
   nextConcept,
   onSelectConcept,
+  chapterConcepts,
 }) => {
   // 5 Learning Stages
   const [stage, setStage] = useState<1 | 2 | 3 | 4 | 5>(1);
@@ -522,6 +531,96 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
           gap: '1.25rem',
         }}
       >
+        {/* Sub-Chapters Quick Switcher Strip */}
+        {chapterConcepts && chapterConcepts.length > 1 && (
+          <div
+            style={{
+              background: 'rgba(255, 255, 255, 0.02)',
+              border: '1px solid var(--border-color)',
+              borderRadius: '10px',
+              padding: '0.5rem 0.85rem',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.55rem',
+              overflowX: 'auto',
+              scrollbarWidth: 'none',
+              flexShrink: 0,
+            }}
+          >
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                fontSize: '0.68rem',
+                fontWeight: 800,
+                color: '#06b6d4',
+                textTransform: 'uppercase',
+                letterSpacing: '0.04em',
+                whiteSpace: 'nowrap',
+                paddingRight: '0.55rem',
+                borderRight: '1px solid var(--border-color)',
+                flexShrink: 0,
+              }}
+            >
+              <Layers size={13} />
+              <span>Chapter {concept.topicNumber} Sub-Chapters ({chapterConcepts.length}):</span>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', flex: 1, overflowX: 'auto' }}>
+              {chapterConcepts.map((sc) => {
+                const isCurrent = sc.id === concept.id;
+                const isCompleted = completedConceptIds.includes(sc.id);
+                return (
+                  <button
+                    key={sc.id}
+                    onClick={() => onSelectConcept?.(sc.id)}
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                      padding: '0.3rem 0.65rem',
+                      borderRadius: '7px',
+                      fontSize: '0.72rem',
+                      fontWeight: isCurrent ? 700 : 500,
+                      background: isCurrent
+                        ? 'rgba(6, 182, 212, 0.22)'
+                        : 'rgba(255, 255, 255, 0.04)',
+                      border: isCurrent
+                        ? '1px solid rgba(6, 182, 212, 0.55)'
+                        : '1px solid var(--border-color)',
+                      color: isCurrent
+                        ? '#06b6d4'
+                        : isCompleted
+                        ? '#4ade80'
+                        : 'var(--text-secondary)',
+                      cursor: 'pointer',
+                      whiteSpace: 'nowrap',
+                      transition: 'all 0.15s ease',
+                      flexShrink: 0,
+                    }}
+                    title={`${sc.subChapterNumber ? `${sc.subChapterNumber}: ` : ''}${sc.title}`}
+                  >
+                    {isCompleted ? (
+                      <CheckCircle2 size={12} color="#4ade80" />
+                    ) : null}
+                    <span
+                      style={{
+                        fontFamily: 'ui-monospace, monospace',
+                        fontSize: '0.65rem',
+                        fontWeight: 800,
+                        opacity: 0.9,
+                      }}
+                    >
+                      {sc.subChapterNumber || sc.id}
+                    </span>
+                    <span>{sc.title}</span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         {/* Concept Header Banner */}
         <div
           style={{
@@ -539,17 +638,36 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
             <span
               style={{
-                fontSize: '0.7rem',
-                fontWeight: 700,
+                fontSize: '0.72rem',
+                fontWeight: 800,
                 textTransform: 'uppercase',
-                letterSpacing: '0.05em',
-                background: 'rgba(6, 182, 212, 0.2)',
+                letterSpacing: '0.04em',
+                background: 'rgba(6, 182, 212, 0.22)',
+                border: '1px solid rgba(6, 182, 212, 0.35)',
                 color: '#06b6d4',
-                padding: '0.2rem 0.55rem',
+                padding: '0.22rem 0.6rem',
                 borderRadius: '6px',
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.45rem',
               }}
             >
-              Topic {concept.topicNumber} · {concept.topicTitle}
+              <span>Chapter {concept.topicNumber}</span>
+              <span style={{ opacity: 0.4 }}>/</span>
+              <span>Sub-Chapter {concept.subChapterNumber || `${concept.topicNumber}.1`}</span>
+            </span>
+            <span
+              style={{
+                fontSize: '0.7rem',
+                fontWeight: 700,
+                background: 'rgba(255, 255, 255, 0.05)',
+                color: 'var(--text-secondary)',
+                padding: '0.22rem 0.55rem',
+                borderRadius: '6px',
+                border: '1px solid var(--border-color)',
+              }}
+            >
+              {concept.topicTitle}
             </span>
             <span
               style={{
@@ -1705,69 +1823,6 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
               </div>
             )}
           </div>
-        )}
-      </div>
-
-      {/* ================================================================ */}
-      {/* LINEAR PREVIOUS / NEXT FOOTER NAVIGATION                         */}
-      {/* ================================================================ */}
-      <div
-        style={{
-          flexShrink: 0,
-          background: 'var(--bg-surface)',
-          borderTop: '1px solid var(--border-color)',
-          padding: '0.65rem 1.25rem',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-        }}
-      >
-        {prevConcept ? (
-          <button
-            onClick={() => onSelectConcept?.(prevConcept.id)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              background: 'transparent',
-              border: '1px solid var(--border-color)',
-              borderRadius: '8px',
-              color: 'var(--text-secondary)',
-              fontSize: '0.78rem',
-              fontWeight: 600,
-              padding: '0.4rem 0.75rem',
-              cursor: 'pointer',
-            }}
-          >
-            <ChevronLeft size={14} />
-            <span>Prev: {prevConcept.title}</span>
-          </button>
-        ) : (
-          <div />
-        )}
-
-        {nextConcept ? (
-          <button
-            onClick={() => onSelectConcept?.(nextConcept.id)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.45rem',
-              background: 'rgba(6, 182, 212, 0.15)',
-              border: '1px solid rgba(6, 182, 212, 0.4)',
-              borderRadius: '8px',
-              color: '#06b6d4',
-              fontSize: '0.78rem',
-              fontWeight: 700,
-              padding: '0.4rem 0.85rem',
-              cursor: 'pointer',
-            }}
-          >
-            <span>Next: {nextConcept.title}</span>
-            <ChevronRight size={14} />
-          </button>
-        ) : (
-          <div />
         )}
       </div>
     </div>

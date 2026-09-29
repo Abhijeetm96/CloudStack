@@ -120,7 +120,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
     }
   };
 
-  // Convert topics to StandardTopicItem format with full syllabus subtopics
+  // Convert topics to StandardTopicItem format
   const sidebarTopics: StandardTopicItem[] = useMemo(() => {
     return LINUX_15_TOPICS.map((t, idx) => {
       const IconComponent = getLinuxTopicIcon(t.iconName, t.number);
@@ -131,11 +131,11 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
         number: formattedNum,
         title: t.title,
         icon: IconComponent,
-        subtopics: t.concepts.map((c) => c.title),
         concepts: t.concepts.map((c) => ({
           id: c.id,
           command: c.command,
           title: c.title,
+          subChapterNumber: c.subChapterNumber,
           shortDesc: c.subtitle,
         })),
       };
@@ -155,6 +155,19 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
     currentConceptIdx >= 0 && currentConceptIdx < allConceptsFlat.length - 1
       ? allConceptsFlat[currentConceptIdx + 1]
       : null;
+
+  const currentChapter = useMemo(() => {
+    return LINUX_15_TOPICS.find((t) => t.concepts.some((c) => c.id === activeConceptId)) || LINUX_15_TOPICS[0];
+  }, [activeConceptId]);
+
+  const currentChapterSubChapters = useMemo(() => {
+    return currentChapter.concepts.map((c) => ({
+      id: c.id,
+      title: c.title,
+      subChapterNumber: c.subChapterNumber,
+      command: c.command,
+    }));
+  }, [currentChapter]);
 
   const handleSelectConcept = (cId: string) => {
     setActiveConceptId(cId);
@@ -183,9 +196,9 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
       <aside
         className="academy-sidebar-desktop"
         style={{
-          width: '240px',
-          minWidth: '240px',
-          maxWidth: '240px',
+          width: '260px',
+          minWidth: '260px',
+          maxWidth: '260px',
           background: 'var(--bg-surface)',
           borderRight: '1px solid var(--border-color)',
           display: 'flex',
@@ -259,12 +272,12 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
             }}
           >
             <Terminal size={14} />
-            <span>Chapter 01 Modules (8)</span>
+            <span>Chapter {currentConcept.topicNumber} ({currentChapterSubChapters.length})</span>
             <ChevronDown size={12} />
           </button>
 
           <div style={{ fontSize: '0.78rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-            Module {currentConcept.topicNumber}: {currentConcept.title}
+            Chapter {currentConcept.topicNumber} · Sub-Chapter {currentConcept.subChapterNumber || `${currentConcept.topicNumber}.1`}: {currentConcept.title}
           </div>
         </div>
 
@@ -279,6 +292,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
             prevConcept={prevConcept}
             nextConcept={nextConcept}
             onSelectConcept={handleSelectConcept}
+            chapterConcepts={currentChapterSubChapters}
           />
         </div>
 
