@@ -3,11 +3,47 @@ import { useDocker } from '../../context/DockerContext';
 import { DOCKER_14_TOPICS } from '../../data/unifiedDockerData';
 import { UniversalTeachingShell } from '../simulators/UniversalTeachingShell';
 import {
-  Search,
-  CheckCircle2,
-  ChevronRight,
+  StandardAcademySidebar,
+  StandardTopicItem,
+} from '../../../platform/layout/StandardAcademySidebar';
+import { StandardAcademyBottomBar } from '../../../platform/layout/StandardAcademyBottomBar';
+import {
+  Container,
+  Box,
+  Cpu,
+  Download,
+  Play,
+  Database,
+  Package,
+  Hammer,
+  Cloud,
+  Sliders,
+  Activity,
+  Terminal,
+  ShieldCheck,
+  Workflow,
+  Zap,
+  ChevronDown,
   Sparkles,
+  LucideIcon,
 } from 'lucide-react';
+
+const DOCKER_TOPIC_ICONS: Record<string, LucideIcon> = {
+  Box,
+  Cpu,
+  Download,
+  Play,
+  Database,
+  Package,
+  Hammer,
+  Cloud,
+  Sliders,
+  Activity,
+  Terminal,
+  Shield: ShieldCheck,
+  Workflow,
+  Zap,
+};
 
 export const DockerAcademyView: React.FC = () => {
   const {
@@ -19,9 +55,10 @@ export const DockerAcademyView: React.FC = () => {
     completedConceptIds,
     markConceptComplete,
     executeCommand,
+    setMode,
   } = useDocker();
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [showMobileTopicsDrawer, setShowMobileTopicsDrawer] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const showToast = (msg: string) => {
@@ -29,207 +66,211 @@ export const DockerAcademyView: React.FC = () => {
     setTimeout(() => setToastMessage((curr) => (curr === msg ? null : curr)), 2500);
   };
 
-  // Flattened concepts array for Previous / Next navigation
+  // Convert topics to StandardTopicItem list for StandardAcademySidebar
+  const sidebarTopics: StandardTopicItem[] = useMemo(() => {
+    return DOCKER_14_TOPICS.map((t) => {
+      const IconComponent = DOCKER_TOPIC_ICONS[t.iconName] || Container;
+      return {
+        id: t.id,
+        number: t.number,
+        title: t.title,
+        icon: IconComponent,
+        concepts: t.concepts.map((c) => ({
+          id: c.id,
+          command: c.command,
+          title: c.title,
+          shortDesc: c.shortDesc,
+        })),
+      };
+    });
+  }, []);
+
+  // Flattened concepts array for linear Previous / Next navigation
   const allConceptsFlat = useMemo(() => {
-    return DOCKER_14_TOPICS.flatMap((t) => t.concepts.map((c) => ({ ...c, topicId: t.id })));
+    return DOCKER_14_TOPICS.flatMap((t) =>
+      t.concepts.map((c) => ({ ...c, topicId: t.id }))
+    );
   }, []);
 
   const currentConceptIdx = allConceptsFlat.findIndex((c) => c.id === activeConceptId);
   const prevConcept = currentConceptIdx > 0 ? allConceptsFlat[currentConceptIdx - 1] : null;
-  const nextConcept = currentConceptIdx < allConceptsFlat.length - 1 ? allConceptsFlat[currentConceptIdx + 1] : null;
+  const nextConcept =
+    currentConceptIdx >= 0 && currentConceptIdx < allConceptsFlat.length - 1
+      ? allConceptsFlat[currentConceptIdx + 1]
+      : null;
 
-  const totalConceptsCount = allConceptsFlat.length;
-  const progressPct = Math.round((completedConceptIds.length / totalConceptsCount) * 100);
+  const handleSelectConcept = (cId: string) => {
+    setActiveConceptId(cId);
+    const parentTopic = DOCKER_14_TOPICS.find((t) => t.concepts.some((c) => c.id === cId));
+    if (parentTopic) {
+      setActiveTopicId(parentTopic.id);
+    }
+  };
 
   return (
-    <div style={{ display: 'flex', flex: 1, height: '100%', width: '100%', overflow: 'hidden' }}>
-      {/* ==================================================================== */}
-      {/* LEFT SIDEBAR: 14 DOCKER TOPICS & SUBTOPICS ACCORDION */}
-      {/* ==================================================================== */}
+    <div
+      style={{
+        display: 'flex',
+        flex: 1,
+        height: '100%',
+        maxHeight: '100%',
+        minHeight: 0,
+        background: 'var(--bg-app)',
+        color: 'var(--text-primary)',
+        overflow: 'hidden',
+      }}
+    >
+      {/* ================================================================ */}
+      {/* COLUMN 1: LEFT SIDEBAR (Standard 240px Accordion Sidebar)       */}
+      {/* ================================================================ */}
       <aside
+        className="academy-sidebar-desktop"
         style={{
-          width: '320px',
-          flexShrink: 0,
-          background: 'var(--docker-surface)',
-          borderRight: '1px solid var(--docker-border)',
+          width: '240px',
+          minWidth: '240px',
+          maxWidth: '240px',
+          background: 'var(--bg-surface)',
+          borderRight: '1px solid var(--border-color)',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
+          maxHeight: '100%',
+          minHeight: 0,
+          flexShrink: 0,
           overflow: 'hidden',
         }}
       >
-        {/* Search & Progress Header */}
-        <div style={{ padding: '1.25rem 1rem 0.85rem', borderBottom: '1px solid var(--docker-border)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
-            <span style={{ fontSize: '0.78rem', fontWeight: 800, textTransform: 'uppercase', letterSpacing: '0.05em', color: 'var(--docker-text-secondary)' }}>
-              Docker Topics ({DOCKER_14_TOPICS.length})
-            </span>
-            <span style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--docker-blue)' }}>
-              {progressPct}% Completed
-            </span>
-          </div>
-
-          {/* Progress Bar */}
-          <div style={{ width: '100%', height: '6px', borderRadius: '999px', background: 'rgba(255,255,255,0.08)', marginBottom: '1rem', overflow: 'hidden' }}>
-            <div style={{ width: `${progressPct}%`, height: '100%', background: 'linear-gradient(90deg, #0ea5e9, #38bdf8)', transition: 'width 0.3s ease' }} />
-          </div>
-
-          {/* Search Box */}
-          <div style={{ position: 'relative' }}>
-            <Search size={14} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--docker-text-muted)' }} />
-            <input
-              type="text"
-              placeholder="Search concepts, commands..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                padding: '0.45rem 0.75rem 0.45rem 2.2rem',
-                borderRadius: '8px',
-                background: 'rgba(255,255,255,0.05)',
-                border: '1px solid var(--docker-border)',
-                color: '#fff',
-                fontSize: '0.8rem',
-                outline: 'none',
-                boxSizing: 'border-box',
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Topic Accordions */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0.75rem' }}>
-          {DOCKER_14_TOPICS.map((topic) => {
-            const isTopicActive = topic.id === activeTopicId;
-            const topicCompletedCount = topic.concepts.filter((c) => completedConceptIds.includes(c.id)).length;
-
-            const filteredConcepts = topic.concepts.filter(
-              (c) =>
-                c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                c.command.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                c.shortDesc.toLowerCase().includes(searchQuery.toLowerCase())
-            );
-
-            if (searchQuery && filteredConcepts.length === 0) return null;
-
-            return (
-              <div key={topic.id} style={{ marginBottom: '0.5rem' }}>
-                <div
-                  className={`dock-topic-item ${isTopicActive ? 'active' : ''}`}
-                  onClick={() => setActiveTopicId(topic.id)}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <div
-                      style={{
-                        width: '24px',
-                        height: '24px',
-                        borderRadius: '6px',
-                        background: isTopicActive ? 'var(--docker-blue)' : 'rgba(255,255,255,0.08)',
-                        color: isTopicActive ? '#fff' : 'var(--docker-text-secondary)',
-                        fontSize: '0.72rem',
-                        fontWeight: 800,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      {topic.number}
-                    </div>
-                    <div>
-                      <div style={{ fontSize: '0.84rem', fontWeight: 700, color: isTopicActive ? '#fff' : 'var(--docker-text-primary)' }}>
-                        {topic.title}
-                      </div>
-                      <div style={{ fontSize: '0.7rem', color: 'var(--docker-text-muted)' }}>
-                        {topicCompletedCount}/{topic.concepts.length} completed
-                      </div>
-                    </div>
-                  </div>
-                  <ChevronRight size={14} style={{ color: 'var(--docker-text-muted)', transform: isTopicActive ? 'rotate(90deg)' : 'none', transition: 'transform 0.15s ease' }} />
-                </div>
-
-                {/* Subtopic Concepts List */}
-                {isTopicActive && (
-                  <div style={{ paddingLeft: '1.25rem', marginTop: '0.25rem', borderLeft: '2px solid rgba(14, 165, 233, 0.2)', marginLeft: '0.75rem' }}>
-                    {filteredConcepts.map((c) => {
-                      const isConceptActive = c.id === activeConceptId;
-                      const isDone = completedConceptIds.includes(c.id);
-
-                      return (
-                        <button
-                          key={c.id}
-                          onClick={() => {
-                            setActiveConceptId(c.id);
-                            markConceptComplete(c.id);
-                          }}
-                          style={{
-                            width: '100%',
-                            textAlign: 'left',
-                            padding: '0.45rem 0.65rem',
-                            borderRadius: '6px',
-                            background: isConceptActive ? 'rgba(14, 165, 233, 0.18)' : 'transparent',
-                            border: 'none',
-                            color: isConceptActive ? '#fff' : isDone ? 'var(--docker-text-secondary)' : '#cbd5e1',
-                            fontSize: '0.78rem',
-                            fontWeight: isConceptActive ? 700 : 500,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            marginBottom: '0.2rem',
-                            transition: 'all 0.15s ease',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', overflow: 'hidden' }}>
-                            {isDone ? <CheckCircle2 size={13} color="#22c55e" /> : <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: isConceptActive ? 'var(--docker-blue)' : '#64748b' }} />}
-                            <span style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.title}</span>
-                          </div>
-                          <span style={{ fontSize: '0.65rem', padding: '0.1rem 0.35rem', borderRadius: '4px', background: 'rgba(255,255,255,0.06)', color: 'var(--docker-text-muted)' }}>
-                            {c.difficulty[0]}
-                          </span>
-                        </button>
-                      );
-                    })}
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-
-        {/* Bottom Motivation Banner */}
-        <div style={{ padding: '0.85rem 1rem', margin: '0.5rem 0.75rem 0.75rem', borderRadius: '10px', background: 'linear-gradient(135deg, rgba(14, 165, 233, 0.15) 0%, rgba(2, 132, 199, 0.08) 100%)', border: '1px solid var(--docker-border-active)', display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <div>
-            <div style={{ fontSize: '0.78rem', fontWeight: 800, color: '#fff' }}>Keep Going!</div>
-            <div style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Hands-on learning makes it stick. 🚀</div>
-          </div>
-        </div>
+        <StandardAcademySidebar
+          title="Docker Academy"
+          subtitle="14 Topics • Your Docker Journey"
+          icon={Container}
+          accentColor="#38bdf8"
+          topics={sidebarTopics}
+          activeConceptId={activeConceptId}
+          completedConceptIds={completedConceptIds}
+          onSelectConcept={handleSelectConcept}
+        />
       </aside>
 
-      {/* ==================================================================== */}
-      {/* RIGHT MAIN STAGE AREA: UNIVERSAL TEACHING SHELL */}
-      {/* ==================================================================== */}
-      <main style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', overflowY: 'auto', background: '#090d16', padding: 0 }}>
-        <UniversalTeachingShell
-          concept={currentConcept}
-          completedConceptIds={completedConceptIds}
-          markConceptComplete={markConceptComplete}
-          executeCommand={executeCommand}
-          showToast={showToast}
+      {/* ================================================================ */}
+      {/* COLUMN 2: CENTER MAIN STAGE (Concept Teaching Experience)       */}
+      {/* ================================================================ */}
+      <main
+        className="academy-center-main"
+        style={{
+          flex: 1,
+          minWidth: 0,
+          minHeight: 0,
+          display: 'flex',
+          flexDirection: 'column',
+          height: '100%',
+          maxHeight: '100%',
+          overflow: 'hidden',
+          background: 'var(--bg-app)',
+        }}
+      >
+        {/* Mobile & Tablet Top Bar (<1200px) */}
+        <div
+          className="academy-mobile-topbar"
+          style={{
+            flexShrink: 0,
+            padding: '0.5rem 0.85rem',
+            background: 'var(--bg-surface)',
+            borderBottom: '1px solid var(--border-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
+          }}
+        >
+          {/* Topics Drawer Toggle */}
+          <button
+            onClick={() => setShowMobileTopicsDrawer(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              borderRadius: '8px',
+              padding: '0.35rem 0.65rem',
+              color: '#38bdf8',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              maxWidth: '65%',
+            }}
+          >
+            <Container size={15} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Topics (14) • {currentConcept.title}
+            </span>
+            <ChevronDown size={13} />
+          </button>
+
+          {/* Quick Universe Catalog Shortcut on Mobile */}
+          <button
+            onClick={() => setMode('universe')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: '8px',
+              padding: '0.35rem 0.65rem',
+              color: '#f59e0b',
+              fontSize: '0.76rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            <Sparkles size={13} />
+            <span>42 Concepts</span>
+          </button>
+        </div>
+
+        {/* Center Canvas Body */}
+        <div
+          style={{
+            flex: '1 1 0%',
+            minHeight: 0,
+            width: '100%',
+            maxWidth: '100%',
+            overflow: 'hidden',
+            display: 'flex',
+            flexDirection: 'column',
+          }}
+        >
+          <UniversalTeachingShell
+            concept={currentConcept}
+            completedConceptIds={completedConceptIds}
+            markConceptComplete={markConceptComplete}
+            executeCommand={executeCommand}
+            showToast={showToast}
+            prevConcept={prevConcept}
+            nextConcept={nextConcept}
+            onSelectConcept={handleSelectConcept}
+          />
+        </div>
+
+        {/* Standard Pinned Bottom Bar (Matching CommitForge) */}
+        <StandardAcademyBottomBar
           prevConcept={prevConcept}
           nextConcept={nextConcept}
-          onSelectConcept={(id) => {
-            setActiveConceptId(id);
-            const targetTopic = DOCKER_14_TOPICS.find((t) => t.concepts.some((c) => c.id === id));
-            if (targetTopic) setActiveTopicId(targetTopic.id);
-          }}
+          onNavigate={handleSelectConcept}
+          isCompleted={completedConceptIds.includes(activeConceptId)}
+          onToggleComplete={() => markConceptComplete(activeConceptId)}
+          accentGradient="linear-gradient(135deg, rgba(14, 165, 233, 0.45) 0%, rgba(2, 132, 199, 0.45) 100%)"
+          accentColor="#38bdf8"
         />
 
-        {/* Floating Toast Notification Banner */}
+        {/* Toast Notification Banner */}
         {toastMessage && (
           <div
             style={{
               position: 'fixed',
-              bottom: '28px',
+              bottom: '70px',
               right: '28px',
               background: 'linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)',
               color: '#fff',
@@ -251,6 +292,37 @@ export const DockerAcademyView: React.FC = () => {
           </div>
         )}
       </main>
+
+      {/* ================================================================ */}
+      {/* MOBILE TOPICS DRAWER                                             */}
+      {/* ================================================================ */}
+      {showMobileTopicsDrawer && (
+        <div
+          className="academy-mobile-drawer-backdrop"
+          onClick={() => setShowMobileTopicsDrawer(false)}
+        >
+          <div
+            className="academy-mobile-drawer-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <StandardAcademySidebar
+              title="Docker Academy"
+              subtitle="14 Topics • Your Docker Journey"
+              icon={Container}
+              accentColor="#38bdf8"
+              topics={sidebarTopics}
+              activeConceptId={activeConceptId}
+              completedConceptIds={completedConceptIds}
+              onSelectConcept={(id) => {
+                handleSelectConcept(id);
+                setShowMobileTopicsDrawer(false);
+              }}
+              isDrawer={true}
+              onCloseDrawer={() => setShowMobileTopicsDrawer(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
