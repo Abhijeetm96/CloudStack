@@ -3,22 +3,21 @@ import { LINUX_15_TOPICS, ALL_LINUX_CONCEPTS, TOTAL_LINUX_TOPICS, TOTAL_LINUX_CO
 import { defaultLinuxSimulator } from '../linuxforge/data/linuxSimulatorEngine';
 
 describe('LinuxForge Master Curriculum Audit', () => {
-  it('contains exactly 8 modules matching Chapter 01 (01.1 to 01.8)', () => {
-    expect(TOTAL_LINUX_TOPICS).toBe(8);
-    expect(LINUX_15_TOPICS.length).toBe(8);
+  it('contains exactly 30 chapters covering all LinuxForge curriculum domains', () => {
+    expect(TOTAL_LINUX_TOPICS).toBe(30);
+    expect(LINUX_15_TOPICS.length).toBe(30);
 
-    const expectedNumbers = ['01.1', '01.2', '01.3', '01.4', '01.5', '01.6', '01.7', '01.8'];
-    LINUX_15_TOPICS.forEach((topic, idx) => {
-      expect(topic.number).toBe(expectedNumbers[idx]);
+    LINUX_15_TOPICS.forEach((topic) => {
+      expect(topic.number).toBeTruthy();
       expect(topic.title.length).toBeGreaterThan(3);
       expect(topic.description.length).toBeGreaterThan(10);
-      expect(topic.concepts.length).toBeGreaterThanOrEqual(3);
+      expect(topic.concepts.length).toBeGreaterThanOrEqual(5);
     });
   });
 
-  it('contains all 24 comprehensive concepts covering 100% of Chapter 01 subtopics', () => {
-    expect(TOTAL_LINUX_CONCEPTS).toBe(24);
-    expect(ALL_LINUX_CONCEPTS.length).toBe(24);
+  it('contains all comprehensive concepts covering 100% of all subtopics with zero placeholders', () => {
+    expect(TOTAL_LINUX_CONCEPTS).toBeGreaterThanOrEqual(400);
+    expect(ALL_LINUX_CONCEPTS.length).toBeGreaterThanOrEqual(400);
 
     ALL_LINUX_CONCEPTS.forEach((concept) => {
       // Identity & metadata

@@ -1,6 +1,12 @@
 import React, { useState } from 'react';
 import { UniversalLinuxConcept, BlockDiagramNode } from '../../data/unifiedLinuxData';
 import {
+  LinuxVisualSystemSimulator,
+  INITIAL_VISUAL_SYSTEM_STATE,
+  VisualSystemState
+} from './LinuxVisualSystemSimulator';
+import { LinuxProblemSolverModal } from './LinuxProblemSolverModal';
+import {
   BookOpen,
   Terminal,
   Activity,
@@ -219,6 +225,12 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
   const [activeInternalStep, setActiveInternalStep] = useState<number>(1);
   const [inspectWhyStep, setInspectWhyStep] = useState<number | null>(null);
 
+  // Problem Solver Modal State
+  const [showProblemSolver, setShowProblemSolver] = useState<boolean>(false);
+
+  // Live Visual System State (Reactive to terminal commands)
+  const [visualSystemState, setVisualSystemState] = useState<VisualSystemState>(INITIAL_VISUAL_SYSTEM_STATE);
+
   // Stage 5: Terminal Sandbox State
   const [inputCommand, setInputCommand] = useState<string>('');
   const [terminalHistory, setTerminalHistory] = useState<
@@ -237,6 +249,11 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
       ...prev,
       [termName]: prev[termName] === 'technical' ? 'simple' : 'technical',
     }));
+  };
+
+  const resetVisualSystem = () => {
+    setVisualSystemState(INITIAL_VISUAL_SYSTEM_STATE);
+    showToast('Visual system simulator restored to clean state.');
   };
 
   const handleTerminalSubmit = (e: React.FormEvent) => {
@@ -258,6 +275,94 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
       simResult.stdout.forEach((line: string) => {
         newHistory.push({ type: 'output', text: line });
       });
+    }
+
+    if (simResult.stderr && simResult.stderr.length > 0) {
+      simResult.stderr.forEach((line: string) => {
+        newHistory.push({ type: 'error', text: line });
+      });
+    }
+
+    // Reactive visual state transitions connected to terminal command execution:
+    const trimmedLower = cmd.toLowerCase();
+    if (trimmedLower.startsWith('mkdir')) {
+      const dirName = cmd.split(/\s+/).slice(-1)[0] || 'projects';
+      setVisualSystemState((prev) => ({
+        ...prev,
+        lastAction: {
+          command: cmd,
+          consequence: `Created directory node "${dirName}/" with mode 755 in ${prev.currentPath}`,
+        }
+      }));
+    } else if (trimmedLower.startsWith('touch')) {
+      const fileName = cmd.split(/\s+/).slice(-1)[0] || 'app.txt';
+      setVisualSystemState((prev) => ({
+        ...prev,
+        lastAction: {
+          command: cmd,
+          consequence: `Allocated inode for file "${fileName}" with mode 644`,
+        }
+      }));
+    } else if (trimmedLower.startsWith('chmod')) {
+      const parts = cmd.split(/\s+/);
+      const mode = parts[1] || '755';
+      const target = parts[2] || 'file';
+      setVisualSystemState((prev) => ({
+        ...prev,
+        lastAction: {
+          command: cmd,
+          consequence: `Updated POSIX permission bits of "${target}" to ${mode}`,
+        }
+      }));
+    } else if (trimmedLower.startsWith('systemctl stop')) {
+      const srv = cmd.split(/\s+/).slice(-1)[0] || 'nginx';
+      setVisualSystemState((prev) => ({
+        ...prev,
+        services: prev.services.map((s) => s.name.includes(srv) ? { ...s, status: 'INACTIVE' } : s),
+        lastAction: {
+          command: cmd,
+          consequence: `Sent SIGTERM to ${srv}. Unit state transitioned from ACTIVE to INACTIVE.`,
+        }
+      }));
+    } else if (trimmedLower.startsWith('systemctl start')) {
+      const srv = cmd.split(/\s+/).slice(-1)[0] || 'nginx';
+      setVisualSystemState((prev) => ({
+        ...prev,
+        services: prev.services.map((s) => s.name.includes(srv) ? { ...s, status: 'ACTIVE' } : s),
+        lastAction: {
+          command: cmd,
+          consequence: `Launched ${srv} daemon. Unit state transitioned to ACTIVE (running).`,
+        }
+      }));
+    } else if (trimmedLower.startsWith('kill')) {
+      const targetPid = parseInt(cmd.split(/\s+/).slice(-1)[0], 10) || 1234;
+      setVisualSystemState((prev) => ({
+        ...prev,
+        processes: prev.processes.map((p) => p.pid === targetPid ? { ...p, status: 'DEAD' } : p),
+        lastAction: {
+          command: cmd,
+          consequence: `Delivered signal to PID ${targetPid}. Process terminated and removed from runqueue.`,
+        }
+      }));
+    } else if (trimmedLower.includes('rm -rf /') || (trimmedLower.startsWith('rm') && trimmedLower.includes('/etc'))) {
+      setVisualSystemState((prev) => ({
+        ...prev,
+        lastAction: {
+          command: cmd,
+          consequence: 'Operation blocked by safety guardrail (--no-preserve-root required).',
+          isSafeFailure: true,
+          recoveryHint: 'What would you do? Never execute recursive removal on root filesystem trees.',
+        }
+      }));
+    } else {
+      setVisualSystemState((prev) => ({
+        ...prev,
+        lastAction: {
+          command: cmd,
+          consequence: simResult.stderr.length > 0 ? simResult.stderr[0] : 'Executed successfully with exit code 0.',
+          isSafeFailure: simResult.exitCode !== 0,
+        }
+      }));
     }
 
     if (isExactSolution) {
@@ -343,31 +448,65 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
           })}
         </div>
 
-        {/* Concept Mastered Toggle */}
-        <button
-          onClick={() => {
-            markConceptComplete(concept.id);
-            showToast(`Marked "${concept.title}" as complete!`);
-          }}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.4rem',
-            padding: '0.4rem 0.75rem',
-            borderRadius: '8px',
-            background: isCompleted ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.04)',
-            border: isCompleted ? '1px solid rgba(34, 197, 94, 0.4)' : '1px solid var(--border-color)',
-            color: isCompleted ? '#4ade80' : 'var(--text-muted)',
-            fontSize: '0.75rem',
-            fontWeight: 700,
-            cursor: 'pointer',
-            flexShrink: 0,
-          }}
-        >
-          <CheckCircle2 size={14} color={isCompleted ? '#4ade80' : 'var(--text-muted)'} />
-          <span>{isCompleted ? 'Mastered' : 'Mark Done'}</span>
-        </button>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexShrink: 0 }}>
+          {/* I HAVE A PROBLEM Diagnostic Trigger */}
+          <button
+            onClick={() => setShowProblemSolver(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.4rem 0.75rem',
+              borderRadius: '8px',
+              background: 'rgba(239, 68, 68, 0.12)',
+              border: '1px solid rgba(239, 68, 68, 0.35)',
+              color: '#f87171',
+              fontSize: '0.75rem',
+              fontWeight: 800,
+              cursor: 'pointer',
+              boxShadow: '0 2px 8px rgba(239, 68, 68, 0.15)',
+              whiteSpace: 'nowrap',
+            }}
+          >
+            <AlertTriangle size={14} color="#ef4444" />
+            <span>I HAVE A PROBLEM</span>
+          </button>
+
+          {/* Concept Mastered Toggle */}
+          <button
+            onClick={() => {
+              markConceptComplete(concept.id);
+              showToast(`Marked "${concept.title}" as complete!`);
+            }}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              padding: '0.4rem 0.75rem',
+              borderRadius: '8px',
+              background: isCompleted ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255, 255, 255, 0.04)',
+              border: isCompleted ? '1px solid rgba(34, 197, 94, 0.4)' : '1px solid var(--border-color)',
+              color: isCompleted ? '#4ade80' : 'var(--text-muted)',
+              fontSize: '0.75rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              flexShrink: 0,
+            }}
+          >
+            <CheckCircle2 size={14} color={isCompleted ? '#4ade80' : 'var(--text-muted)'} />
+            <span>{isCompleted ? 'Mastered' : 'Mark Done'}</span>
+          </button>
+        </div>
       </div>
+
+      {/* Linux Problem Solver Modal */}
+      <LinuxProblemSolverModal
+        isOpen={showProblemSolver}
+        onClose={() => setShowProblemSolver(false)}
+        onNavigateToConcept={(cId) => {
+          if (onSelectConcept) onSelectConcept(cId);
+        }}
+      />
 
       {/* ================================================================ */}
       {/* SCROLLABLE STAGE CONTENT                                        */}
@@ -621,6 +760,220 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
                     {concept.withoutVsWith.with.outcome}
                   </div>
                 </div>
+              </div>
+            )}
+
+            {/* Real-World Production Scenario */}
+            {concept.realWorldScenario && (
+              <div
+                style={{
+                  background: 'rgba(56, 189, 248, 0.05)',
+                  border: '1px solid rgba(56, 189, 248, 0.2)',
+                  borderRadius: '10px',
+                  padding: '1rem 1.25rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', marginBottom: '0.35rem' }}>
+                  <Server size={16} color="#38bdf8" />
+                  <h4 style={{ fontSize: '0.85rem', fontWeight: 700, color: '#38bdf8', margin: 0 }}>
+                    Real-World Production Scenario
+                  </h4>
+                </div>
+                <p style={{ fontSize: '0.85rem', lineHeight: 1.6, color: 'var(--text-secondary)', margin: 0 }}>
+                  {concept.realWorldScenario}
+                </p>
+              </div>
+            )}
+
+            {/* BEFORE / AFTER SYSTEM STATE TRANSITION (Section 8) */}
+            {concept.beforeAfter && (
+              <div
+                style={{
+                  background: '#090d16',
+                  border: '1px solid rgba(6, 182, 212, 0.25)',
+                  borderRadius: '12px',
+                  overflow: 'hidden',
+                }}
+              >
+                <div
+                  style={{
+                    background: '#0f172a',
+                    padding: '0.65rem 1rem',
+                    borderBottom: '1px solid rgba(255, 255, 255, 0.08)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                  }}
+                >
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <ArrowUpDown size={15} color="#06b6d4" />
+                    <span style={{ fontSize: '0.82rem', fontWeight: 800, color: '#f8fafc' }}>
+                      Before / After System State Transition
+                    </span>
+                  </div>
+                  <span style={{ fontSize: '0.7rem', color: '#94a3b8' }}>Observable Kernel & Filesystem Impact</span>
+                </div>
+
+                <div
+                  style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                    gap: '1px',
+                    background: 'rgba(255, 255, 255, 0.06)',
+                  }}
+                >
+                  {/* Before */}
+                  <div style={{ background: '#090d16', padding: '1rem' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#f59e0b', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                      [BEFORE] State:
+                    </div>
+                    <pre
+                      style={{
+                        margin: 0,
+                        fontFamily: 'monospace',
+                        fontSize: '0.78rem',
+                        color: '#cbd5e1',
+                        background: '#030712',
+                        padding: '0.65rem',
+                        borderRadius: '6px',
+                        overflowX: 'auto',
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {concept.beforeAfter.before}
+                    </pre>
+                  </div>
+
+                  {/* After */}
+                  <div style={{ background: '#090d16', padding: '1rem' }}>
+                    <div style={{ fontSize: '0.72rem', fontWeight: 800, color: '#4ade80', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                      [AFTER] State:
+                    </div>
+                    <pre
+                      style={{
+                        margin: 0,
+                        fontFamily: 'monospace',
+                        fontSize: '0.78rem',
+                        color: '#86efac',
+                        background: '#030712',
+                        padding: '0.65rem',
+                        borderRadius: '6px',
+                        overflowX: 'auto',
+                        lineHeight: 1.45,
+                      }}
+                    >
+                      {concept.beforeAfter.after}
+                    </pre>
+                  </div>
+                </div>
+
+                {/* Explanation */}
+                <div style={{ padding: '0.75rem 1rem', background: '#0d131f', fontSize: '0.8rem', color: '#94a3b8', borderTop: '1px solid rgba(255, 255, 255, 0.05)' }}>
+                  <strong style={{ color: '#38bdf8' }}>State Change Summary: </strong>
+                  {concept.beforeAfter.explanation}
+                </div>
+              </div>
+            )}
+
+            {/* WHAT CHANGES VS WHAT DOES NOT CHANGE */}
+            {(concept.whatChanges || concept.whatDoesNotChange) && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '1rem',
+                }}
+              >
+                {/* What Changes */}
+                <div
+                  style={{
+                    background: 'rgba(6, 182, 212, 0.04)',
+                    border: '1px solid rgba(6, 182, 212, 0.2)',
+                    borderRadius: '10px',
+                    padding: '0.85rem 1rem',
+                  }}
+                >
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#06b6d4', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                    What Changes on the System:
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    {(concept.whatChanges || ['Target resource state updates to match command parameters.']).map((ch, idx) => (
+                      <li key={idx}>{ch}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                {/* What Does Not Change */}
+                <div
+                  style={{
+                    background: 'rgba(148, 163, 184, 0.04)',
+                    border: '1px solid rgba(148, 163, 184, 0.15)',
+                    borderRadius: '10px',
+                    padding: '0.85rem 1rem',
+                  }}
+                >
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#94a3b8', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                    What Does NOT Change:
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    {(concept.whatDoesNotChange || ['Hardware configuration and isolated user files remain untouched.']).map((nc, idx) => (
+                      <li key={idx}>{nc}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* WHEN TO USE VS WHEN NOT TO USE */}
+            {(concept.whenToUse || concept.whenNotToUse) && (
+              <div
+                style={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+                  gap: '1rem',
+                }}
+              >
+                <div style={{ background: 'rgba(34, 197, 94, 0.04)', border: '1px solid rgba(34, 197, 94, 0.2)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#4ade80', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                    ✔ When Should You Use This:
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    {(concept.whenToUse || ['During day-to-day administrative operations and troubleshooting']).map((w, idx) => (
+                      <li key={idx}>{w}</li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div style={{ background: 'rgba(239, 68, 68, 0.04)', border: '1px solid rgba(239, 68, 68, 0.2)', borderRadius: '10px', padding: '0.85rem 1rem' }}>
+                  <div style={{ fontSize: '0.75rem', fontWeight: 800, color: '#f87171', textTransform: 'uppercase', marginBottom: '0.4rem' }}>
+                    ✘ When Should You NOT Use This:
+                  </div>
+                  <ul style={{ margin: 0, paddingLeft: '1.1rem', fontSize: '0.8rem', color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    {(concept.whenNotToUse || ['When automated declarative configuration tools manage this layer']).map((nw, idx) => (
+                      <li key={idx}>{nw}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
+            {/* SAFE RECOVERY & TROUBLESHOOTING */}
+            {concept.safeRecovery && (
+              <div
+                style={{
+                  background: 'rgba(245, 158, 11, 0.05)',
+                  border: '1px solid rgba(245, 158, 11, 0.25)',
+                  borderRadius: '10px',
+                  padding: '0.85rem 1rem',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', color: '#f59e0b', fontSize: '0.78rem', fontWeight: 800, marginBottom: '0.35rem' }}>
+                  <AlertTriangle size={15} />
+                  <span>Safe Recovery Protocol:</span>
+                </div>
+                <p style={{ margin: 0, fontSize: '0.82rem', color: '#cbd5e1', lineHeight: 1.5 }}>
+                  {concept.safeRecovery}
+                </p>
               </div>
             )}
           </div>
@@ -1020,6 +1373,13 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
         {/* -------------------------------------------------------------- */}
         {stage === 5 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {/* Context-Aware Visual System Simulator Connected to Terminal (Section 5, 6, 10) */}
+            <LinuxVisualSystemSimulator
+              systemState={visualSystemState}
+              onResetSystem={resetVisualSystem}
+              accentColor="#06b6d4"
+            />
+
             {/* Terminal Sandbox Shell */}
             <div
               style={{

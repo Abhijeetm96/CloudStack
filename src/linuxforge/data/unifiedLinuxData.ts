@@ -34,6 +34,7 @@ export interface CommonMistake {
   mistake: string;
   whyWrong: string;
   correctWay: string;
+  safeRecovery?: string;
 }
 
 export interface BlockDiagramNode {
@@ -64,10 +65,17 @@ export interface WithoutVsWithData {
   };
 }
 
+export interface BeforeAfterState {
+  before: string;
+  after: string;
+  explanation: string;
+}
+
 export interface UniversalLinuxConcept {
   id: string;
   command: string;
   title: string;
+  subChapterNumber?: string;
   topicId: string;
   topicNumber: string;
   topicTitle: string;
@@ -76,11 +84,13 @@ export interface UniversalLinuxConcept {
   quote: string;
   difficulty: ConceptDifficulty;
 
-  // Level 1: Understand
+  // Level 1: Understand & Mental Model
   whatIsIt: string;
   inSimpleWords: string;
   whyDoYouNeedIt: string;
+  realWorldScenario?: string;
   realWorldAnalogy: string;
+  mentalModel?: string;
 
   // Extended Teaching Sequence Fields
   withoutVsWith: WithoutVsWithData;
@@ -89,7 +99,14 @@ export interface UniversalLinuxConcept {
   whenToUse: string[];
   whenNotToUse: string[];
 
-  // Level 2: Syntax
+  // System State Transitions
+  whatChanges?: string[];
+  whatDoesNotChange?: string[];
+  beforeAfter?: BeforeAfterState;
+  expectedOutput?: string;
+  summary?: string;
+
+  // Level 2: Syntax & Token Breakdown
   syntaxCode: string;
   syntaxTokens: SyntaxToken[];
 
@@ -109,14 +126,15 @@ export interface UniversalLinuxConcept {
     solutionCommands: string[];
   };
 
-  // Level 5: Mistakes & Quiz
+  // Level 5: Mistakes, Recovery & Quiz
   commonMistakes: CommonMistake[];
+  safeRecovery?: string;
   challenge: {
     question: string;
     options: { label: string; isCorrect: boolean; explanation: string }[];
   };
 
-  // Level 6: Reference
+  // Level 6: Reference & Man Pages
   reference: {
     officialDocUrl?: string;
     syntaxCheatSheet?: string[];

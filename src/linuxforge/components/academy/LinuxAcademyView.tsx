@@ -105,30 +105,25 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
     setTimeout(() => setToastMessage((curr) => (curr === msg ? null : curr)), 2500);
   };
 
+  const activeChapterNum = useMemo(() => {
+    const parentTopic = LINUX_15_TOPICS.find((t) => t.concepts.some((c) => c.id === activeConceptId));
+    if (parentTopic) {
+      return parseInt(parentTopic.number, 10) || 1;
+    }
+    return 1;
+  }, [activeConceptId]);
+
   const handleSelectChapter = (chapterNum: number) => {
-    if (chapterNum === 1) return;
-    if (chapterNum === 3) {
-      if (onSwitchToSuite) onSwitchToSuite('learn');
-      else window.location.href = '/CommitForge/commitforge';
-    } else if (chapterNum === 4) {
-      if (onSwitchToSuite) onSwitchToSuite('dockforge');
-      else window.location.href = '/CommitForge/dockforge';
-    } else if (chapterNum === 6 || chapterNum === 7 || chapterNum === 8) {
-      if (onSwitchToSuite) onSwitchToSuite('podforge');
-      else window.location.href = '/CommitForge/podforge';
-    } else {
-      if (onSwitchToSuite) onSwitchToSuite('devops');
-      else window.location.href = '/CommitForge/devops';
+    const targetTopic = LINUX_15_TOPICS[chapterNum - 1];
+    if (targetTopic && targetTopic.concepts.length > 0) {
+      handleSelectConcept(targetTopic.concepts[0].id);
     }
   };
 
   // Convert topics to StandardTopicItem format with full syllabus subtopics
   const sidebarTopics: StandardTopicItem[] = useMemo(() => {
-    const ch01SubModules = DEVOPS_29_CHAPTERS[0]?.subModules || [];
-
     return LINUX_15_TOPICS.map((t, idx) => {
       const IconComponent = getLinuxTopicIcon(t.iconName, t.number);
-      const matchingSub = ch01SubModules.find((sm) => sm.code === t.number);
       const formattedNum = String(idx + 1).padStart(2, '0');
 
       return {
@@ -136,7 +131,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
         number: formattedNum,
         title: t.title,
         icon: IconComponent,
-        subtopics: matchingSub?.topics || [],
+        subtopics: t.concepts.map((c) => c.title),
         concepts: t.concepts.map((c) => ({
           id: c.id,
           command: c.command,
@@ -203,15 +198,15 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
         }}
       >
         <StandardAcademySidebar
-          title="Linux Academy"
-          subtitle="8 Chapters • 24 Concepts"
+          title="LINUXFORGE"
+          subtitle="Understand Linux. Control the System."
           icon={Terminal}
           accentColor="#06b6d4"
           topics={sidebarTopics}
           activeConceptId={activeConceptId}
           completedConceptIds={completedConceptIds}
           onSelectConcept={handleSelectConcept}
-          currentChapterNumber={1}
+          currentChapterNumber={activeChapterNum}
           onSelectChapter={handleSelectChapter}
         />
       </aside>
@@ -327,8 +322,8 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
             }}
           >
             <StandardAcademySidebar
-              title="Linux Academy"
-              subtitle="8 Chapters • 24 Concepts"
+              title="LINUXFORGE"
+              subtitle="Understand Linux. Control the System."
               icon={Terminal}
               accentColor="#06b6d4"
               topics={sidebarTopics}
@@ -340,7 +335,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
               }}
               isDrawer={true}
               onCloseDrawer={() => setShowMobileTopicsDrawer(false)}
-              currentChapterNumber={1}
+              currentChapterNumber={activeChapterNum}
               onSelectChapter={(chNum) => {
                 setShowMobileTopicsDrawer(false);
                 handleSelectChapter(chNum);

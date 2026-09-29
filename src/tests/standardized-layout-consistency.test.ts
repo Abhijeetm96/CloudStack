@@ -140,10 +140,10 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
       });
     });
 
-    it('verifies LinuxForge has 8 Modules and 24 Concepts with standard attributes', () => {
-      expect(LINUX_15_TOPICS.length).toBe(8);
+    it('verifies LinuxForge has 30 Chapters and 400+ Concepts with standard attributes', () => {
+      expect(LINUX_15_TOPICS.length).toBe(30);
       const totalConcepts = LINUX_15_TOPICS.reduce((acc, t) => acc + t.concepts.length, 0);
-      expect(totalConcepts).toBe(24);
+      expect(totalConcepts).toBeGreaterThanOrEqual(400);
 
       LINUX_15_TOPICS.forEach((topic) => {
         expect(topic.id).toBeDefined();

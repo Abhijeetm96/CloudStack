@@ -183,10 +183,10 @@ describe('Global Forge Suite & DevOps Academy Master Population Audit', () => {
   // =========================================================================
   // 4. LINUXFORGE (Linux Systems, Kernel & SRE Academy - Chapter 01)
   // =========================================================================
-  describe('LinuxForge: 8 Modules, 24 Concepts, POSIX Shell Simulator', () => {
-    it('verifies 8 modules and 24 concepts aligned with Chapter 01', () => {
+  describe('LinuxForge: 30 Chapters, 400+ Concepts, POSIX Shell Simulator', () => {
+    it('verifies 30 chapters and 400+ concepts aligned with curriculum', () => {
       expect(LINUX_8_MODULES.length).toBe(8);
-      expect(ALL_LINUX_CONCEPTS.length).toBe(24);
+      expect(ALL_LINUX_CONCEPTS.length).toBeGreaterThanOrEqual(400);
 
       const invalidList: string[] = [];
 

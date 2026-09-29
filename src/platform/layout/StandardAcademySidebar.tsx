@@ -109,22 +109,47 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
 
   const progressPercent = totalConcepts > 0 ? Math.min(100, Math.round((completedCount / totalConcepts) * 100)) : 0;
 
-  // Filtered chapters & concepts based on search query
+  // Intent-based semantic search mappings
   const filteredTopics = useMemo(() => {
     const q = searchQuery.trim().toLowerCase();
     if (!q) return topics;
 
+    const INTENT_SEARCH_SYNONYMS: Record<string, string[]> = {
+      'permission denied': ['chmod', 'chown', 'groups', 'sudo', 'file permissions', 'selinux', 'umask', 'permission'],
+      'permission': ['chmod', 'chown', 'groups', 'sudo', 'umask', 'suid', 'sgid', 'permissions'],
+      'disk full': ['df', 'du', 'find', 'log cleanup', 'disk troubleshooting', 'storage', 'partition', 'swap'],
+      'server not responding': ['ping', 'ip', 'ss', 'curl', 'dns', 'firewall', 'routing', 'traceroute', 'network troubleshooting', 'sshd'],
+      'offline': ['ping', 'ip', 'ss', 'network', 'gateway', 'dns'],
+      'run command automatically': ['cron', 'crontab', 'systemd timers', 'shell scripting', 'at', 'scheduling', 'scheduling backups'],
+      'schedule': ['cron', 'crontab', 'systemd timers', 'at', 'cron syntax'],
+      'command not found': ['path', 'export', 'environment', 'which', 'whereis', 'bashrc'],
+      'service won\'t start': ['systemctl', 'journalctl', 'service', 'failed', 'daemon'],
+      'high cpu': ['top', 'htop', 'kill', 'nice', 'load average', 'process', 'ps'],
+      'out of memory': ['free', 'top', 'dmesg', 'oom', 'swap', 'vmstat'],
+      'cannot ssh': ['ssh', 'sshd_config', 'authorized_keys', 'known_hosts', 'ssh-keygen', 'port 22'],
+    };
+
+    // Gather active query terms + matching intent synonyms
+    const searchTerms = [q];
+    for (const [intentKey, synonyms] of Object.entries(INTENT_SEARCH_SYNONYMS)) {
+      if (q.includes(intentKey) || intentKey.includes(q)) {
+        searchTerms.push(...synonyms);
+      }
+    }
+
     return topics.filter((t) => {
-      const matchTitle = t.title.toLowerCase().includes(q);
+      const matchTitle = searchTerms.some((term) => t.title.toLowerCase().includes(term));
       const matchNumber = t.number.toLowerCase().includes(q);
-      const matchConcepts = t.concepts.some(
-        (c) =>
-          c.title.toLowerCase().includes(q) ||
-          (c.command && c.command.toLowerCase().includes(q)) ||
-          (c.shortDesc && c.shortDesc.toLowerCase().includes(q)) ||
-          c.id.toLowerCase().includes(q)
+      const matchConcepts = t.concepts.some((c) =>
+        searchTerms.some(
+          (term) =>
+            c.title.toLowerCase().includes(term) ||
+            (c.command && c.command.toLowerCase().includes(term)) ||
+            (c.shortDesc && c.shortDesc.toLowerCase().includes(term)) ||
+            c.id.toLowerCase().includes(term)
+        )
       );
-      const matchSubtopics = t.subtopics?.some((st) => st.toLowerCase().includes(q));
+      const matchSubtopics = t.subtopics?.some((st) => searchTerms.some((term) => st.toLowerCase().includes(term)));
       return matchTitle || matchNumber || matchConcepts || matchSubtopics;
     });
   }, [searchQuery, topics]);
