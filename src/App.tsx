@@ -20,8 +20,14 @@ const PodForgeApp = lazyWithRetry(() =>
 const DockForgeApp = lazyWithRetry(() =>
   import('./dockforge/DockForgeApp').then((m) => ({ default: m.DockForgeApp }))
 );
+const LinuxForgeApp = lazyWithRetry(() =>
+  import('./linuxforge/LinuxForgeApp').then((m) => ({ default: m.LinuxForgeApp }))
+);
 const DevOpsRoadmapView = lazyWithRetry(() =>
   import('./components/roadmap/DevOpsRoadmapView').then((m) => ({ default: m.DevOpsRoadmapView }))
+);
+const DevOpsAcademyMasterView = lazyWithRetry(() =>
+  import('./devops/components/DevOpsAcademyMasterView').then((m) => ({ default: m.DevOpsAcademyMasterView }))
 );
 const UniversalProblemSolver = lazyWithRetry(() =>
   import('./platform/search/UniversalProblemSolver').then((m) => ({ default: m.UniversalProblemSolver }))
@@ -126,6 +132,30 @@ const AppContent: React.FC = () => {
       );
     }
 
+    if (mode === 'devops') {
+      return (
+        <>
+          <SuiteHeaderNav />
+          <main
+            className="main-content"
+            style={{
+              flex: '1 1 0%',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
+              height: 'calc(100vh - 60px)',
+              maxHeight: 'calc(100vh - 60px)',
+              overflow: 'hidden',
+            }}
+          >
+            <Suspense fallback={<ViewLoadingFallback label="Loading DevOps Academy..." />}>
+              <DevOpsAcademyMasterView />
+            </Suspense>
+          </main>
+        </>
+      );
+    }
+
     if (mode === 'podforge') {
       return (
         <SuiteErrorBoundary fallbackTitle="PodForge Kubernetes Academy Error">
@@ -144,6 +174,19 @@ const AppContent: React.FC = () => {
         <SuiteErrorBoundary fallbackTitle="DockForge Docker Academy Error">
           <Suspense fallback={<ViewLoadingFallback label="Starting Docker Daemon..." />}>
             <DockForgeApp
+              initialConceptId={activeLessonConcept || undefined}
+              onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)}
+            />
+          </Suspense>
+        </SuiteErrorBoundary>
+      );
+    }
+
+    if (mode === 'linuxforge') {
+      return (
+        <SuiteErrorBoundary fallbackTitle="LinuxForge Linux Systems Academy Error">
+          <Suspense fallback={<ViewLoadingFallback label="Booting Linux Kernel 6.8..." />}>
+            <LinuxForgeApp
               initialConceptId={activeLessonConcept || undefined}
               onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)}
             />

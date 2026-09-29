@@ -70,6 +70,11 @@ export function mapSegmentToMode(segment: string): ViewMode {
     case 'docker':
       return 'dockforge';
 
+    case 'linuxforge':
+    case 'linux':
+    case 'kernel':
+      return 'linuxforge';
+
     case 'commitforge':
     case 'git':
     case 'learn':
@@ -80,8 +85,13 @@ export function mapSegmentToMode(segment: string): ViewMode {
     case 'concepts':
       return 'universe';
 
-    case 'roadmap':
     case 'devops':
+    case 'curriculum':
+    case 'master-syllabus':
+    case 'syllabus':
+      return 'devops';
+
+    case 'roadmap':
       return 'roadmap';
 
     case 'practice':
@@ -120,8 +130,12 @@ export function mapModeToSegment(mode: ViewMode): string {
       return 'podforge';
     case 'dockforge':
       return 'dockforge';
+    case 'linuxforge':
+      return 'linuxforge';
     case 'learn':
       return 'commitforge';
+    case 'devops':
+      return 'devops';
     case 'universe':
       return 'universe';
     case 'roadmap':
@@ -155,10 +169,14 @@ export function mapModeToSegment(mode: ViewMode): string {
 export function getTitleForMode(mode: ViewMode, conceptTitle?: string | null): string {
   const prefix = conceptTitle ? `${conceptTitle} | ` : '';
   switch (mode) {
+    case 'devops':
+      return `${prefix}DevOps & Cloud Engineering Academy | Master 29-Chapter Syllabus`;
     case 'podforge':
       return `${prefix}PodForge | Interactive Kubernetes Academy`;
     case 'dockforge':
       return `${prefix}DockForge | Interactive Docker & Container Academy`;
+    case 'linuxforge':
+      return `${prefix}LinuxForge | Interactive Linux Systems, Kernel & SRE Academy`;
     case 'learn':
       return `${prefix}CommitForge | Interactive Git & Version Control Academy`;
     case 'universe':

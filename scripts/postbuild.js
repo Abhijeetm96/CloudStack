@@ -19,8 +19,12 @@ console.log('✓ Generated dist/404.html');
 
 // 2. Generate static route directories with index.html for direct GitHub Pages HTTP 200 access
 const routes = [
+  'devops',
+  'curriculum',
+  'master-syllabus',
   'podforge',
   'dockforge',
+  'linuxforge',
   'commitforge',
   'universe',
   'roadmap',
