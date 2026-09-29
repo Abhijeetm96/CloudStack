@@ -32,9 +32,11 @@ export interface InternalStep {
 
 export interface CommonMistake {
   mistake: string;
-  whyWrong: string;
-  correctWay: string;
+  whyWrong?: string;
+  correctWay?: string;
   safeRecovery?: string;
+  whyItHappens?: string;
+  howToFix?: string;
 }
 
 export interface BlockDiagramNode {

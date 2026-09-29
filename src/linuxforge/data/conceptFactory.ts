@@ -17,7 +17,7 @@ export interface LinuxConceptInput {
   whyDoYouNeedIt?: string;
   realWorldScenario?: string;
   realWorldAnalogy?: string;
-  mentalModel?: string;
+  mentalModel?: string | { concept: string; analogy: string; keyTakeaway: string };
   withoutVsWith?: {
     without: { title: string; items: string[]; outcome: string };
     with: { title: string; items: string[]; outcome: string };
@@ -30,8 +30,8 @@ export interface LinuxConceptInput {
   terms?: ConceptTerm[];
   syntaxCode?: string;
   syntaxTokens?: SyntaxToken[];
-  variations?: ConceptVariation[];
-  internalFlow?: InternalStep[];
+  variations?: (ConceptVariation | { command: string; description: string; useCase?: string; syntax?: string; title?: string; whatItDoes?: string; whenToUse?: string })[];
+  internalFlow?: (InternalStep | { step?: number; title?: string; desc?: string; description?: string; why?: string; techDetail?: string; purpose?: string; technicalDetail?: string })[];
   whatChanges?: string[];
   whatDoesNotChange?: string[];
   beforeAfter?: {
@@ -41,14 +41,17 @@ export interface LinuxConceptInput {
   };
   expectedOutput?: string;
   commonMistakes?: CommonMistake[];
-  safeRecovery?: string;
+  safeRecovery?: string | { failureScenario: string; quickFix: string; rootCauseAnalysis?: string };
+  proTips?: string[];
   whenToUse?: string[];
   whenNotToUse?: string[];
   sandbox?: {
-    initialCommands: string[];
-    guidedSteps: { instruction: string; command: string; hint: string }[];
-    targetTask: string;
-    solutionCommands: string[];
+    initialCommands?: string[];
+    starterCommand?: string;
+    guidedSteps?: { instruction: string; command: string; hint: string }[];
+    targetTask?: string;
+    solutionCommands?: string[];
+    hint?: string;
   };
   challenge?: {
     question: string;
@@ -133,11 +136,15 @@ export function buildLinuxConcept(input: LinuxConceptInput): UniversalLinuxConce
   const defaultScenario = input.realWorldScenario || 
     `You are managing a fleet of production Linux servers or troubleshooting a containerized backend. You need to inspect, modify, or verify ${title} to ensure high availability, zero latency spikes, and strict security compliance.`;
 
+  const mentalModelString = typeof input.mentalModel === 'object' && input.mentalModel !== null
+    ? `${input.mentalModel.concept}: ${input.mentalModel.analogy} (Key takeaway: ${input.mentalModel.keyTakeaway})`
+    : (input.mentalModel || '');
+
   const defaultAnalogy = input.realWorldAnalogy || 
-    input.mentalModel || 
+    mentalModelString || 
     `Think of ${title} like an instrument panel gauge and control switch in an industrial power plant. It provides instant telemetry and direct mechanical control over the facility.`;
 
-  const defaultMentalModel = input.mentalModel || defaultAnalogy;
+  const defaultMentalModel = mentalModelString || defaultAnalogy;
 
   const defaultWithoutWith = input.withoutVsWith || {
     without: {
@@ -160,32 +167,105 @@ export function buildLinuxConcept(input: LinuxConceptInput): UniversalLinuxConce
     }
   };
 
-  const defaultDiagram = input.blockDiagram || {
-    title: `${title} Architecture & System Flow`,
-    subtitle: 'System components and execution layers involved:',
-    nodes: [
-      { id: 'user', label: 'User / Shell', simpleDef: 'Interactive bash terminal or automated cron script', techDef: 'Unprivileged Ring 3 execution launching command', badge: 'User Space', color: '#38bdf8' },
-      { id: 'subsys', label: `${title} Engine`, simpleDef: `Coordinates ${primaryCmd} actions within ${topicTitle}`, techDef: 'POSIX API abstraction layer and system utilities', badge: 'Subsystem', color: '#a855f7' },
-      { id: 'kernel', label: 'Linux Kernel VFS / Sched', simpleDef: 'Memory, device drivers, and access control', techDef: 'Ring 0 privileged supervisor syscall handling', badge: 'Kernel Ring 0', color: '#10b981' },
-      { id: 'hw', label: 'Hardware / Storage', simpleDef: 'Physical NVMe SSDs, NICs, and CPU cores', techDef: 'Underlying hardware register and interrupt controllers', badge: 'Physical', color: '#f59e0b' }
-    ]
-  };
+  let defaultDiagram = input.blockDiagram;
+  if (!defaultDiagram || !defaultDiagram.nodes || defaultDiagram.nodes.length < 3) {
+    if (defaultDiagram && defaultDiagram.nodes && defaultDiagram.nodes.length > 0) {
+      const existing = [...defaultDiagram.nodes];
+      const additionalLabels = [
+        { label: 'Linux Kernel VFS / Sched', simple: 'Hardware abstraction and driver mediation', tech: 'Syscall table, memory management, and interrupt handling', badge: 'Kernel Ring 0', color: '#10b981' },
+        { id: 'hw', label: 'Hardware / Storage / NIC', simple: 'Physical subsystem and registers', tech: 'Direct device register IO and interrupt controller', badge: 'Physical', color: '#f59e0b' }
+      ];
+      while (existing.length < 3) {
+        const extra = additionalLabels[existing.length - 1] || additionalLabels[0];
+        existing.push({
+          id: `sys-${existing.length + 1}`,
+          label: extra.label,
+          simpleDef: extra.simple,
+          techDef: extra.tech,
+          badge: extra.badge,
+          color: extra.color
+        });
+      }
+      defaultDiagram = {
+        title: defaultDiagram.title || `${title} Architecture & System Flow`,
+        subtitle: defaultDiagram.subtitle || 'System components and execution layers involved:',
+        nodes: existing
+      };
+    } else {
+      defaultDiagram = {
+        title: `${title} Architecture & System Flow`,
+        subtitle: 'System components and execution layers involved:',
+        nodes: [
+          { id: 'user', label: 'User / Shell', simpleDef: 'Interactive bash terminal or automated cron script', techDef: 'Unprivileged Ring 3 execution launching command', badge: 'User Space', color: '#38bdf8' },
+          { id: 'subsys', label: `${title} Engine`, simpleDef: `Coordinates ${primaryCmd} actions within ${topicTitle}`, techDef: 'POSIX API abstraction layer and system utilities', badge: 'Subsystem', color: '#a855f7' },
+          { id: 'kernel', label: 'Linux Kernel VFS / Sched', simpleDef: 'Memory, device drivers, and access control', techDef: 'Ring 0 privileged supervisor syscall handling', badge: 'Kernel Ring 0', color: '#10b981' },
+          { id: 'hw', label: 'Hardware / Storage', simpleDef: 'Physical NVMe SSDs, NICs, and CPU cores', techDef: 'Underlying hardware register and interrupt controllers', badge: 'Physical', color: '#f59e0b' }
+        ]
+      };
+    }
+  }
 
   const defaultTerms: ConceptTerm[] = input.terms && input.terms.length >= 2 ? input.terms : [
     { term: title, simple: `The core Linux concept under ${topicTitle}.`, technical: `System interface and mechanism for managing ${topicTitle.toLowerCase()}.` },
     { term: primaryCmd, simple: `The primary terminal utility used to operate ${title}.`, technical: `Standard POSIX or GNU binary executable installed in /bin, /usr/bin, or kernel builtin.` }
   ];
 
-  const defaultVariations: ConceptVariation[] = input.variations && input.variations.length > 0 ? input.variations : [
-    { syntax: cleanCmd, title: `Standard Usage`, whatItDoes: `Executes standard ${title} operation`, whenToUse: `Normal day-to-day administrative workflow` },
-    { syntax: `${cleanCmd} --help`, title: `Help & Flags Manual`, whatItDoes: `Displays official parameter specification`, whenToUse: `When discovering advanced runtime flags` }
-  ];
+  const rawVariations = (input.variations || []).map((v: any) => {
+    if (v.syntax) {
+      return v as ConceptVariation;
+    }
+    return {
+      syntax: v.command || cleanCmd,
+      title: v.description?.slice(0, 40) || `Usage for ${cleanCmd}`,
+      whatItDoes: v.description || `Alternative usage for ${cleanCmd}`,
+      whenToUse: v.useCase || `Specific operational context for ${cleanCmd}`
+    } as ConceptVariation;
+  });
 
-  const defaultFlow: InternalStep[] = input.internalFlow && input.internalFlow.length > 0 ? input.internalFlow : [
+  const defaultVariations: ConceptVariation[] = rawVariations.length >= 2 
+    ? [...rawVariations]
+    : rawVariations.length === 1
+      ? [
+          rawVariations[0],
+          {
+            syntax: `${cleanCmd} --help`,
+            title: 'Help & Flags Manual',
+            whatItDoes: 'Displays official syntax specification and parameter list',
+            whenToUse: 'When verifying valid option flags'
+          }
+        ]
+      : [
+          { syntax: cleanCmd, title: `Standard Usage`, whatItDoes: `Executes standard ${title} operation`, whenToUse: `Normal day-to-day administrative workflow` },
+          { syntax: `${cleanCmd} --help`, title: `Help & Flags Manual`, whatItDoes: `Displays official parameter specification`, whenToUse: `When discovering advanced runtime flags` }
+        ];
+
+  const rawFlow = (input.internalFlow && input.internalFlow.length > 0) ? input.internalFlow : [
     { step: 1, title: 'Command Ingestion', desc: `Shell parses "${cleanCmd}" and resolves binary path`, why: 'Command validation', techDetail: 'fork() and execve() invoke binary from $PATH' },
     { step: 2, title: 'Kernel Privilege & Syscall', desc: `Invokes corresponding kernel system calls for ${title}`, why: 'Hardware and resource mediation', techDetail: 'Transitions CPU from Ring 3 to Ring 0 via syscall table' },
     { step: 3, title: 'State Output & Exit Code', desc: 'Returns formatted output to stdout and sets exit code 0', why: 'Deterministic status confirmation', techDetail: 'Pipes stdout buffer to terminal emulator and updates process table' }
   ];
+
+  const defaultFlow: InternalStep[] = rawFlow.map((f: any, idx: number) => {
+    const descText = f.desc || f.description || `Execute execution step ${idx + 1} for ${title}`;
+    return {
+      step: f.step || idx + 1,
+      title: f.title || `Phase ${idx + 1}`,
+      desc: descText,
+      why: f.why || f.purpose || `Ensure deterministic system transition during ${title}`,
+      techDetail: f.techDetail || f.technicalDetail || descText
+    };
+  });
+
+  while (defaultFlow.length < 3) {
+    const nextIdx = defaultFlow.length + 1;
+    defaultFlow.push({
+      step: nextIdx,
+      title: `Step ${nextIdx}: System State Verification`,
+      desc: `Linux kernel verifies system call return code and updates process state tables.`,
+      why: 'Ensure operational integrity',
+      techDetail: 'System call return code evaluated and error status handled via errno register'
+    });
+  }
 
   const defaultWhatChanges = input.whatChanges && input.whatChanges.length > 0 ? input.whatChanges : [
     `System context or resource state for ${title} updates according to executed parameters.`
@@ -201,7 +281,7 @@ export function buildLinuxConcept(input: LinuxConceptInput): UniversalLinuxConce
     explanation: `Executing ${cleanCmd} transitioned the system state predictably without unintended side effects.`
   };
 
-  const defaultMistakes: CommonMistake[] = input.commonMistakes && input.commonMistakes.length >= 2 ? input.commonMistakes : [
+  const rawMistakes = (input.commonMistakes && input.commonMistakes.length >= 2) ? input.commonMistakes : [
     {
       mistake: `Running "${cleanCmd}" without verifying target paths or parameters`,
       whyWrong: 'Can affect unintended files, processes, or system configurations.',
@@ -216,17 +296,57 @@ export function buildLinuxConcept(input: LinuxConceptInput): UniversalLinuxConce
     }
   ];
 
-  const defaultSafeRecovery = input.safeRecovery || 
-    `If an unexpected error occurs during ${title} operations, check terminal stderr output, inspect /var/log/syslog or journalctl -xe, and restore verified config backups.`;
+  const defaultMistakes: CommonMistake[] = rawMistakes.map(m => ({
+    mistake: m.mistake,
+    whyWrong: m.whyWrong || (m as any).whyItHappens || 'Can lead to unexpected behavior or system instability.',
+    correctWay: m.correctWay || (m as any).howToFix || 'Follow standard POSIX practices and double check arguments.',
+    safeRecovery: m.safeRecovery || (m as any).safeRecovery || 'Revert changes or inspect system logs in /var/log.'
+  }));
 
-  const defaultSandbox = input.sandbox || {
-    initialCommands: [cleanCmd, `${cleanCmd} --help`],
-    guidedSteps: [
-      { instruction: `Execute "${cleanCmd}" in the terminal simulator`, command: cleanCmd, hint: `Type "${cleanCmd}" and press Enter` },
-      { instruction: `Verify parameters and options using --help`, command: `${cleanCmd} --help`, hint: `Run "${cleanCmd} --help"` }
-    ],
-    targetTask: `Master the execution and behavior of "${cleanCmd}".`,
-    solutionCommands: [cleanCmd]
+  const defaultSafeRecovery = typeof input.safeRecovery === 'object' && input.safeRecovery !== null
+    ? `Failure Scenario: ${input.safeRecovery.failureScenario} | Quick Fix: ${input.safeRecovery.quickFix}${input.safeRecovery.rootCauseAnalysis ? ` | Root Cause: ${input.safeRecovery.rootCauseAnalysis}` : ''}`
+    : (input.safeRecovery || 
+       `If an unexpected error occurs during ${title} operations, check terminal stderr output, inspect /var/log/syslog or journalctl -xe, and restore verified config backups.`);
+
+  const rawSandbox = input.sandbox as any;
+  const targetTask = rawSandbox?.targetTask || `Master the execution and behavior of "${cleanCmd}".`;
+  const solutionCommands = rawSandbox?.solutionCommands && rawSandbox.solutionCommands.length > 0
+    ? rawSandbox.solutionCommands
+    : [cleanCmd];
+  const initialCommands = rawSandbox?.initialCommands && rawSandbox.initialCommands.length > 0
+    ? rawSandbox.initialCommands
+    : rawSandbox?.starterCommand
+      ? [rawSandbox.starterCommand]
+      : [cleanCmd, `${cleanCmd} --help`];
+
+  const rawGuidedSteps = rawSandbox?.guidedSteps && Array.isArray(rawSandbox.guidedSteps)
+    ? [...rawSandbox.guidedSteps]
+    : [];
+
+  if (rawGuidedSteps.length === 0) {
+    rawGuidedSteps.push({
+      instruction: `Execute "${cleanCmd}" in the terminal simulator`,
+      command: cleanCmd,
+      hint: rawSandbox?.hint || `Type "${cleanCmd}" and press Enter`
+    });
+    rawGuidedSteps.push({
+      instruction: `Verify parameters and options using --help`,
+      command: solutionCommands[1] || `${cleanCmd} --help`,
+      hint: `Run "${solutionCommands[1] || cleanCmd + ' --help'}"`
+    });
+  } else if (rawGuidedSteps.length === 1) {
+    rawGuidedSteps.push({
+      instruction: `Verify parameters and options using --help`,
+      command: solutionCommands[1] || `${cleanCmd} --help`,
+      hint: `Run "${cleanCmd} --help"`
+    });
+  }
+
+  const defaultSandbox = {
+    targetTask,
+    solutionCommands,
+    initialCommands,
+    guidedSteps: rawGuidedSteps
   };
 
   const defaultChallenge = input.challenge || {
@@ -251,6 +371,18 @@ export function buildLinuxConcept(input: LinuxConceptInput): UniversalLinuxConce
     ]
   };
 
+  const rawTokens = input.syntaxTokens && input.syntaxTokens.length > 0 ? input.syntaxTokens : defaultTokens;
+  const finalTokens: SyntaxToken[] = rawTokens.length >= 2
+    ? [...rawTokens]
+    : [
+        ...rawTokens,
+        {
+          token: '[options]',
+          role: 'flag',
+          explanation: `Optional flags and argument modifiers for ${rawTokens[0]?.token || 'command'}`
+        }
+      ];
+
   return {
     id,
     subChapterNumber,
@@ -273,7 +405,7 @@ export function buildLinuxConcept(input: LinuxConceptInput): UniversalLinuxConce
     blockDiagram: defaultDiagram,
     terms: defaultTerms,
     syntaxCode: input.syntaxCode || cleanCmd,
-    syntaxTokens: input.syntaxTokens || defaultTokens,
+    syntaxTokens: finalTokens,
     variations: defaultVariations,
     internalFlow: defaultFlow,
     whatChanges: defaultWhatChanges,

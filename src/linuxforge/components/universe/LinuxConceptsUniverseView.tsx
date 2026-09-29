@@ -37,9 +37,9 @@ export const LinuxConceptsUniverseView: React.FC = () => {
         variations: c.variations,
         mistakes: c.commonMistakes?.map((m) => ({
           mistake: m.mistake,
-          whyWrong: m.whyWrong,
-          correctWay: m.correctWay,
-        })),
+          whyWrong: m.whyWrong || m.whyItHappens || 'Can cause unexpected behavior or errors',
+          correctWay: m.correctWay || m.howToFix || 'Follow standard system practices',
+        })) || [],
       }))
     );
   }, []);
