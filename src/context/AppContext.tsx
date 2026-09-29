@@ -7,8 +7,10 @@ import { parseCurrentRoute, syncUrlWithMode, getTitleForMode } from '../platform
 
 export type ViewMode =
   | 'home'
+  | 'devops'
   | 'podforge'
   | 'dockforge'
+  | 'linuxforge'
   | 'dashboard'
   | 'roadmap'
   | 'first10'

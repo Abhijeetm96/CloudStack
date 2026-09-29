@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useProgress } from '../../progress';
-import { Flame, Boxes, Sparkles, Search, GitBranch, Container, Database, Menu, X } from 'lucide-react';
+import { Flame, Boxes, Sparkles, Search, GitBranch, Container, Database, Menu, X, Terminal, BookOpen } from 'lucide-react';
 import './suiteHeaderNav.css';
 
 export const SuiteHeaderNav: React.FC = () => {
@@ -57,6 +57,21 @@ export const SuiteHeaderNav: React.FC = () => {
       {/* Academy Switcher Buttons (Desktop & Tablet) */}
       <div className="suite-nav-links">
         <button
+          onClick={() => setMode('devops')}
+          className="suite-nav-btn"
+          style={{
+            background: mode === 'devops' ? 'rgba(168, 85, 247, 0.24)' : 'rgba(168, 85, 247, 0.12)',
+            border: '1px solid rgba(168, 85, 247, 0.35)',
+            color: '#c084fc',
+          }}
+          title="Open Master 29-Chapter DevOps & Cloud Engineering Academy"
+          aria-label="DevOps & Cloud Engineering Academy"
+        >
+          <BookOpen size={15} />
+          <span className="suite-nav-text">DevOps Academy (29 Ch)</span>
+        </button>
+
+        <button
           onClick={() => setMode('learn')}
           className="suite-nav-btn"
           style={{
@@ -99,6 +114,21 @@ export const SuiteHeaderNav: React.FC = () => {
         >
           <Boxes size={15} />
           <span className="suite-nav-text">Kubernetes</span>
+        </button>
+
+        <button
+          onClick={() => setMode('linuxforge')}
+          className="suite-nav-btn"
+          style={{
+            background: mode === 'linuxforge' ? 'rgba(6, 182, 212, 0.24)' : 'rgba(6, 182, 212, 0.12)',
+            border: '1px solid rgba(6, 182, 212, 0.35)',
+            color: '#06b6d4',
+          }}
+          title="Open Linux Systems Academy (LinuxForge)"
+          aria-label="LinuxForge Linux Systems Academy"
+        >
+          <Terminal size={15} />
+          <span className="suite-nav-text">Linux</span>
         </button>
 
         <button
@@ -168,6 +198,21 @@ export const SuiteHeaderNav: React.FC = () => {
         <div className="suite-mobile-drawer">
           <button
             onClick={() => {
+              setMode('devops');
+              setMobileMenuOpen(false);
+            }}
+            className="suite-mobile-item"
+            style={{ borderLeft: '3px solid #c084fc' }}
+          >
+            <BookOpen size={16} color="#c084fc" />
+            <div>
+              <div style={{ color: '#c084fc' }}>DevOps Academy (29 Ch)</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Master DevOps &amp; Cloud Curriculum</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
               setMode('learn');
               setMobileMenuOpen(false);
             }}
@@ -208,6 +253,21 @@ export const SuiteHeaderNav: React.FC = () => {
             <div>
               <div style={{ color: '#60a5fa' }}>Kubernetes (PodForge)</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Kubernetes Orchestration Academy</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
+              setMode('linuxforge');
+              setMobileMenuOpen(false);
+            }}
+            className="suite-mobile-item"
+            style={{ borderLeft: '3px solid #06b6d4' }}
+          >
+            <Terminal size={16} color="#06b6d4" />
+            <div>
+              <div style={{ color: '#06b6d4' }}>Linux (LinuxForge)</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Linux Systems, Kernel &amp; SRE</div>
             </div>
           </button>
 
