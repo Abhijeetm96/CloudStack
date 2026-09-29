@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { UniversalLinuxConcept, BlockDiagramNode } from '../../data/unifiedLinuxData';
 import {
   LinuxVisualSystemSimulator,
@@ -252,6 +252,22 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
   const [quizSubmitted, setQuizSubmitted] = useState<boolean>(false);
 
   const isCompleted = completedConceptIds.includes(concept.id);
+
+  // Reset interactive stage states when concept changes
+  useEffect(() => {
+    setSelectedDiagramNode(concept.blockDiagram?.nodes[0] || null);
+    setSelectedTokenIndex(0);
+    setSelectedVariationIndex(0);
+    setActiveInternalStep(1);
+    setInspectWhyStep(null);
+    setQuizSelectedOption(null);
+    setQuizSubmitted(false);
+    setInputCommand('');
+    setTerminalHistory([
+      { type: 'output', text: '$ LinuxForge Kernel 6.8 Terminal Simulator' },
+      { type: 'output', text: `Target Goal: ${concept.sandbox?.targetTask || 'Run command'}` },
+    ]);
+  }, [concept.id, concept.blockDiagram, concept.sandbox?.targetTask]);
 
   const toggleTermMode = (termName: string) => {
     setTermViewMode((prev) => ({

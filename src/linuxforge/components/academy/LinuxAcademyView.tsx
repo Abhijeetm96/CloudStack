@@ -171,10 +171,6 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
 
   const handleSelectConcept = (cId: string) => {
     setActiveConceptId(cId);
-    const parentTopic = LINUX_15_TOPICS.find((t) => t.concepts.some((c) => c.id === cId));
-    if (parentTopic) {
-      setActiveTopicId(parentTopic.id);
-    }
   };
 
   return (

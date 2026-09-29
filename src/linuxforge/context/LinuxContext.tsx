@@ -7,6 +7,7 @@ import {
   getLinuxConceptById,
 } from '../data/topics';
 import { defaultLinuxSimulator, LinuxExecutionResult } from '../data/linuxSimulatorEngine';
+import { parseCurrentRoute, syncUrlWithMode } from '../../platform/routing/urlRouter';
 
 export type LinuxMode = 'academy' | 'universe' | 'practice' | 'reference';
 
@@ -57,6 +58,10 @@ export const LinuxProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [activeConceptId, setActiveConceptIdState] = useState<string>(() => {
     try {
+      const route = parseCurrentRoute();
+      if (route.mode === 'linuxforge' && route.conceptId && ALL_LINUX_CONCEPTS.some((c) => c.id === route.conceptId)) {
+        return route.conceptId;
+      }
       const saved = localStorage.getItem(STORAGE_KEY_LAST_CONCEPT);
       if (saved && ALL_LINUX_CONCEPTS.some((c) => c.id === saved)) {
         return saved;
@@ -64,12 +69,12 @@ export const LinuxProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // ignore
     }
-    return ALL_LINUX_CONCEPTS[0]?.id || 'c-unix-philosophy';
+    return ALL_LINUX_CONCEPTS[0]?.id || 'c-01-01';
   });
 
   const [activeTopicId, setActiveTopicIdState] = useState<string>(() => {
     const concept = getLinuxConceptById(activeConceptId);
-    return concept?.topicId || LINUX_15_TOPICS[0]?.id || 'topic-01';
+    return concept?.topicId || LINUX_15_TOPICS[0]?.id || 'pack01-ch01';
   });
 
   const [completedConceptIds, setCompletedConceptIds] = useState<string[]>(() => {
@@ -98,6 +103,7 @@ export const LinuxProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch {
       // ignore
     }
+    syncUrlWithMode('linuxforge', id);
     const concept = getLinuxConceptById(id);
     if (concept && concept.topicId) {
       setActiveTopicIdState(concept.topicId);
@@ -108,12 +114,17 @@ export const LinuxProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setActiveTopicIdState(id);
     const topic = LINUX_15_TOPICS.find((t) => t.id === id);
     if (topic && topic.concepts.length > 0) {
-      setActiveConceptIdState(topic.concepts[0].id);
-      try {
-        localStorage.setItem(STORAGE_KEY_LAST_CONCEPT, topic.concepts[0].id);
-      } catch {
-        // ignore
-      }
+      setActiveConceptIdState((currConceptId) => {
+        const belongs = topic.concepts.some((c) => c.id === currConceptId);
+        const nextId = belongs ? currConceptId : topic.concepts[0].id;
+        try {
+          localStorage.setItem(STORAGE_KEY_LAST_CONCEPT, nextId);
+        } catch {
+          // ignore
+        }
+        syncUrlWithMode('linuxforge', nextId);
+        return nextId;
+      });
     }
   }, []);
 
