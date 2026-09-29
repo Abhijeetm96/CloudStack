@@ -29,6 +29,16 @@ export interface StandardTopicItem {
   subtopics?: string[];
 }
 
+function renderSidebarIcon(
+  icon: LucideIcon | React.ReactNode | undefined,
+  size: number,
+  fallback: LucideIcon = Terminal
+): React.ReactNode {
+  if (!icon) return React.createElement(fallback, { size });
+  if (React.isValidElement(icon)) return icon;
+  return React.createElement(icon as any, { size });
+}
+
 export interface StandardAcademySidebarProps {
   title: string;
   subtitle: string;
@@ -468,13 +478,7 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
                         flexShrink: 0,
                       }}
                     >
-                      {React.isValidElement(topic.icon) ? (
-                        topic.icon
-                      ) : typeof topic.icon === 'function' ? (
-                        React.createElement(topic.icon as LucideIcon, { size: 16 })
-                      ) : (
-                        <Terminal size={16} />
-                      )}
+                      {renderSidebarIcon(topic.icon, 16)}
                     </span>
 
                     <span
@@ -580,7 +584,7 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
                             {isDone ? (
                               <CheckCircle2 size={13} color="#22c55e" />
                             ) : (
-                              <Terminal size={13} />
+                              renderSidebarIcon(concept.icon, 13)
                             )}
                           </span>
 

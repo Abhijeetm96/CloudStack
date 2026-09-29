@@ -35,50 +35,9 @@ import {
   AlertTriangle,
 } from 'lucide-react';
 
+import { getLinuxChapterIcon, getLinuxConceptIcon } from '../../data/linuxIcons';
 import { ViewMode } from '../../../context/AppContext';
 import { DEVOPS_29_CHAPTERS } from '../../../devops/data/devopsCurriculumData';
-
-const LINUX_TOPIC_ICONS: Record<string, LucideIcon> = {
-  Cpu,
-  Terminal,
-  Lock,
-  Workflow,
-  Layers,
-  Activity,
-  Server,
-  HardDrive,
-  Network,
-  Package,
-  Shield,
-  FolderGit2,
-  FolderTree,
-  FileText,
-  FileCode,
-  ShieldCheck,
-  TerminalSquare,
-  Wrench,
-  Code2,
-  Users,
-  Database,
-  AlertTriangle,
-};
-
-function getLinuxTopicIcon(iconName?: string, topicNumber?: string): LucideIcon {
-  if (iconName && LINUX_TOPIC_ICONS[iconName]) {
-    return LINUX_TOPIC_ICONS[iconName];
-  }
-  switch (topicNumber) {
-    case '01.1': return Terminal;
-    case '01.2': return FolderGit2;
-    case '01.3': return FileText;
-    case '01.4': return ShieldCheck;
-    case '01.5': return Activity;
-    case '01.6': return Server;
-    case '01.7': return TerminalSquare;
-    case '01.8': return Wrench;
-    default: return Terminal;
-  }
-}
 
 interface LinuxAcademyViewProps {
   onSwitchToSuite?: (mode: ViewMode) => void;
@@ -120,10 +79,10 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
     }
   };
 
-  // Convert topics to StandardTopicItem format
+  // Convert topics to StandardTopicItem format with unique chapter & concept icons
   const sidebarTopics: StandardTopicItem[] = useMemo(() => {
     return LINUX_15_TOPICS.map((t, idx) => {
-      const IconComponent = getLinuxTopicIcon(t.iconName, t.number);
+      const IconComponent = getLinuxChapterIcon(t.number, t.iconName);
       const formattedNum = String(idx + 1).padStart(2, '0');
 
       return {
@@ -137,6 +96,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
           title: c.title,
           subChapterNumber: c.subChapterNumber,
           shortDesc: c.subtitle,
+          icon: getLinuxConceptIcon(c),
         })),
       };
     });
@@ -166,6 +126,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
       title: c.title,
       subChapterNumber: c.subChapterNumber,
       command: c.command,
+      icon: getLinuxConceptIcon(c),
     }));
   }, [currentChapter]);
 

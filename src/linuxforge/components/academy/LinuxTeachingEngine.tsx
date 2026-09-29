@@ -51,147 +51,16 @@ import {
   Clock,
   Gauge,
   Sliders,
+  LucideIcon,
 } from 'lucide-react';
-
-export function getLinuxConceptIcon(
-  conceptId?: string,
-  command?: string,
-  size = 24,
-  color?: string
-): React.ReactElement {
-  const iconProps = { size, ...(color ? { color } : {}) };
-  const cmd = (command || '').toLowerCase().trim();
-  const id = (conceptId || '').toLowerCase().trim();
-
-  // Exact ID checks
-  if (id === 'what-is-linux' || id === 'linux-distros') return <Terminal {...iconProps} />;
-  if (id === 'kernel-vs-os' || id === 'user-vs-kernel-space') return <Cpu {...iconProps} />;
-  if (id === 'filesystem-hierarchy' || id.startsWith('dir-')) return <FolderTree {...iconProps} />;
-  if (id.includes('permission') || id === 'chmod') return <ShieldCheck {...iconProps} />;
-  if (id === 'chown' || id === 'chgrp') return <Key {...iconProps} />;
-  if (id === 'umask') return <Lock {...iconProps} />;
-  if (id === 'sudo' || id.includes('security')) return <ShieldAlert {...iconProps} />;
-  if (id.includes('systemd') || id.includes('service') || id.includes('daemon')) return <Server {...iconProps} />;
-  if (id.includes('process') || id.includes('signals')) return <Activity {...iconProps} />;
-  if (id.includes('troubleshoot')) return <Wrench {...iconProps} />;
-
-  // Command checks
-  switch (cmd) {
-    case 'pwd':
-    case 'cd':
-      return <Compass {...iconProps} />;
-    case 'ls':
-    case 'tree':
-      return <FolderTree {...iconProps} />;
-    case 'mkdir':
-    case 'touch':
-      return <FolderPlus {...iconProps} />;
-    case 'cp':
-    case 'mv':
-      return <Copy {...iconProps} />;
-    case 'rm':
-      return <Trash2 {...iconProps} />;
-    case 'find':
-    case 'locate':
-    case 'which':
-    case 'whereis':
-    case 'type':
-      return <Search {...iconProps} />;
-    case 'file':
-    case 'stat':
-      return <Info {...iconProps} />;
-    case 'cat':
-    case 'less':
-    case 'more':
-    case 'head':
-    case 'tail':
-      return <FileText {...iconProps} />;
-    case 'grep':
-      return <Search {...iconProps} />;
-    case 'sort':
-    case 'uniq':
-      return <ArrowUpDown {...iconProps} />;
-    case 'wc':
-    case 'cut':
-    case 'awk':
-    case 'sed':
-    case 'tr':
-      return <Code2 {...iconProps} />;
-    case 'xargs':
-      return <Workflow {...iconProps} />;
-    case 'chmod':
-      return <ShieldCheck {...iconProps} />;
-    case 'chown':
-    case 'chgrp':
-      return <Key {...iconProps} />;
-    case 'umask':
-      return <Lock {...iconProps} />;
-    case 'sudo':
-    case 'su':
-      return <ShieldAlert {...iconProps} />;
-    case 'ps':
-    case 'top':
-    case 'htop':
-      return <Activity {...iconProps} />;
-    case 'kill':
-    case 'killall':
-    case 'pkill':
-      return <Zap {...iconProps} />;
-    case 'jobs':
-    case 'bg':
-    case 'fg':
-    case 'nohup':
-      return <PlayCircle {...iconProps} />;
-    case 'nice':
-    case 'renice':
-      return <Sliders {...iconProps} />;
-    case 'systemctl':
-    case 'service':
-      return <Server {...iconProps} />;
-    case 'journalctl':
-      return <BookOpen {...iconProps} />;
-    case 'echo':
-    case 'alias':
-      return <Terminal {...iconProps} />;
-    case 'export':
-    case 'env':
-      return <Code2 {...iconProps} />;
-    case 'history':
-      return <History {...iconProps} />;
-    case 'cron':
-    case 'crontab':
-      return <Clock {...iconProps} />;
-    case 'df':
-    case 'du':
-      return <HardDrive {...iconProps} />;
-    case 'free':
-    case 'uptime':
-    case 'vmstat':
-    case 'iostat':
-      return <Gauge {...iconProps} />;
-    case 'netstat':
-    case 'ss':
-    case 'ping':
-    case 'traceroute':
-    case 'curl':
-    case 'dig':
-      return <Network {...iconProps} />;
-    case 'dmesg':
-    case 'strace':
-      return <AlertTriangle {...iconProps} />;
-    default:
-      if (cmd.includes('systemctl')) return <Server {...iconProps} />;
-      if (cmd.includes('redirection') || cmd.includes('pipe') || cmd.includes('|')) return <Share2 {...iconProps} />;
-      if (cmd.endsWith('.sh')) return <FileCode {...iconProps} />;
-      return <Terminal {...iconProps} />;
-  }
-}
+import { getLinuxConceptIcon } from '../../data/linuxIcons';
 
 export interface ChapterSubChapterItem {
   id: string;
   title: string;
   subChapterNumber?: string;
   command?: string;
+  icon?: LucideIcon | React.ReactNode;
 }
 
 interface LinuxTeachingEngineProps {
@@ -618,6 +487,12 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
                   >
                     {isCompleted ? (
                       <CheckCircle2 size={12} color="#4ade80" />
+                    ) : sc.icon ? (
+                      React.isValidElement(sc.icon) ? (
+                        sc.icon
+                      ) : typeof sc.icon === 'function' ? (
+                        React.createElement(sc.icon as LucideIcon, { size: 12 })
+                      ) : null
                     ) : null}
                     <span
                       style={{
@@ -731,7 +606,7 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
                 flexShrink: 0,
               }}
             >
-              {getLinuxConceptIcon(concept.id, concept.command, 24)}
+              {React.createElement(getLinuxConceptIcon(concept), { size: 24 })}
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem', minWidth: 0 }}>
