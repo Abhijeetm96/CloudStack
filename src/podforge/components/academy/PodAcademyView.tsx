@@ -10,40 +10,40 @@ import { PodPitfallsTab } from './PodPitfallsTab';
 import { PodQuizTab } from './PodQuizTab';
 import { KubeFlowDiagram } from '../diagrams/KubeFlowDiagram';
 import {
-  Layers,
+  StandardAcademySidebar,
+  StandardTopicItem,
+} from '../../../platform/layout/StandardAcademySidebar';
+import { StandardAcademyBottomBar } from '../../../platform/layout/StandardAcademyBottomBar';
+import {
   BookOpen,
   Activity,
   Code2,
   FileCode,
   CheckCircle2,
-  ArrowRight,
-  ArrowLeft,
   ChevronRight,
   Boxes,
   Flame,
   AlertTriangle,
   Award,
-  Search,
-  Filter,
-  X,
   Workflow,
+  Compass,
+  ChevronDown,
+  Sparkles,
 } from 'lucide-react';
 
 import { ViewMode } from '../../../context/AppContext';
 import { conceptRequiresVisualizer } from '../../data/topics/visualizerScope';
 
 type AcademyTab = 'learn' | 'diagram' | 'spec' | 'practice' | 'visualize' | 'pitfalls' | 'quiz';
-type DifficultyTier = 'All' | 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
 
 interface PodAcademyViewProps {
   onSwitchToSuite?: (mode: ViewMode) => void;
 }
 
 export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite }) => {
-  const { activeConcept, setActiveConceptId, completedConcepts, markConceptComplete } = useApp();
+  const { activeConcept, setActiveConceptId, completedConcepts, markConceptComplete, setMode } = useApp();
   const [activeTab, setActiveTab] = useState<AcademyTab>('learn');
-  const [difficultyFilter, setDifficultyFilter] = useState<DifficultyTier>('All');
-  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [showMobileTopicsDrawer, setShowMobileTopicsDrawer] = useState<boolean>(false);
 
   const currentChapter = KUBE_CHAPTERS.find((ch) => ch.concepts.some((c) => c.id === activeConcept.id));
 
@@ -61,43 +61,28 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
 
   const isCompleted = completedConcepts.includes(activeConcept.id);
 
-  // Filtered chapters & concepts based on tier + search query
-  const filteredChapters = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
+  // Map KUBE_CHAPTERS to StandardTopicItem for StandardAcademySidebar
+  const sidebarTopics: StandardTopicItem[] = useMemo(() => {
     return KUBE_CHAPTERS.map((ch) => {
-      const matchingConcepts = ch.concepts.filter((c) => {
-        const matchesDiff = difficultyFilter === 'All' || c.difficulty === difficultyFilter;
-        const matchesQuery =
-          !q ||
-          c.title.toLowerCase().includes(q) ||
-          c.number.toLowerCase().includes(q) ||
-          c.description.toLowerCase().includes(q) ||
-          c.commandPill.toLowerCase().includes(q) ||
-          (c.dockerBridge?.dockerEquivalent.toLowerCase().includes(q) ?? false) ||
-          (c.subtopics?.some((s) => s.toLowerCase().includes(q)) ?? false);
-
-        return matchesDiff && matchesQuery;
-      });
-
+      const IconComponent = getChapterIcon(ch.number);
       return {
-        ...ch,
-        concepts: matchingConcepts,
+        id: ch.id,
+        number: String(ch.number).padStart(2, '0'),
+        title: ch.title,
+        icon: IconComponent,
+        concepts: ch.concepts.map((c) => ({
+          id: c.id,
+          command: c.commandPill || `kubectl get ${c.id.replace('c-k8s-', '')}`,
+          title: c.title,
+          shortDesc: c.description,
+        })),
       };
-    }).filter((ch) => ch.concepts.length > 0);
-  }, [difficultyFilter, searchQuery]);
+    });
+  }, []);
 
-  const totalMatchingConcepts = useMemo(
-    () => filteredChapters.reduce((acc, ch) => acc + ch.concepts.length, 0),
-    [filteredChapters]
-  );
-
-  const beginnerTotal = useMemo(() => allConcepts.filter((c) => c.difficulty === 'Beginner').length, [allConcepts]);
-  const beginnerDone = useMemo(
-    () => allConcepts.filter((c) => c.difficulty === 'Beginner' && completedConcepts.includes(c.id)).length,
-    [allConcepts, completedConcepts]
-  );
-
-
+  const handleSelectConcept = (conceptId: string) => {
+    setActiveConceptId(conceptId);
+  };
 
   return (
     <div
@@ -107,223 +92,122 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
         width: '100%',
         height: '100%',
         maxHeight: '100%',
+        minHeight: 0,
         background: 'var(--bg-app)',
         color: 'var(--text-primary)',
         overflow: 'hidden',
       }}
     >
-      {/* COLUMN 1: LEFT SIDEBAR (Curriculum Navigator with Filters & Search) */}
+      {/* ================================================================ */}
+      {/* COLUMN 1: LEFT SIDEBAR (Standard 240px Accordion Sidebar)       */}
+      {/* ================================================================ */}
       <aside
+        className="academy-sidebar-desktop"
         style={{
-          width: '300px',
-          minWidth: '300px',
-          maxWidth: '300px',
+          width: '240px',
+          minWidth: '240px',
+          maxWidth: '240px',
           background: 'var(--bg-surface)',
           borderRight: '1px solid var(--border-color)',
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
+          maxHeight: '100%',
+          minHeight: 0,
+          flexShrink: 0,
           overflow: 'hidden',
         }}
       >
-        {/* Sidebar Header */}
-        <div style={{ padding: '0.85rem 1rem 0.65rem 1rem', borderBottom: '1px solid var(--border-color)', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ fontSize: '0.9rem', fontWeight: 800, color: '#fff', display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
-              <Layers size={16} color="var(--k8s-blue)" />
-              <span>Kubernetes Curriculum</span>
-            </div>
-            <span style={{ fontSize: '0.68rem', color: 'var(--k8s-cyan)', background: 'rgba(56, 189, 248, 0.12)', padding: '0.15rem 0.45rem', borderRadius: '4px', fontWeight: 700 }}>
-              {totalMatchingConcepts}/{allConcepts.length}
-            </span>
-          </div>
-
-          {/* Quick Search Input */}
-          <div style={{ position: 'relative', display: 'flex', alignItems: 'center' }}>
-            <Search size={13} color="#94a3b8" style={{ position: 'absolute', left: '0.6rem', pointerEvents: 'none' }} />
-            <input
-              type="text"
-              placeholder="Search concepts, docker, rbac..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              style={{
-                width: '100%',
-                background: 'rgba(0, 0, 0, 0.35)',
-                border: '1px solid var(--border-color)',
-                borderRadius: '6px',
-                padding: '0.35rem 1.8rem 0.35rem 1.9rem',
-                color: '#fff',
-                fontSize: '0.74rem',
-                outline: 'none',
-              }}
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery('')}
-                style={{ position: 'absolute', right: '0.45rem', background: 'transparent', border: 'none', color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', padding: '0.1rem' }}
-              >
-                <X size={12} />
-              </button>
-            )}
-          </div>
-
-          {/* Difficulty Tier Tabs */}
-          <div style={{ display: 'flex', gap: '0.25rem', overflowX: 'auto', paddingBottom: '0.1rem' }}>
-            {(['All', 'Beginner', 'Intermediate', 'Advanced', 'Expert'] as DifficultyTier[]).map((tier) => {
-              const isSelected = difficultyFilter === tier;
-              return (
-                <button
-                  key={tier}
-                  onClick={() => setDifficultyFilter(tier)}
-                  style={{
-                    background: isSelected ? 'var(--k8s-blue)' : 'rgba(255, 255, 255, 0.04)',
-                    border: isSelected ? '1px solid #38bdf8' : '1px solid transparent',
-                    color: isSelected ? '#fff' : 'var(--text-muted)',
-                    borderRadius: '5px',
-                    padding: '0.2rem 0.45rem',
-                    fontSize: '0.68rem',
-                    fontWeight: isSelected ? 800 : 600,
-                    cursor: 'pointer',
-                    whiteSpace: 'nowrap',
-                    transition: 'all 0.15s ease',
-                  }}
-                >
-                  {tier}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Chapters & Concepts List */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '0.65rem 0.5rem' }}>
-          {filteredChapters.length === 0 ? (
-            <div style={{ padding: '2rem 1rem', textAlign: 'center', display: 'flex', flexDirection: 'column', gap: '0.65rem', alignItems: 'center' }}>
-              <Filter size={24} color="#64748b" />
-              <div style={{ fontSize: '0.82rem', color: '#94a3b8', fontWeight: 600 }}>
-                No concepts match the current filter.
-              </div>
-              <button
-                onClick={() => {
-                  setDifficultyFilter('All');
-                  setSearchQuery('');
-                }}
-                style={{
-                  background: 'rgba(56, 189, 248, 0.15)',
-                  border: '1px solid rgba(56, 189, 248, 0.3)',
-                  color: '#38bdf8',
-                  padding: '0.35rem 0.75rem',
-                  borderRadius: '6px',
-                  fontSize: '0.74rem',
-                  fontWeight: 700,
-                  cursor: 'pointer',
-                }}
-              >
-                Reset All Filters
-              </button>
-            </div>
-          ) : (
-            filteredChapters.map((ch) => {
-              const ChapterIcon = getChapterIcon(ch.number);
-              return (
-                <div key={ch.id} style={{ marginBottom: '0.85rem' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.68rem', fontWeight: 800, color: 'var(--k8s-cyan)', textTransform: 'uppercase', padding: '0.25rem 0.6rem', letterSpacing: '0.04em' }}>
-                    <ChapterIcon size={14} color="var(--k8s-cyan)" />
-                    <span>{ch.title}</span>
-                  </div>
-
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginTop: '0.2rem' }}>
-                    {ch.concepts.map((c) => {
-                      const isActive = c.id === activeConcept.id;
-                      const isDone = completedConcepts.includes(c.id);
-                      const ConceptIcon = getConceptIcon(c.id);
-
-                      return (
-                        <div
-                          key={c.id}
-                          onClick={() => {
-                            setActiveConceptId(c.id);
-                          }}
-                          style={{
-                            padding: '0.5rem 0.65rem',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            background: isActive ? 'rgba(50, 108, 229, 0.18)' : 'transparent',
-                            borderLeft: isActive ? '3px solid var(--k8s-blue)' : '3px solid transparent',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'space-between',
-                            gap: '0.55rem',
-                            transition: 'all 0.15s ease',
-                          }}
-                        >
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', minWidth: 0, flex: 1 }}>
-                            <div
-                              style={{
-                                width: '24px',
-                                height: '24px',
-                                borderRadius: '6px',
-                                background: isActive ? 'rgba(56, 189, 248, 0.2)' : 'rgba(148, 163, 184, 0.08)',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                flexShrink: 0,
-                                color: isActive ? 'var(--k8s-cyan)' : 'var(--text-muted)',
-                              }}
-                            >
-                              <ConceptIcon size={13} />
-                            </div>
-                            <div style={{ minWidth: 0, flex: 1 }}>
-                              <div style={{ fontSize: '0.78rem', fontWeight: isActive ? 800 : 600, color: isActive ? '#fff' : 'var(--text-primary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                                {c.number} {c.title}
-                              </div>
-                              <div style={{ fontSize: '0.66rem', color: 'var(--text-muted)', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                                <span>{c.difficulty}</span>
-                                <span>•</span>
-                                <span>{c.badge}</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {isDone && <CheckCircle2 size={14} color="#10b981" />}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-
-        {/* Progress Footer */}
-        <div style={{ padding: '0.85rem', borderTop: '1px solid var(--border-color)', background: 'var(--bg-surface)', display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.74rem' }}>
-            <span style={{ color: 'var(--text-secondary)' }}>Mastery Journey</span>
-            <span style={{ fontWeight: 800, color: 'var(--k8s-cyan)' }}>
-              {Math.round((completedConcepts.length / allConcepts.length) * 100)}% ({completedConcepts.length}/{allConcepts.length})
-            </span>
-          </div>
-          <div style={{ height: '5px', background: 'var(--border-color)', borderRadius: '999px', overflow: 'hidden' }}>
-            <div style={{ width: `${(completedConcepts.length / allConcepts.length) * 100}%`, height: '100%', background: 'linear-gradient(90deg, #326ce5 0%, #10b981 100%)' }} />
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-            <span>Beginner: {beginnerDone}/{beginnerTotal}</span>
-            <span>All 4 Tracks Active</span>
-          </div>
-        </div>
+        <StandardAcademySidebar
+          title="PodForge Academy"
+          subtitle={`${KUBE_CHAPTERS.length} Chapters • Your K8s Journey`}
+          icon={Compass}
+          accentColor="#60a5fa"
+          topics={sidebarTopics}
+          activeConceptId={activeConcept.id}
+          completedConceptIds={completedConcepts}
+          onSelectConcept={handleSelectConcept}
+        />
       </aside>
 
-      {/* COLUMN 2: CENTER PANEL (Learning & Practice Experience) */}
+      {/* ================================================================ */}
+      {/* COLUMN 2: CENTER PANEL (Learning & Practice Experience)          */}
+      {/* ================================================================ */}
       <main
+        className="academy-center-main"
         style={{
           flex: 1,
+          minWidth: 0,
+          minHeight: 0,
           display: 'flex',
           flexDirection: 'column',
           height: '100%',
+          maxHeight: '100%',
           overflow: 'hidden',
+          background: 'var(--bg-app)',
         }}
       >
+        {/* Mobile & Tablet Top Bar (<1200px) */}
+        <div
+          className="academy-mobile-topbar"
+          style={{
+            flexShrink: 0,
+            padding: '0.5rem 0.85rem',
+            background: 'var(--bg-surface)',
+            borderBottom: '1px solid var(--border-color)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: '0.5rem',
+          }}
+        >
+          {/* Topics Drawer Toggle */}
+          <button
+            onClick={() => setShowMobileTopicsDrawer(true)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.45rem',
+              background: 'rgba(56, 189, 248, 0.12)',
+              border: '1px solid rgba(56, 189, 248, 0.3)',
+              borderRadius: '8px',
+              padding: '0.35rem 0.65rem',
+              color: '#38bdf8',
+              fontSize: '0.78rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+              maxWidth: '65%',
+            }}
+          >
+            <Compass size={15} />
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+              Chapters ({KUBE_CHAPTERS.length}) • {activeConcept.title}
+            </span>
+            <ChevronDown size={13} />
+          </button>
+
+          {/* Quick Universe Catalog Shortcut on Mobile */}
+          <button
+            onClick={() => setMode('universe')}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.35rem',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
+              borderRadius: '8px',
+              padding: '0.35rem 0.65rem',
+              color: '#f59e0b',
+              fontSize: '0.76rem',
+              fontWeight: 700,
+              cursor: 'pointer',
+            }}
+          >
+            <Sparkles size={13} />
+            <span>71 Concepts</span>
+          </button>
+        </div>
+
         {/* Scrollable Center Body */}
         <div
           style={{
@@ -463,10 +347,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
             )}
 
             {/* Breadcrumb 4: Current Concept Active Pill */}
-            <button
-              type="button"
-              onClick={() => setActiveTab('learn')}
-              title={`Active Concept: ${activeConcept.number} ${activeConcept.title} (Click to reset to Concept Overview)`}
+            <span
               style={{
                 background: 'rgba(56, 189, 248, 0.12)',
                 border: '1px solid rgba(56, 189, 248, 0.35)',
@@ -475,35 +356,33 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
                 color: '#38bdf8',
                 fontSize: '0.78rem',
                 fontWeight: 700,
-                cursor: 'pointer',
                 display: 'inline-flex',
                 alignItems: 'center',
                 gap: '0.35rem',
                 boxShadow: '0 0 8px rgba(56, 189, 248, 0.2)',
-                transition: 'all 0.15s ease',
               }}
             >
               {React.createElement(getConceptIcon(activeConcept.id), { size: 13, color: '#38bdf8' })}
               <span>{activeConcept.number} {activeConcept.title}</span>
-            </button>
+            </span>
           </nav>
 
-          {/* Concept Hero Header */}
+          {/* Concept Hero Header Card */}
           <div
             style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
+              background: 'linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(9, 14, 26, 0.9) 100%)',
+              border: '1px solid rgba(255, 255, 255, 0.08)',
               borderRadius: '16px',
-              padding: '1.5rem',
+              padding: '1.35rem 1.5rem',
               display: 'flex',
               flexDirection: 'column',
               gap: '1rem',
-              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.1)',
+              boxShadow: '0 8px 30px rgba(0, 0, 0, 0.3)',
             }}
           >
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: 'var(--k8s-blue)', background: 'rgba(50, 108, 229, 0.15)', border: '1px solid rgba(50, 108, 229, 0.3)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
+                <span style={{ fontSize: '0.72rem', fontWeight: 800, color: '#60a5fa', background: 'rgba(50, 108, 229, 0.15)', border: '1px solid rgba(50, 108, 229, 0.3)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
                   {activeConcept.badge}
                 </span>
                 <span style={{ fontSize: '0.72rem', fontWeight: 700, color: 'var(--text-secondary)', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', padding: '0.2rem 0.6rem', borderRadius: '999px' }}>
@@ -517,7 +396,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
                   display: 'flex',
                   alignItems: 'center',
                   gap: '0.45rem',
-                  background: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'var(--bg-surface)',
+                  background: isCompleted ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.05)',
                   border: isCompleted ? '1px solid rgba(16, 185, 129, 0.4)' : '1px solid var(--border-color)',
                   borderRadius: '8px',
                   padding: '0.4rem 0.85rem',
@@ -525,6 +404,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
                   fontWeight: 700,
                   fontSize: '0.78rem',
                   cursor: 'pointer',
+                  transition: 'all 0.15s ease',
                 }}
               >
                 <CheckCircle2 size={14} color={isCompleted ? '#10b981' : 'var(--text-muted)'} />
@@ -532,31 +412,31 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
               </button>
             </div>
 
-            {/* Concept Hero with Relevant Thematic Icon */}
+            {/* Concept Hero with Thematic Icon */}
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1.15rem' }}>
               <div
                 style={{
-                  width: '54px',
-                  height: '54px',
-                  borderRadius: '14px',
-                  background: 'linear-gradient(135deg, rgba(50, 108, 229, 0.25) 0%, rgba(56, 189, 248, 0.15) 100%)',
-                  border: '1px solid rgba(56, 189, 248, 0.35)',
+                  width: '50px',
+                  height: '50px',
+                  borderRadius: '13px',
+                  background: 'linear-gradient(135deg, rgba(50, 108, 229, 0.35) 0%, rgba(56, 189, 248, 0.2) 100%)',
+                  border: '1px solid rgba(56, 189, 248, 0.4)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   color: '#38bdf8',
-                  boxShadow: '0 6px 22px rgba(50, 108, 229, 0.25)',
+                  boxShadow: '0 6px 20px rgba(50, 108, 229, 0.3)',
                   flexShrink: 0,
                 }}
               >
-                {React.createElement(getConceptIcon(activeConcept.id), { size: 28 })}
+                {React.createElement(getConceptIcon(activeConcept.id), { size: 26 })}
               </div>
 
               <div style={{ flex: 1 }}>
-                <h1 style={{ fontSize: '1.65rem', fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.02em' }}>
+                <h1 style={{ fontSize: '1.5rem', fontWeight: 900, color: '#fff', margin: 0, letterSpacing: '-0.02em' }}>
                   {activeConcept.number} {activeConcept.title}
                 </h1>
-                <p style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', margin: '0.4rem 0 0 0', lineHeight: 1.55 }}>
+                <p style={{ fontSize: '0.88rem', color: 'var(--text-secondary)', margin: '0.35rem 0 0 0', lineHeight: 1.55 }}>
                   {activeConcept.description}
                 </p>
               </div>
@@ -565,12 +445,12 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
             {/* Target Commands Bar */}
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
               <span style={{ fontSize: '0.74rem', fontWeight: 700, color: 'var(--text-muted)' }}>Target CLI:</span>
-              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 700, color: 'var(--k8s-cyan)', background: 'var(--bg-surface)', border: '1px solid var(--border-color)', padding: '0.2rem 0.55rem', borderRadius: '6px' }}>
+              <span style={{ fontFamily: 'var(--font-mono)', fontSize: '0.78rem', fontWeight: 700, color: '#38bdf8', background: 'rgba(56, 189, 248, 0.1)', border: '1px solid rgba(56, 189, 248, 0.25)', padding: '0.2rem 0.55rem', borderRadius: '6px' }}>
                 $ {activeConcept.commandPill}
               </span>
             </div>
 
-            {/* Docker & Container Foundation Bridge (Chapters 1 & 2) */}
+            {/* Docker Bridge (Chapters 1 & 2) */}
             {(currentChapter?.number === 1 || currentChapter?.number === 2) && (
               <div
                 style={{
@@ -590,7 +470,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
                     Docker &rarr; K8s Bridge
                   </span>
                   <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>
-                    In Docker, you run standalone containers via <code style={{ color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>docker run</code>. In Kubernetes, containers are wrapped inside <strong>Pods</strong> alongside a Pause container for clustered networking and storage volumes.
+                    In Docker, containers run standalone via <code style={{ color: '#38bdf8', fontFamily: 'var(--font-mono)' }}>docker run</code>. In Kubernetes, they reside inside <strong>Pods</strong> sharing networking and storage volumes.
                   </span>
                 </div>
 
@@ -619,8 +499,17 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
               </div>
             )}
 
-            {/* Sub-Tabs Navigation */}
-            <div style={{ display: 'flex', gap: '0.4rem', borderTop: '1px solid var(--border-color)', paddingTop: '0.85rem', flexWrap: 'wrap' }}>
+            {/* Sub-Tabs Navigation Strip with Glowing Underline */}
+            <div
+              className="academy-subtabs-bar"
+              style={{
+                display: 'flex',
+                gap: '0.4rem',
+                borderTop: '1px solid var(--border-color)',
+                paddingTop: '0.85rem',
+                flexWrap: 'wrap',
+              }}
+            >
               {[
                 { id: 'learn' as AcademyTab, label: 'Concept Overview', icon: BookOpen },
                 { id: 'diagram' as AcademyTab, label: 'Block & Flow Diagram', icon: Workflow },
@@ -643,18 +532,33 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
                       alignItems: 'center',
                       gap: '0.45rem',
                       padding: '0.45rem 0.85rem',
-                      borderRadius: '8px',
-                      fontSize: '0.8rem',
+                      borderRadius: '6px',
+                      fontSize: '0.84rem',
                       fontWeight: isActive ? 800 : 600,
-                      color: isActive ? 'var(--k8s-cyan)' : 'var(--text-secondary)',
-                      background: isActive ? 'rgba(56, 189, 248, 0.12)' : 'transparent',
-                      border: isActive ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
+                      color: isActive ? '#38bdf8' : 'var(--text-secondary)',
+                      background: 'none',
+                      border: 'none',
                       cursor: 'pointer',
+                      position: 'relative',
                       transition: 'all 0.15s ease',
                     }}
                   >
                     <Icon size={14} />
                     <span>{tab.label}</span>
+                    {isActive && (
+                      <div
+                        style={{
+                          position: 'absolute',
+                          bottom: '-4px',
+                          left: '15%',
+                          right: '15%',
+                          height: '2px',
+                          background: '#38bdf8',
+                          borderRadius: '999px',
+                          boxShadow: '0 0 8px #38bdf8',
+                        }}
+                      />
+                    )}
                   </button>
                 );
               })}
@@ -699,60 +603,62 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
           )}
         </div>
 
-        {/* Pinned Bottom Bar */}
-        <div
-          style={{
-            height: '52px',
-            borderTop: '1px solid var(--border-color)',
-            background: 'var(--bg-surface)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '0 5rem 0 1.5rem',
-            boxSizing: 'border-box',
-          }}
-        >
-          <button
-            disabled={!prevConcept}
-            onClick={() => prevConcept && setActiveConceptId(prevConcept.id)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: 'transparent',
-              border: 'none',
-              color: prevConcept ? 'var(--text-primary)' : 'var(--text-muted)',
-              cursor: prevConcept ? 'pointer' : 'not-allowed',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-            }}
-          >
-            <ArrowLeft size={15} /> Previous Concept
-          </button>
-
-          <span style={{ fontSize: '0.78rem', color: 'var(--text-secondary)' }}>
-            {activeConcept.number} • {activeConcept.title}
-          </span>
-
-          <button
-            disabled={!nextConcept}
-            onClick={() => nextConcept && setActiveConceptId(nextConcept.id)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.4rem',
-              background: 'transparent',
-              border: 'none',
-              color: nextConcept ? 'var(--text-primary)' : 'var(--text-muted)',
-              cursor: nextConcept ? 'pointer' : 'not-allowed',
-              fontSize: '0.8rem',
-              fontWeight: 600,
-            }}
-          >
-            Next Concept <ArrowRight size={15} />
-          </button>
-        </div>
+        {/* Standard Pinned Bottom Bar (Matching CommitForge) */}
+        <StandardAcademyBottomBar
+          prevConcept={
+            prevConcept
+              ? {
+                  id: prevConcept.id,
+                  command: prevConcept.commandPill,
+                  title: prevConcept.title,
+                }
+              : null
+          }
+          nextConcept={
+            nextConcept
+              ? {
+                  id: nextConcept.id,
+                  command: nextConcept.commandPill,
+                  title: nextConcept.title,
+                }
+              : null
+          }
+          onNavigate={(id) => setActiveConceptId(id)}
+          isCompleted={isCompleted}
+          onToggleComplete={() => markConceptComplete(activeConcept.id)}
+          accentGradient="linear-gradient(135deg, rgba(50, 108, 229, 0.45) 0%, rgba(30, 64, 175, 0.45) 100%)"
+          accentColor="#60a5fa"
+        />
       </main>
+
+      {/* Mobile Topics Drawer */}
+      {showMobileTopicsDrawer && (
+        <div
+          className="academy-mobile-drawer-backdrop"
+          onClick={() => setShowMobileTopicsDrawer(false)}
+        >
+          <div
+            className="academy-mobile-drawer-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <StandardAcademySidebar
+              title="PodForge Academy"
+              subtitle={`${KUBE_CHAPTERS.length} Chapters • Your K8s Journey`}
+              icon={Compass}
+              accentColor="#60a5fa"
+              topics={sidebarTopics}
+              activeConceptId={activeConcept.id}
+              completedConceptIds={completedConcepts}
+              onSelectConcept={(id) => {
+                handleSelectConcept(id);
+                setShowMobileTopicsDrawer(false);
+              }}
+              isDrawer={true}
+              onCloseDrawer={() => setShowMobileTopicsDrawer(false)}
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
