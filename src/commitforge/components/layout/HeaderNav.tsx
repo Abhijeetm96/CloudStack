@@ -14,7 +14,9 @@ import {
   ChevronDown,
   Boxes,
   Container,
+  Terminal,
   Sparkles,
+  GraduationCap,
 } from 'lucide-react';
 
 export const HeaderNav: React.FC = () => {
@@ -317,6 +319,66 @@ export const HeaderNav: React.FC = () => {
                   <div style={{ fontSize: '0.68rem', color: '#38bdf8' }}>Docker &amp; Containers</div>
                 </div>
                 {mode === 'dockforge' && <div style={{ fontSize: '0.65rem', color: '#38bdf8', fontWeight: 700 }}>Active</div>}
+              </button>
+
+              {/* Item 4: LinuxForge */}
+              <button
+                onClick={() => {
+                  setShowSuiteMenu(false);
+                  setActiveLessonConcept(null);
+                  setMode('linuxforge');
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.65rem',
+                  padding: '0.5rem 0.65rem',
+                  borderRadius: '8px',
+                  background: mode === 'linuxforge' ? 'rgba(6, 182, 212, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  border: mode === 'linuxforge' ? '1px solid rgba(6, 182, 212, 0.35)' : '1px solid transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  width: '100%',
+                }}
+              >
+                <div style={{ width: '26px', height: '26px', borderRadius: '6px', background: 'linear-gradient(135deg, #06b6d4, #0891b2)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
+                  <Terminal size={14} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>LinuxForge</div>
+                  <div style={{ fontSize: '0.68rem', color: '#06b6d4' }}>Systems, Kernel &amp; SRE</div>
+                </div>
+                {mode === 'linuxforge' && <div style={{ fontSize: '0.65rem', color: '#06b6d4', fontWeight: 700 }}>Active</div>}
+              </button>
+
+              {/* Item 2.5: DevOps & Cloud Engineering Academy (29 Chapters) */}
+              <button
+                onClick={() => {
+                  setShowSuiteMenu(false);
+                  setActiveLessonConcept(null);
+                  setMode('devops');
+                }}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '0.65rem',
+                  padding: '0.5rem 0.65rem',
+                  borderRadius: '8px',
+                  background: mode === 'devops' ? 'rgba(236, 72, 153, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  border: mode === 'devops' ? '1px solid rgba(236, 72, 153, 0.35)' : '1px solid transparent',
+                  cursor: 'pointer',
+                  textAlign: 'left',
+                  width: '100%',
+                }}
+              >
+                <div style={{ width: '26px', height: '26px', borderRadius: '6px', background: 'linear-gradient(135deg, #ec4899, #db2777)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', flexShrink: 0 }}>
+                  <GraduationCap size={14} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>DevOps Academy</div>
+                  <div style={{ fontSize: '0.68rem', color: '#f472b6' }}>29 Master Chapters • 10 Tracks</div>
+                </div>
+                {mode === 'devops' && <div style={{ fontSize: '0.65rem', color: '#f472b6', fontWeight: 700 }}>Active</div>}
               </button>
 
               <div style={{ height: '1px', background: 'rgba(148, 163, 184, 0.15)', margin: '0.15rem 0' }} />
