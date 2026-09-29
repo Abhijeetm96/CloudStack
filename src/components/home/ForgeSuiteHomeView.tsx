@@ -96,18 +96,6 @@ const UPCOMING_TOOLS: UpcomingTool[] = [
     description: 'Hardening modern cloud infrastructure. Orchestrate HashiCorp Vault secrets, automated container CVE scanning, and supply-chain attestations.',
     coreConcepts: ['Vault Dynamic Secret Leasing', 'Container CVE Scanning (Trivy)', 'Cloud IAM Least-Privilege', 'SBOMs & Cosign Signatures', 'Kubernetes Network Policies'],
   },
-  {
-    id: 'linux',
-    name: 'Linux',
-    domain: 'Operating Systems & Networking',
-    techStack: 'Linux & eBPF',
-    quarter: 'Q2 2027',
-    color: '#06b6d4',
-    bgGlow: 'rgba(6, 182, 212, 0.15)',
-    icon: Terminal,
-    description: 'The systems foundations behind the cloud. Dive deep into Linux namespaces, cgroups v2, eBPF kernel instrumentation, and TCP/IP sockets.',
-    coreConcepts: ['Namespaces & cgroups v2', 'eBPF Kernel Probing', 'Systemd Unit Management', 'TCP/IP Socket Forensics', 'Memory Paging & Swap Tuning'],
-  },
 ];
 
 export const ForgeSuiteHomeView: React.FC = () => {
@@ -133,6 +121,13 @@ export const ForgeSuiteHomeView: React.FC = () => {
       localStorage.setItem('dockforge_initial_mode', initialMode);
     } catch {}
     setMode('dockforge');
+  };
+
+  const handleNavigateLinuxForge = (initialMode: 'academy' | 'universe' | 'practice') => {
+    try {
+      localStorage.setItem('linuxforge_initial_mode', initialMode);
+    } catch {}
+    setMode('linuxforge');
   };
 
   return (
@@ -219,30 +214,56 @@ export const ForgeSuiteHomeView: React.FC = () => {
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <div style={{ width: '8px', height: '8px', borderRadius: '50%', background: '#22c55e' }} />
               <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
-                <strong style={{ color: '#fff' }}>48</strong> Live Curriculum Modules
+                <strong style={{ color: '#fff' }}>63</strong> Live Curriculum Modules
               </span>
             </div>
             <div style={{ width: '1px', height: '18px', background: 'rgba(148, 163, 184, 0.2)' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Zap size={15} color="#eab308" />
               <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
-                <strong style={{ color: '#fff' }}>188+</strong> Interactive Concepts
+                <strong style={{ color: '#fff' }}>232+</strong> Interactive Concepts
               </span>
             </div>
             <div style={{ width: '1px', height: '18px', background: 'rgba(148, 163, 184, 0.2)' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Cpu size={15} color="#38bdf8" />
               <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
-                <strong style={{ color: '#fff' }}>3</strong> Live Execution Engines
+                <strong style={{ color: '#fff' }}>4</strong> Live Execution Engines
               </span>
             </div>
             <div style={{ width: '1px', height: '18px', background: 'rgba(148, 163, 184, 0.2)' }} />
             <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Clock size={15} color="#a855f7" />
               <span style={{ fontSize: '0.85rem', color: '#cbd5e1' }}>
-                <strong style={{ color: '#fff' }}>6</strong> Academies Coming Soon
+                <strong style={{ color: '#fff' }}>5</strong> Academies Coming Soon
               </span>
             </div>
+          </div>
+
+          {/* Master 29-Chapter DevOps Academy CTA */}
+          <div style={{ marginTop: '1.5rem' }}>
+            <button
+              onClick={() => setMode('devops')}
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '0.65rem',
+                padding: '0.65rem 1.4rem',
+                borderRadius: '12px',
+                background: 'linear-gradient(135deg, rgba(168, 85, 247, 0.2) 0%, rgba(6, 182, 212, 0.2) 100%)',
+                border: '1px solid rgba(168, 85, 247, 0.4)',
+                color: '#f8fafc',
+                fontSize: '0.86rem',
+                fontWeight: 800,
+                cursor: 'pointer',
+                transition: 'all 0.2s',
+                boxShadow: '0 4px 20px rgba(168, 85, 247, 0.25)',
+              }}
+            >
+              <BookOpen size={16} color="#c084fc" />
+              <span>Explore Master 29-Chapter DevOps &amp; Cloud Academy</span>
+              <ArrowRight size={14} color="#38bdf8" />
+            </button>
           </div>
         </div>
 
@@ -1246,6 +1267,227 @@ export const ForgeSuiteHomeView: React.FC = () => {
                 >
                   <Container size={12} color="#0ea5e9" />
                   Mesh
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* CARD 4: LINUXFORGE (LINUX SYSTEMS, KERNEL & SRE ACADEMY) */}
+          {/* ========================================================================= */}
+          <div
+            style={{
+              background: 'linear-gradient(170deg, rgba(20, 27, 45, 0.72) 0%, rgba(10, 15, 28, 0.88) 100%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(6, 182, 212, 0.25)',
+              borderRadius: '20px',
+              padding: '2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(6, 182, 212, 0.08)',
+              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.6)';
+              e.currentTarget.style.boxShadow = '0 24px 50px -12px rgba(6, 182, 212, 0.22), 0 0 20px rgba(6, 182, 212, 0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.borderColor = 'rgba(6, 182, 212, 0.25)';
+              e.currentTarget.style.boxShadow = '0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(6, 182, 212, 0.08)';
+            }}
+          >
+            {/* Top Laser Accent Line */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                background: 'linear-gradient(90deg, #06b6d4 0%, #0891b2 50%, #38bdf8 100%)',
+              }}
+            />
+
+            {/* Corner Ambient Glow */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '-30px',
+                right: '-30px',
+                width: '160px',
+                height: '160px',
+                background: 'radial-gradient(circle, rgba(6, 182, 212, 0.2) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* Brand Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                <div
+                  style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    boxShadow: '0 4px 18px rgba(6, 182, 212, 0.4)',
+                    flexShrink: 0,
+                  }}
+                >
+                  <Terminal size={24} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <h3 style={{ fontSize: '1.35rem', fontWeight: 900, letterSpacing: '-0.02em', margin: 0, color: '#fff' }}>
+                      LinuxForge
+                    </h3>
+                    <span
+                      style={{
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '999px',
+                        background: 'rgba(6, 182, 212, 0.15)',
+                        border: '1px solid rgba(6, 182, 212, 0.35)',
+                        color: '#06b6d4',
+                        fontSize: '0.68rem',
+                        fontWeight: 700,
+                        textTransform: 'uppercase',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      LIVE ACADEMY
+                    </span>
+                  </div>
+                  <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '0.15rem 0 0' }}>
+                    Linux Systems, Kernel &amp; SRE Academy
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Description */}
+            <p style={{ fontSize: '0.9rem', color: '#cbd5e1', lineHeight: 1.6, margin: '0 0 1.25rem' }}>
+              Master the operating system foundation of cloud infrastructure. From terminal navigation, pipes, and file permissions to systemd unit authoring, sysctl tuning, eBPF telemetry, and container namespaces.
+            </p>
+
+            {/* Metric Tags */}
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#38bdf8', background: 'rgba(6, 182, 212, 0.1)', border: '1px solid rgba(6, 182, 212, 0.25)', borderRadius: '6px', padding: '0.25rem 0.55rem' }}>
+                15 Curriculum Topics
+              </span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#22c55e', background: 'rgba(34, 197, 94, 0.1)', border: '1px solid rgba(34, 197, 94, 0.25)', borderRadius: '6px', padding: '0.25rem 0.55rem' }}>
+                46 Mastery Concepts
+              </span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#a855f7', background: 'rgba(168, 85, 247, 0.1)', border: '1px solid rgba(168, 85, 247, 0.25)', borderRadius: '6px', padding: '0.25rem 0.55rem' }}>
+                Kernel 6.8 Shell
+              </span>
+              <span style={{ fontSize: '0.75rem', fontWeight: 700, color: '#f59e0b', background: 'rgba(245, 158, 11, 0.1)', border: '1px solid rgba(245, 158, 11, 0.25)', borderRadius: '6px', padding: '0.25rem 0.55rem' }}>
+                eBPF &amp; cgroups
+              </span>
+            </div>
+
+            {/* Action Buttons */}
+            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <button
+                onClick={() => handleNavigateLinuxForge('academy')}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)',
+                  border: 'none',
+                  color: '#042f2e',
+                  fontSize: '0.88rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(6, 182, 212, 0.35)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(6, 182, 212, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(6, 182, 212, 0.35)';
+                }}
+              >
+                <span>Launch Linux Academy</span>
+                <ArrowRight size={16} />
+              </button>
+
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.5rem' }}>
+                <button
+                  onClick={() => handleNavigateLinuxForge('universe')}
+                  title="Explore all 46 Linux concepts"
+                  style={{
+                    padding: '0.45rem 0.35rem',
+                    borderRadius: '7px',
+                    background: 'rgba(255, 255, 255, 0.05)',
+                    border: '1px solid rgba(148, 163, 184, 0.2)',
+                    color: '#cbd5e1',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.25rem',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.12)';
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(255, 255, 255, 0.05)';
+                    e.currentTarget.style.color = '#cbd5e1';
+                  }}
+                >
+                  <BookOpen size={12} />
+                  46 Concepts
+                </button>
+                <button
+                  onClick={() => handleNavigateLinuxForge('practice')}
+                  title="Interactive Terminal Sandbox Practice"
+                  style={{
+                    padding: '0.45rem 0.35rem',
+                    borderRadius: '7px',
+                    background: 'rgba(6, 182, 212, 0.16)',
+                    border: '1px solid rgba(6, 182, 212, 0.35)',
+                    color: '#a5f3fc',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.25rem',
+                    transition: 'all 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.background = 'rgba(6, 182, 212, 0.28)';
+                    e.currentTarget.style.color = '#ffffff';
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.background = 'rgba(6, 182, 212, 0.16)';
+                    e.currentTarget.style.color = '#a5f3fc';
+                  }}
+                >
+                  <Terminal size={12} color="#06b6d4" />
+                  Terminal
                 </button>
               </div>
             </div>
