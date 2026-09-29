@@ -2,6 +2,8 @@ import React from 'react';
 import { DockerProvider, useDocker } from './context/DockerContext';
 import { HeaderNav } from './components/layout/HeaderNav';
 import { DockerAcademyView } from './components/academy/DockerAcademyView';
+import { DockerConceptsUniverseView } from './components/universe/DockerConceptsUniverseView';
+import { EnterpriseDockerSimulator } from './components/simulators/EnterpriseDockerSimulator';
 import { ContainerMeshVisualizer } from './components/visualizer/ContainerMeshVisualizer';
 import { DockerLabsHubView } from './components/labs/DockerLabsHubView';
 import { DockerIdeView } from './components/ide/DockerIdeView';
@@ -42,6 +44,8 @@ const DockForgeContent: React.FC<DockForgeAppProps> = ({ onSwitchToSuite, initia
         }}
       >
         {mode === 'academy' && <DockerAcademyView />}
+        {mode === 'universe' && <DockerConceptsUniverseView />}
+        {mode === 'practice' && <EnterpriseDockerSimulator />}
         {(mode === 'lesson' || mode === 'guided-lesson') && (
           <UniversalLessonRuntime
             lesson={dockerLessonAdapter(currentConcept)}
