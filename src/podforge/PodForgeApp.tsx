@@ -2,6 +2,8 @@ import React from 'react';
 import { AppProvider, useApp } from './context/AppContext';
 import { HeaderNav } from './components/layout/HeaderNav';
 import { PodAcademyView } from './components/academy/PodAcademyView';
+import { PodConceptsUniverseView } from './components/universe/PodConceptsUniverseView';
+import { EnterpriseKubeSimulator } from './components/simulators/EnterpriseKubeSimulator';
 import { PodLabsHubView } from './components/labs/PodLabsHubView';
 import { ClusterIdeView } from './components/ide/ClusterIdeView';
 import { ClusterCanvas } from './components/visualizer/ClusterCanvas';
@@ -42,6 +44,8 @@ const PodForgeContent: React.FC<PodForgeAppProps> = ({ onSwitchToSuite, initialC
         }}
       >
         {mode === 'academy' && <PodAcademyView onSwitchToSuite={onSwitchToSuite} />}
+        {mode === 'universe' && <PodConceptsUniverseView />}
+        {mode === 'practice' && <EnterpriseKubeSimulator />}
         {(mode === 'lesson' || mode === 'guided-lesson') && (
           <UniversalLessonRuntime
             lesson={kubeLessonAdapter(activeConcept)}
