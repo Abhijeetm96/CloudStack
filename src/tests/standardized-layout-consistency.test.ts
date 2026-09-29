@@ -89,6 +89,12 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
       expect(podAcademy).toContain('StandardAcademyBottomBar');
       expect(linuxAcademy).toContain('StandardAcademyBottomBar');
     });
+
+    it('verifies StandardAcademySidebar is pure and modular without hardcoded DevOps curriculum leakage', () => {
+      const sidebarContent = fs.readFileSync(path.resolve(__dirname, '../platform/layout/StandardAcademySidebar.tsx'), 'utf-8');
+      expect(sidebarContent).not.toContain('DEVOPS_29_CHAPTERS');
+      expect(sidebarContent).toContain('filteredTopics.map');
+    });
   });
 
   describe('Curriculum Data Integrity across CommitForge, DockForge, PodForge, and LinuxForge', () => {

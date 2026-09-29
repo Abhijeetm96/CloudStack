@@ -1284,6 +1284,23 @@ body {
   }
 }
 
+/* ================================================================ */
+/* Standard Academy Sidebar Row Interactions                       */
+/* ================================================================ */
+.sidebar-topic-row:hover {
+  background: rgba(255, 255, 255, 0.07) !important;
+}
 
+.sidebar-concept-row:hover {
+  background: rgba(255, 255, 255, 0.05) !important;
+}
 
+.app-root.light .sidebar-topic-row:hover,
+[data-theme="light"] .sidebar-topic-row:hover {
+  background: rgba(0, 0, 0, 0.04) !important;
+}
 
+.app-root.light .sidebar-concept-row:hover,
+[data-theme="light"] .sidebar-concept-row:hover {
+  background: rgba(0, 0, 0, 0.03) !important;
+}

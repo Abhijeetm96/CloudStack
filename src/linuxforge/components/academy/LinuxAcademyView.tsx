@@ -126,13 +126,14 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
   const sidebarTopics: StandardTopicItem[] = useMemo(() => {
     const ch01SubModules = DEVOPS_29_CHAPTERS[0]?.subModules || [];
 
-    return LINUX_15_TOPICS.map((t) => {
+    return LINUX_15_TOPICS.map((t, idx) => {
       const IconComponent = getLinuxTopicIcon(t.iconName, t.number);
       const matchingSub = ch01SubModules.find((sm) => sm.code === t.number);
+      const formattedNum = String(idx + 1).padStart(2, '0');
 
       return {
         id: t.id,
-        number: t.number,
+        number: formattedNum,
         title: t.title,
         icon: IconComponent,
         subtopics: matchingSub?.topics || [],
@@ -203,7 +204,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
       >
         <StandardAcademySidebar
           title="Linux Academy"
-          subtitle="Chapter 01 • 8 Modules • 24 Concepts"
+          subtitle="8 Chapters • 24 Concepts"
           icon={Terminal}
           accentColor="#06b6d4"
           topics={sidebarTopics}
@@ -327,7 +328,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
           >
             <StandardAcademySidebar
               title="Linux Academy"
-              subtitle="Chapter 01 • 8 Modules • 24 Concepts"
+              subtitle="8 Chapters • 24 Concepts"
               icon={Terminal}
               accentColor="#06b6d4"
               topics={sidebarTopics}
