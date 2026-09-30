@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
-import { UniversalConcept, ACADEMY_18_TOPICS } from '../../data/unifiedAcademyData';
+import { UniversalConcept, ACADEMY_18_TOPICS, COMMITFORGE_35_CHAPTERS } from '../../data/unifiedAcademyData';
 import { Terminal as TerminalIcon, RotateCcw, Play, CheckCircle2, ChevronRight } from 'lucide-react';
 import { AcademyConceptTab } from './UniversalConceptHero';
 
@@ -130,11 +130,11 @@ export const InteractiveTerminalSandbox: React.FC<Props> = ({ concept, onOpenCen
                   cursor: 'pointer',
                 }}
               >
-                {ACADEMY_18_TOPICS.map((topic) => (
-                  <optgroup key={topic.id} label={`Topic ${topic.number}: ${topic.title}`}>
+                {(COMMITFORGE_35_CHAPTERS.length > 0 ? COMMITFORGE_35_CHAPTERS : ACADEMY_18_TOPICS).map((topic) => (
+                  <optgroup key={topic.id} label={`Ch ${topic.number}: ${topic.title}`}>
                     {topic.concepts.map((c) => (
                       <option key={c.id} value={c.id}>
-                        {c.command} — {c.title}
+                        {c.subChapterNum ? `${c.subChapterNum} ` : ''}{c.command} — {c.title}
                       </option>
                     ))}
                   </optgroup>
