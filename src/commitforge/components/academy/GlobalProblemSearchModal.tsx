@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import {
   GLOBAL_PROBLEM_SOLUTIONS,
   ProblemSolution,
-  ACADEMY_18_TOPICS,
+  COMMITFORGE_35_CHAPTERS,
   UniversalConcept,
 } from '../../data/unifiedAcademyData';
 import { Search, X, LifeBuoy, ArrowRight, CheckCircle2, Terminal, BookOpen, ChevronRight, HelpCircle, Zap } from 'lucide-react';
@@ -38,12 +38,12 @@ export const GlobalProblemSearchModal: React.FC<Props> = ({
     const q = searchQuery.toLowerCase().trim();
     if (!q) return [];
     const results: { id: string; command: string; title: string; topicTitle: string; topicId: string }[] = [];
-    for (const topic of ACADEMY_18_TOPICS) {
+    for (const topic of COMMITFORGE_35_CHAPTERS) {
       for (const c of topic.concepts) {
         if (
           c.command.toLowerCase().includes(q) ||
           c.title.toLowerCase().includes(q) ||
-          c.shortDesc.toLowerCase().includes(q)
+          (c.shortDesc ? c.shortDesc.toLowerCase().includes(q) : false)
         ) {
           results.push({
             id: c.id,
