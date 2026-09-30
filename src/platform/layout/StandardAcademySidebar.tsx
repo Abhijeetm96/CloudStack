@@ -67,6 +67,8 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
   isDrawer = false,
   onCloseDrawer,
   showSyllabusCoverage = false,
+  currentChapterNumber,
+  onSelectChapter,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
@@ -432,7 +434,17 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
               <div key={topic.id} style={{ display: 'flex', flexDirection: 'column' }}>
                 {/* Chapter Header Row */}
                 <div
-                  onClick={() => toggleTopic(topic.id)}
+                  onClick={() => {
+                    toggleTopic(topic.id);
+                    if (!hasActiveChild && topic.concepts.length > 0) {
+                      const chNum = parseInt(topic.number, 10);
+                      if (onSelectChapter && !isNaN(chNum)) {
+                        onSelectChapter(chNum);
+                      } else if (onSelectConcept) {
+                        onSelectConcept(topic.concepts[0].id);
+                      }
+                    }
+                  }}
                   style={{
                     display: 'flex',
                     alignItems: 'center',
@@ -524,7 +536,21 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
                       </span>
                     )}
 
-                    <span style={{ color: hasActiveChild ? accentColor : 'var(--text-muted)' }}>
+                    <span
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        toggleTopic(topic.id);
+                      }}
+                      style={{
+                        color: hasActiveChild ? accentColor : 'var(--text-muted)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        padding: '0.15rem',
+                        borderRadius: '4px',
+                      }}
+                      title={isTopicExpanded ? 'Collapse' : 'Expand'}
+                      role="button"
+                    >
                       {isTopicExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
                     </span>
                   </div>
