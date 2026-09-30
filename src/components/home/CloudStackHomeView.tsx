@@ -98,7 +98,7 @@ const UPCOMING_TOOLS: UpcomingTool[] = [
   },
 ];
 
-export const ForgeSuiteHomeView: React.FC = () => {
+export const CloudStackHomeView: React.FC = () => {
   const { setMode, setActiveLessonConcept } = useApp();
   const [notifiedTools, setNotifiedTools] = useState<Record<string, boolean>>({});
 

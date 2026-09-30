@@ -1803,7 +1803,7 @@ export const DEVOPS_29_CHAPTERS: DevOpsChapter[] = [
     trackName: 'CAREER & CAPSTONE',
     summary:
       'The ultimate synthesis: Build, provision, secure, deploy, monitor, stress-test, and recover a complete cloud-native microservices platform from bare code to multi-region production.',
-    targetTech: ['Full Forge Suite Integration', 'Production Simulation', 'Live Incident Drill', 'Final Certification'],
+    targetTech: ['Full CloudStack Integration', 'Production Simulation', 'Live Incident Drill', 'Final Certification'],
     status: 'curriculum',
     subModules: [
       {

@@ -1,7 +1,7 @@
 /**
  * Git Academy — Interactive Git & Version Control Platform
  * 
- * Part of Forge Suite (Unified Multi-Academy Platform)
+ * Part of CloudStack (Unified Multi-Academy Platform)
  */
 
 export { GitAcademyApp } from './GitAcademyApp';

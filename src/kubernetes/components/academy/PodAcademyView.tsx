@@ -233,11 +233,11 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
               flexWrap: 'wrap',
             }}
           >
-            {/* Breadcrumb 1: Forge Suite Portal */}
+            {/* Breadcrumb 1: CloudStack Portal */}
             <button
               type="button"
               onClick={() => onSwitchToSuite?.('home')}
-              title="Navigate to Forge Suite Homepage"
+              title="Navigate to CloudStack Homepage"
               style={{
                 background: 'transparent',
                 border: 'none',
@@ -262,7 +262,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
               }}
             >
               <Flame size={13} color="#f05033" />
-              <span>Forge Suite</span>
+              <span>CloudStack</span>
             </button>
 
             <ChevronRight size={12} color="#475569" />

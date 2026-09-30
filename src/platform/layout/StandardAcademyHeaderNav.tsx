@@ -124,7 +124,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
       {/* LEFT: BRAND & SUITE SWITCHER                                    */}
       {/* ================================================================ */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
-        {/* Quick Return to Forge Suite Portal */}
+        {/* Quick Return to CloudStack Portal */}
         {onSwitchToSuite && (
           <button
             onClick={() => onSwitchToSuite('home')}
@@ -150,7 +150,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
               e.currentTarget.style.color = '#cbd5e1';
               e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)';
             }}
-            title="Return to Forge Suite Portal"
+            title="Return to CloudStack Portal"
           >
             <Boxes size={13} color="#38bdf8" />
             <span className="header-lost-label">Suite Home</span>
@@ -231,7 +231,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
               cursor: 'pointer',
               transition: 'all 0.15s ease',
             }}
-            title="Switch Academy (Forge Suite)"
+            title="Switch Academy (CloudStack)"
           >
             <Boxes size={13} color="#38bdf8" />
             <span>Suite</span>
@@ -268,7 +268,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   padding: '0 0.25rem',
                 }}
               >
-                Forge Suite Academies
+                CloudStack Academies
               </div>
 
               {/* Item 0: DevOps Master Academy */}
@@ -485,7 +485,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
 
               <div style={{ height: '1px', background: 'rgba(148, 163, 184, 0.15)', margin: '0.15rem 0' }} />
 
-              {/* Forge Suite Home Portal */}
+              {/* CloudStack Home Portal */}
               <button
                 onClick={() => {
                   setShowSuiteMenu(false);
@@ -520,7 +520,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   <Sparkles size={14} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>Forge Suite Portal</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>CloudStack Portal</div>
                   <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Unified platform gateway</div>
                 </div>
               </button>

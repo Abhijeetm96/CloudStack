@@ -1,7 +1,7 @@
 import React, { Suspense } from 'react';
 import { AppProvider, useApp, ViewMode } from './context/AppContext';
 import { SuiteHeaderNav } from './components/layout/SuiteHeaderNav';
-import { ForgeSuiteHomeView } from './components/home/ForgeSuiteHomeView';
+import { CloudStackHomeView } from './components/home/CloudStackHomeView';
 import { Agentation } from 'agentation';
 
 import { TechnologyType } from './platform/lesson-runtime/types';
@@ -102,7 +102,7 @@ const AppContent: React.FC = () => {
               overflowX: 'hidden',
             }}
           >
-            <ForgeSuiteHomeView />
+            <CloudStackHomeView />
           </main>
         </>
       );

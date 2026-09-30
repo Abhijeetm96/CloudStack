@@ -5,7 +5,7 @@ import {
   RemoteCloudSyncAdapter,
   LocalStorageProgressStorage,
 } from '../progress/progressStorage';
-import { ForgeSuiteProgress } from '../progress/progressTypes';
+import { CloudStackProgress } from '../progress/progressTypes';
 
 describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
   let mockStore: Record<string, string> = {};
@@ -33,7 +33,7 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
     vi.unstubAllGlobals();
   });
 
-  const mockProgress: ForgeSuiteProgress = {
+  const mockProgress: CloudStackProgress = {
     version: 1,
     academies: {
       git: {
@@ -119,7 +119,7 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
     });
 
     it('merges local and remote progress with conflict resolution', () => {
-      const remoteProgress: ForgeSuiteProgress = {
+      const remoteProgress: CloudStackProgress = {
         version: 1,
         academies: {
           git: {

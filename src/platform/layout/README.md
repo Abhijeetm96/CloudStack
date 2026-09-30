@@ -1,6 +1,6 @@
 # Standardized Academy Layout System
 
-This directory provides the standardized layout, navigation, and curriculum UI components for all **Forge Suite Academies** (Git Academy, Docker Academy, Kubernetes Academy, and all upcoming sections).
+This directory provides the standardized layout, navigation, and curriculum UI components for all **CloudStack Academies** (Git Academy, Docker Academy, Kubernetes Academy, and all upcoming sections).
 
 ## Purpose
 Every academy in the suite must follow the exact same visual hierarchy, layout, responsiveness, and interaction patterns pioneered by **Git Academy**:

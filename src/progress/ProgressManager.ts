@@ -3,7 +3,7 @@ import {
   AcademyId,
   CourseProgress,
   LessonProgress,
-  ForgeSuiteProgress,
+  CloudStackProgress,
   CourseStats,
   TopicStats,
   AcademyLessonSummary,
@@ -17,7 +17,7 @@ import {
   getCourseLessons,
 } from './progressCalculator';
 
-export type ProgressListener = (progress: ForgeSuiteProgress) => void;
+export type ProgressListener = (progress: CloudStackProgress) => void;
 
 /**
  * ProgressManager manages in-memory learner state, event subscriptions,
@@ -26,7 +26,7 @@ export type ProgressListener = (progress: ForgeSuiteProgress) => void;
 export class ProgressManager {
   private static instance: ProgressManager;
   private storage: ProgressStorage;
-  private state: ForgeSuiteProgress;
+  private state: CloudStackProgress;
   private listeners: Set<ProgressListener> = new Set();
   private saveTimeout: any = null;
   private isLoaded: boolean = false;
@@ -77,7 +77,7 @@ export class ProgressManager {
   /**
    * Retrieves the raw global progress state.
    */
-  public getState(): ForgeSuiteProgress {
+  public getState(): CloudStackProgress {
     return this.state;
   }
 

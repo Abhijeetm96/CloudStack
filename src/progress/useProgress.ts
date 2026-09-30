@@ -10,7 +10,7 @@ import {
 } from './progressTypes';
 
 /**
- * Primary hook for interacting with ForgeSuite global progress.
+ * Primary hook for interacting with CloudStack global progress.
  */
 export function useProgress() {
   const { manager, progress, isLoaded, showSettingsModal, setShowSettingsModal } = useProgressContext();

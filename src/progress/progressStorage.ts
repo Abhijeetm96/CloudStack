@@ -1,13 +1,13 @@
 // src/progress/progressStorage.ts
-import { ForgeSuiteProgress } from './progressTypes';
+import { CloudStackProgress } from './progressTypes';
 
 /**
  * Interface for progress persistence providers.
- * Abstracted so ForgeSuite can swap between localStorage, IndexedDB, or a remote API.
+ * Abstracted so CloudStack can swap between localStorage, IndexedDB, or a remote API.
  */
 export interface ProgressStorage {
-  load(): Promise<ForgeSuiteProgress | null>;
-  save(progress: ForgeSuiteProgress): Promise<void>;
+  load(): Promise<CloudStackProgress | null>;
+  save(progress: CloudStackProgress): Promise<void>;
   clear(): Promise<void>;
 }
 
@@ -27,7 +27,7 @@ export class LocalStorageProgressStorage implements ProgressStorage {
     this.key = key;
   }
 
-  public async load(): Promise<ForgeSuiteProgress | null> {
+  public async load(): Promise<CloudStackProgress | null> {
     if (typeof window === 'undefined' || !window.localStorage) {
       return null;
     }
@@ -44,14 +44,14 @@ export class LocalStorageProgressStorage implements ProgressStorage {
         return null;
       }
 
-      return parsed as ForgeSuiteProgress;
+      return parsed as CloudStackProgress;
     } catch (err) {
       console.warn(`[ProgressStorage] Failed to read or parse progress from ${this.key}:`, err);
       return null;
     }
   }
 
-  public async save(progress: ForgeSuiteProgress): Promise<void> {
+  public async save(progress: CloudStackProgress): Promise<void> {
     if (typeof window === 'undefined' || !window.localStorage) {
       return;
     }
@@ -131,17 +131,17 @@ export class IndexedDBProgressStorage implements ProgressStorage {
     return this.dbPromise;
   }
 
-  public async load(): Promise<ForgeSuiteProgress | null> {
+  public async load(): Promise<CloudStackProgress | null> {
     if (!this.isSupported()) return null;
     try {
-      return await this.loadItem<ForgeSuiteProgress>('progress_state');
+      return await this.loadItem<CloudStackProgress>('progress_state');
     } catch (err) {
       console.warn('[IndexedDBProgressStorage] Failed to load progress from IndexedDB:', err);
       return null;
     }
   }
 
-  public async save(progress: ForgeSuiteProgress): Promise<void> {
+  public async save(progress: CloudStackProgress): Promise<void> {
     if (!this.isSupported()) return;
     try {
       await this.saveItem('progress_state', progress);
@@ -205,7 +205,7 @@ export class HybridProgressStorage implements ProgressStorage {
     this.lstore = new LocalStorageProgressStorage();
   }
 
-  public async load(): Promise<ForgeSuiteProgress | null> {
+  public async load(): Promise<CloudStackProgress | null> {
     try {
       const idbData = await this.idb.load();
       if (idbData) return idbData;
@@ -215,7 +215,7 @@ export class HybridProgressStorage implements ProgressStorage {
     return this.lstore.load();
   }
 
-  public async save(progress: ForgeSuiteProgress): Promise<void> {
+  public async save(progress: CloudStackProgress): Promise<void> {
     // Write to both for maximum redundancy
     await this.lstore.save(progress);
     try {
@@ -242,14 +242,14 @@ export interface CloudSyncResult {
   success: boolean;
   syncedAt?: string;
   error?: string;
-  mergedProgress?: ForgeSuiteProgress;
+  mergedProgress?: CloudStackProgress;
 }
 
 export class RemoteCloudSyncAdapter {
   /**
    * Export progress as portable JSON package with verification checksum and timestamp.
    */
-  public exportProgress(progress: ForgeSuiteProgress): string {
+  public exportProgress(progress: CloudStackProgress): string {
     const packagePayload = {
       format: 'forgesuite-progress-backup',
       version: progress.version,
@@ -262,7 +262,7 @@ export class RemoteCloudSyncAdapter {
   /**
    * Import and validate an exported progress package.
    */
-  public importProgress(jsonString: string): ForgeSuiteProgress {
+  public importProgress(jsonString: string): CloudStackProgress {
     const parsed = JSON.parse(jsonString);
     if (!parsed || typeof parsed !== 'object') {
       throw new Error('Invalid progress backup package: Root must be an object');
@@ -271,17 +271,17 @@ export class RemoteCloudSyncAdapter {
     if (!data.academies || typeof data.academies !== 'object') {
       throw new Error('Invalid progress backup package: Missing academies state');
     }
-    return data as ForgeSuiteProgress;
+    return data as CloudStackProgress;
   }
 
   /**
    * Merges local and remote progress using latest-wins timestamp comparison.
    */
   public mergeProgress(
-    local: ForgeSuiteProgress,
-    remote: ForgeSuiteProgress
-  ): ForgeSuiteProgress {
-    const merged: ForgeSuiteProgress = {
+    local: CloudStackProgress,
+    remote: CloudStackProgress
+  ): CloudStackProgress {
+    const merged: CloudStackProgress = {
       version: Math.max(local.version || 1, remote.version || 1),
       academies: { ...local.academies },
       preferences: { ...local.preferences, ...remote.preferences },

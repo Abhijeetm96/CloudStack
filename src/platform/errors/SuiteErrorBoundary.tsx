@@ -70,7 +70,7 @@ export class SuiteErrorBoundary extends React.Component<Props, State> {
 
       const title = isChunkError
         ? 'Application Update Detected'
-        : this.props.fallbackTitle || 'Forge Suite View Encountered an Exception';
+        : this.props.fallbackTitle || 'CloudStack View Encountered an Exception';
 
       return (
         <div
@@ -126,7 +126,7 @@ export class SuiteErrorBoundary extends React.Component<Props, State> {
                 </h2>
                 <p style={{ fontSize: '0.82rem', color: '#94a3b8', margin: '0.2rem 0 0' }}>
                   {isChunkError
-                    ? 'A new version of Forge Suite was deployed. Refresh to load the latest curriculum and engine assets.'
+                    ? 'A new version of CloudStack was deployed. Refresh to load the latest curriculum and engine assets.'
                     : 'The application captured this error to prevent a total session crash.'}
                 </p>
               </div>

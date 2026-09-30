@@ -217,7 +217,7 @@ export const ConceptTeachingEngine: React.FC<ConceptTeachingEngineProps> = ({
         >
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#94a3b8' }}>
             <Flame size={13} color="#f05033" />
-            <span>Forge Suite</span>
+            <span>CloudStack</span>
           </span>
           <ChevronRight size={12} color="#475569" />
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: '0.35rem', color: '#cbd5e1', fontWeight: 600 }}>

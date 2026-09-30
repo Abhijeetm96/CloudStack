@@ -28,7 +28,7 @@ export interface GitAcademyAppProps {
  * GitAcademyApp — The Interactive Git & Version Control Academy
  * 
  * Standalone, encapsulated academy container for Git Academy.
- * Mirrors `KubernetesAcademyApp` as a first-class academy peer inside Forge Suite.
+ * Mirrors `KubernetesAcademyApp` as a first-class academy peer inside CloudStack.
  */
 export const GitAcademyApp: React.FC<GitAcademyAppProps> = ({ onSwitchToSuite }) => {
   const {

@@ -1,4 +1,4 @@
-# Forge Suite — GitHub Issues Backlog
+# CloudStack — GitHub Issues Backlog
 
 This document lists prioritized, production-ready GitHub Issues discovered during the comprehensive codebase audit of Git Academy, Kubernetes Academy, and Docker Academy. Each issue has been systematically resolved, verified with unit tests, and audited against production builds.
 
@@ -119,7 +119,7 @@ In `src/docker/components/layout/HeaderNav.tsx`, a Sun icon button was rendered 
 
 ### Resolution
 1. Removed the inert button and unused `Sun` import from `HeaderNav.tsx`.
-2. Aligned with the dark-first futuristic design system of Forge Suite.
+2. Aligned with the dark-first futuristic design system of CloudStack.
 
 ---
 
@@ -148,7 +148,7 @@ In `src/docker/components/terminal/DockerTerminal.tsx`, keyboard input only hand
 - **Component:** `src/components/layout/SuiteHeaderNav.tsx`
 
 ### Description
-On screens smaller than 900px, ForgeSuite navigation buttons overflowed horizontally.
+On screens smaller than 900px, CloudStack navigation buttons overflowed horizontally.
 
 ### Resolution
 1. Created `src/components/layout/suiteHeaderNav.css`.

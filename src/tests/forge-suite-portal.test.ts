@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { ViewMode } from '../context/AppContext';
 import { ACADEMY_18_TOPICS, ALL_ACADEMY_CONCEPTS } from '../git/data/unifiedAcademyData';
 
-describe('Forge Suite Unified Portal Tests', () => {
+describe('CloudStack Unified Portal Tests', () => {
   it('supports home in ViewMode union type', () => {
     const validHomeMode: ViewMode = 'home';
     expect(validHomeMode).toBe('home');
@@ -44,9 +44,9 @@ describe('Forge Suite Unified Portal Tests', () => {
     expect(typeof FuturisticParallaxBackground).toBe('function');
   });
 
-  it('exports ForgeSuiteHomeView as a valid component containing futuristic background', async () => {
-    const { ForgeSuiteHomeView } = await import('../components/home/ForgeSuiteHomeView');
-    expect(ForgeSuiteHomeView).toBeDefined();
-    expect(typeof ForgeSuiteHomeView).toBe('function');
+  it('exports CloudStackHomeView as a valid component containing futuristic background', async () => {
+    const { CloudStackHomeView } = await import('../components/home/CloudStackHomeView');
+    expect(CloudStackHomeView).toBeDefined();
+    expect(typeof CloudStackHomeView).toBe('function');
   });
 });

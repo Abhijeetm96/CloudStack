@@ -1,6 +1,6 @@
-# Forge Suite — Styling Architecture
+# CloudStack — Styling Architecture
 
-Forge Suite uses a clean **two-tier styling architecture**:
+CloudStack uses a clean **two-tier styling architecture**:
 
 ### 1. Global Shared Foundation (`src/styles/index.css`)
 Imported globally at application root (`src/main.tsx`):

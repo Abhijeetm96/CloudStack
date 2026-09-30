@@ -67,11 +67,11 @@ export const UniversalConceptHero: React.FC<Props> = ({
             flexWrap: 'wrap',
           }}
         >
-          {/* Breadcrumb 1: Forge Suite Portal */}
+          {/* Breadcrumb 1: CloudStack Portal */}
           <button
             type="button"
             onClick={() => setMode('home')}
-            title="Navigate to Forge Suite Homepage"
+            title="Navigate to CloudStack Homepage"
             style={{
               background: 'transparent',
               border: 'none',
@@ -96,7 +96,7 @@ export const UniversalConceptHero: React.FC<Props> = ({
             }}
           >
             <Flame size={13} color="#f05033" />
-            <span>Forge Suite</span>
+            <span>CloudStack</span>
           </button>
 
           <ChevronRight size={12} color="#475569" />

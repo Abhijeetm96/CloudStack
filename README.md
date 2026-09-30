@@ -14,7 +14,7 @@
 ## 🌟 Table of Contents
 
 1. [Overview & Vision](#-overview--vision)
-2. [Live Academies in Forge Suite](#-live-academies-in-forge-suite)
+2. [Live Academies in CloudStack](#-live-academies-in-forge-suite)
    - [Git Academy (Git & Version Control)](#1-git--git--version-control-academy)
    - [Kubernetes Academy (Kubernetes & Cloud Orchestration)](#2-kubernetes--kubernetes--cloud-orchestration-academy)
    - [Upcoming Cloud & DevOps Roadmap](#3-upcoming-cloud--devops-roadmap)
@@ -38,7 +38,7 @@
 
 ## 🧭 Overview & Vision
 
-**Forge Suite** is a unified multi-academy learning ecosystem for engineers, SREs, and cloud architects. Rather than watching passive tutorials or clicking mock buttons, learners practice directly inside **high-fidelity in-browser simulation engines**:
+**CloudStack** is a unified multi-academy learning ecosystem for engineers, SREs, and cloud architects. Rather than watching passive tutorials or clicking mock buttons, learners practice directly inside **high-fidelity in-browser simulation engines**:
 
 * **Authentic Command-Line Interfaces**: Real command parsing, subcommands, flags, arguments, pipes, and realistic error responses.
 * **Deterministic Visual Physics**: Live SVG DAG commit trees, cluster node and pod mesh topographies, stage transition animations, and diff viewers.
@@ -47,7 +47,7 @@
 
 ---
 
-## 🎓 Live Academies in Forge Suite
+## 🎓 Live Academies in CloudStack
 
 ### 1. Git Academy — Git & Version Control Academy
 * **Core Curriculum**: 18 canonical topics, 71 interactive concepts structured from fundamentals to advanced plumbing.
@@ -75,7 +75,7 @@
   * **Live Mesh**: Real-time network topology visualizer mapping Services, CoreDNS, and Ingress routing.
 
 ### 3. Upcoming Cloud & DevOps Roadmap
-Forge Suite is actively expanding with specialized academies marked for upcoming releases:
+CloudStack is actively expanding with specialized academies marked for upcoming releases:
 * 🐳 **Dockernaut** (`Docker & OCI Runtimes`): Multi-stage Dockerfiles, distroless builds, BuildKit caching, and bridge networking.
 * 🚀 **PipelinePilot** (`GitHub Actions & ArgoCD`): CI/CD matrix pipelines, declarative GitOps reconciliation, and progressive canary delivery.
 * ☁️ **TerraStack** (`Terraform & OpenTofu`): Infrastructure as Code (IaC), remote state locking, drift forensics, and reusable modules.
@@ -122,13 +122,13 @@ Git Academy/
 │   │   └── README.md              # Global styling documentation
 │   │
 │   ├── components/                # 🌐 Suite-Level Shared Components
-│   │   ├── home/                  # ForgeSuiteHomeView.tsx (Suite portal homepage on `/`)
+│   │   ├── home/                  # CloudStackHomeView.tsx (Suite portal homepage on `/`)
 │   │   └── layout/                # SuiteHeaderNav.tsx (Suite portal top navbar on `/`)
 │   │
 │   ├── context/                   # AppContext.tsx (Global Suite state & active academy routing)
 │   ├── services/                  # Shared sound effects & audio feedback
 │   ├── tests/                     # 12 Vitest automated test suites (84 tests)
-│   ├── App.tsx                    # Root router between ForgeSuiteHome, Git Academy, Kubernetes Academy
+│   ├── App.tsx                    # Root router between CloudStackHome, Git Academy, Kubernetes Academy
 │   ├── index.css                  # Re-export from src/styles/index.css
 │   └── main.tsx                   # Vite application entry point importing src/styles/index.css
 │
@@ -146,7 +146,7 @@ Git Academy/
 
 ## 🎨 Two-Tier Styling Architecture
 
-Forge Suite enforces a strict **two-tier styling model**:
+CloudStack enforces a strict **two-tier styling model**:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐

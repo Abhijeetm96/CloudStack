@@ -1,11 +1,11 @@
 // src/progress/ProgressContext.tsx
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { ProgressManager } from './ProgressManager';
-import { ForgeSuiteProgress } from './progressTypes';
+import { CloudStackProgress } from './progressTypes';
 
 export interface ProgressContextValue {
   manager: ProgressManager;
-  progress: ForgeSuiteProgress;
+  progress: CloudStackProgress;
   isLoaded: boolean;
   showSettingsModal: boolean;
   setShowSettingsModal: (show: boolean) => void;
@@ -18,7 +18,7 @@ export const ProgressProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ manager: customManager, children }) => {
   const [manager] = useState<ProgressManager>(() => customManager || ProgressManager.getInstance());
-  const [progress, setProgress] = useState<ForgeSuiteProgress>(() => manager.getState());
+  const [progress, setProgress] = useState<CloudStackProgress>(() => manager.getState());
   const [isLoaded, setIsLoaded] = useState<boolean>(() => manager.getIsLoaded());
   const [showSettingsModal, setShowSettingsModal] = useState<boolean>(false);
 

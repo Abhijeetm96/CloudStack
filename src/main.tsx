@@ -24,7 +24,7 @@ window.addEventListener('vite:preloadError', (event) => {
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <SuiteErrorBoundary fallbackTitle="Forge Suite Application Error">
+    <SuiteErrorBoundary fallbackTitle="CloudStack Application Error">
       <App />
     </SuiteErrorBoundary>
   </StrictMode>,

@@ -1,4 +1,4 @@
-# ForgeSuite • GitHub Issues & Incomplete Features Tracker
+# CloudStack • GitHub Issues & Incomplete Features Tracker
 
 Live issue tracker for [Abhijeetm96/Git Academy](https://github.com/Abhijeetm96/Git Academy).
 

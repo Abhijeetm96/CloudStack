@@ -1872,7 +1872,7 @@ export const DevOpsRoadmapView: React.FC = () => {
                 DevOps Highway Architecture &amp; Pedagogy
               </h2>
               <p style={{ fontSize: '0.92rem', color: '#94a3b8', lineHeight: 1.6, margin: '0 0 1.25rem 0' }}>
-                The Forge Suite highway bridges low-level system internals with high-level multi-cloud orchestration. Starting from in-browser Git forensics and GitHub Actions CI/CD automation, you advance into Docker container engines, Kubernetes self-healing topologies, Terraform Infrastructure as Code, Prometheus telemetry, and zero-trust security.
+                The CloudStack highway bridges low-level system internals with high-level multi-cloud orchestration. Starting from in-browser Git forensics and GitHub Actions CI/CD automation, you advance into Docker container engines, Kubernetes self-healing topologies, Terraform Infrastructure as Code, Prometheus telemetry, and zero-trust security.
               </p>
 
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.85rem', marginBottom: '1.5rem' }}>

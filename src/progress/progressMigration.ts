@@ -1,10 +1,10 @@
 // src/progress/progressMigration.ts
-import { ForgeSuiteProgress, CourseProgress, AcademyId } from './progressTypes';
+import { CloudStackProgress, CourseProgress, AcademyId } from './progressTypes';
 
 export const CURRENT_PROGRESS_VERSION = 1;
 
 /**
- * Creates a clean, initialized default ForgeSuiteProgress state.
+ * Creates a clean, initialized default CloudStackProgress state.
  */
 export function createDefaultCourseProgress(academyId: AcademyId): CourseProgress {
   return {
@@ -17,7 +17,7 @@ export function createDefaultCourseProgress(academyId: AcademyId): CourseProgres
   };
 }
 
-export function createDefaultProgress(): ForgeSuiteProgress {
+export function createDefaultProgress(): CloudStackProgress {
   return {
     version: CURRENT_PROGRESS_VERSION,
     academies: {
@@ -34,9 +34,9 @@ export function createDefaultProgress(): ForgeSuiteProgress {
 
 /**
  * Checks for legacy localStorage data from older individual academy implementations
- * and merges them seamlessly into the v1 ForgeSuiteProgress structure.
+ * and merges them seamlessly into the v1 CloudStackProgress structure.
  */
-export function detectAndMigrateLegacyStorage(progress: ForgeSuiteProgress): ForgeSuiteProgress {
+export function detectAndMigrateLegacyStorage(progress: CloudStackProgress): CloudStackProgress {
   if (typeof window === 'undefined' || !window.localStorage) {
     return progress;
   }
@@ -91,9 +91,9 @@ export function detectAndMigrateLegacyStorage(progress: ForgeSuiteProgress): For
 }
 
 /**
- * Validates and migrates any arbitrary loaded JSON payload to the current ForgeSuiteProgress schema.
+ * Validates and migrates any arbitrary loaded JSON payload to the current CloudStackProgress schema.
  */
-export function migrateProgress(raw: any): ForgeSuiteProgress {
+export function migrateProgress(raw: any): CloudStackProgress {
   if (!raw || typeof raw !== 'object') {
     return createDefaultProgress();
   }
@@ -121,7 +121,7 @@ export function migrateProgress(raw: any): ForgeSuiteProgress {
     };
   };
 
-  const migrated: ForgeSuiteProgress = {
+  const migrated: CloudStackProgress = {
     version: Math.max(rawVersion, CURRENT_PROGRESS_VERSION),
     academies: {
       git: ensureAcademy('git'),

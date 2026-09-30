@@ -14,7 +14,7 @@ import {
   GET_DEVOPS_STATS,
 } from '../devops/data/devopsCurriculumData';
 
-describe('Global Forge Suite & DevOps Academy Master Population Audit', () => {
+describe('Global CloudStack & DevOps Academy Master Population Audit', () => {
   // =========================================================================
   // 1. CLOUDSTACK (Git & Version Control Academy)
   // =========================================================================

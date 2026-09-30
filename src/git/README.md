@@ -1,6 +1,6 @@
 # Git Academy — Interactive Git & Version Control Academy
 
-Git Academy is the flagship Git engineering academy of **Forge Suite**, running alongside **Kubernetes Academy** (`src/kubernetes/`).
+Git Academy is the flagship Git engineering academy of **CloudStack**, running alongside **Kubernetes Academy** (`src/kubernetes/`).
 
 ## Architecture & Encapsulation
 

@@ -291,7 +291,7 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
       }}
     >
       {/* ================================================================ */}
-      {/* 5-STAGE PEDAGOGICAL SUB-TABS (Forge Suite Standard)             */}
+      {/* 5-STAGE PEDAGOGICAL SUB-TABS (CloudStack Standard)             */}
       {/* ================================================================ */}
       <div
         style={{

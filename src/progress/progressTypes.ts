@@ -1,7 +1,7 @@
 // src/progress/progressTypes.ts
 
 /**
- * Supported learning academy identifiers across ForgeSuite.
+ * Supported learning academy identifiers across CloudStack.
  */
 export type AcademyId = 'git' | 'docker' | 'kubernetes' | 'linuxforge';
 
@@ -66,9 +66,9 @@ export interface CourseProgress {
 }
 
 /**
- * Top-level persistent state container across all of ForgeSuite.
+ * Top-level persistent state container across all of CloudStack.
  */
-export interface ForgeSuiteProgress {
+export interface CloudStackProgress {
   version: number;
   academies: Record<AcademyId, CourseProgress>;
   preferences?: {

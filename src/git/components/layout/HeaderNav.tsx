@@ -83,7 +83,7 @@ export const HeaderNav: React.FC = () => {
     >
       {/* Brand & Suite Switcher */}
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', flexShrink: 0 }}>
-        {/* Quick return to Forge Suite Home when inside Git Academy */}
+        {/* Quick return to CloudStack Home when inside Git Academy */}
         {mode !== 'home' && (
           <button
             onClick={() => {
@@ -112,7 +112,7 @@ export const HeaderNav: React.FC = () => {
               e.currentTarget.style.color = '#cbd5e1';
               e.currentTarget.style.borderColor = 'rgba(148, 163, 184, 0.2)';
             }}
-            title="Return to Forge Suite Portal"
+            title="Return to CloudStack Portal"
           >
             <Boxes size={13} color="#38bdf8" />
             <span className="header-lost-label">Suite Home</span>
@@ -164,7 +164,7 @@ export const HeaderNav: React.FC = () => {
                 lineHeight: 1.1,
               }}
             >
-              {mode === 'home' ? 'Forge Suite' : 'Git Academy'}
+              {mode === 'home' ? 'CloudStack' : 'Git Academy'}
             </div>
             <div
               className="header-tagline"
@@ -201,7 +201,7 @@ export const HeaderNav: React.FC = () => {
               cursor: 'pointer',
               transition: 'all 0.15s ease',
             }}
-            title="Switch Academy (Forge Suite)"
+            title="Switch Academy (CloudStack)"
           >
             <Boxes size={13} color="#38bdf8" />
             <span>Suite</span>
@@ -229,7 +229,7 @@ export const HeaderNav: React.FC = () => {
               }}
             >
               <div style={{ fontSize: '0.7rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em', padding: '0 0.25rem' }}>
-                Forge Suite Academies
+                CloudStack Academies
               </div>
 
               {/* Item 1: Git Academy */}
@@ -384,7 +384,7 @@ export const HeaderNav: React.FC = () => {
 
               <div style={{ height: '1px', background: 'rgba(148, 163, 184, 0.15)', margin: '0.15rem 0' }} />
 
-              {/* Item 3: Forge Suite Home Portal */}
+              {/* Item 3: CloudStack Home Portal */}
               <button
                 onClick={() => {
                   setShowSuiteMenu(false);
@@ -408,7 +408,7 @@ export const HeaderNav: React.FC = () => {
                   <Sparkles size={14} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>Forge Suite Portal</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>CloudStack Portal</div>
                   <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Unified platform gateway</div>
                 </div>
                 {mode === 'home' && <div style={{ fontSize: '0.65rem', color: '#38bdf8', fontWeight: 700 }}>Active</div>}
@@ -1148,7 +1148,7 @@ export const HeaderNav: React.FC = () => {
           {/* Navigation Links */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
             <div style={{ fontSize: '0.72rem', fontWeight: 700, color: '#64748b', textTransform: 'uppercase', letterSpacing: '0.05em' }}>
-              {mode === 'home' ? 'Forge Suite Gateways' : 'Git Academy Navigation'}
+              {mode === 'home' ? 'CloudStack Gateways' : 'Git Academy Navigation'}
             </div>
             {mode === 'home' ? (
               <>
@@ -1301,7 +1301,7 @@ export const HeaderNav: React.FC = () => {
                   }}
                 >
                   <Boxes size={15} />
-                  <span>← Return to Forge Suite Home</span>
+                  <span>← Return to CloudStack Home</span>
                 </button>
 
                 {[

@@ -10,10 +10,10 @@ import {
   calculateLessonMastery,
   getCourseLessons,
   PROGRESS_STORAGE_KEY_V1,
-  ForgeSuiteProgress,
+  CloudStackProgress,
 } from '../progress';
 
-describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
+describe('CloudStack Local-First Progress Tracking Architecture', () => {
   let mockStorageData: Record<string, string> = {};
 
   // Mock localStorage
