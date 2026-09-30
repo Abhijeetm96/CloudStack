@@ -7,7 +7,7 @@ export interface RouteState {
 }
 
 /**
- * Normalizes the base URL configured by Vite (e.g. '/CommitForge/' or '/')
+ * Normalizes the base URL configured by Vite (e.g. '/Git Academy/' or '/')
  */
 export function getBaseUrl(): string {
   const base = import.meta.env.BASE_URL || '/';
@@ -18,9 +18,9 @@ export function getBaseUrl(): string {
 /**
  * Extracts the route segment and search query from either pathname or hash.
  * Handles both HTML5 History pushState routes:
- *   https://abhijeetm96.github.io/CommitForge/podforge
+ *   https://abhijeetm96.github.io/Git Academy/kubernetes
  * and Hash fallback routes:
- *   https://abhijeetm96.github.io/CommitForge/#/podforge
+ *   https://abhijeetm96.github.io/Git Academy/#/kubernetes
  */
 export function parseCurrentRoute(): RouteState {
   if (typeof window === 'undefined') {
@@ -76,21 +76,21 @@ export function mapSegmentToMode(segment: string): ViewMode {
     case '':
       return 'home';
 
-    case 'podforge':
+    case 'kubernetes':
     case 'k8s':
     case 'kubernetes':
-      return 'podforge';
+      return 'kubernetes';
 
-    case 'dockforge':
     case 'docker':
-      return 'dockforge';
+    case 'docker':
+      return 'docker';
 
     case 'linuxforge':
     case 'linux':
     case 'kernel':
       return 'linuxforge';
 
-    case 'commitforge':
+    case 'git':
     case 'git':
     case 'learn':
     case 'academy':
@@ -139,9 +139,9 @@ export function mapSegmentToMode(segment: string): ViewMode {
 
 export function mapModeToSegment(mode: ViewMode): string {
   switch (mode) {
-    case 'podforge':
+    case 'kubernetes':
       return 'cloudstack/kubernetes';
-    case 'dockforge':
+    case 'docker':
       return 'cloudstack/docker';
     case 'linuxforge':
       return 'cloudstack/linux';
@@ -184,9 +184,9 @@ export function getTitleForMode(mode: ViewMode, conceptTitle?: string | null): s
   switch (mode) {
     case 'devops':
       return `${prefix}DevOps Academy (29 Chapters) | CloudStack`;
-    case 'podforge':
+    case 'kubernetes':
       return `${prefix}Kubernetes Academy | CloudStack`;
-    case 'dockforge':
+    case 'docker':
       return `${prefix}Docker Academy | CloudStack`;
     case 'linuxforge':
       return `${prefix}Linux Academy | CloudStack`;

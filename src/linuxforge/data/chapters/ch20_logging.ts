@@ -508,7 +508,7 @@ export const CHAPTER_20: LinuxTopic = {
     buildLinuxConcept({
       id: 'c-20-09',
       subChapterNumber: '20.9',
-      command: 'logger -p auth.notice "CommitForge security audit test"',
+      command: 'logger -p auth.notice "Git Academy security audit test"',
       title: 'Log Facilities and Severity Levels',
       topicId: 'ch-20',
       topicNumber: '20',
@@ -548,11 +548,11 @@ export const CHAPTER_20: LinuxTopic = {
         { term: 'Facility', simple: 'What part of the system generated the log (e.g. auth, cron, mail, daemon).', technical: 'Functional category identifier defined in RFC 5424.' },
         { term: 'local0 - local7', simple: '8 custom categories reserved for your own scripts and company software.', technical: 'User-defined facilities available for custom application logging.' }
       ],
-      syntaxCode: 'logger -p auth.notice "CommitForge security audit test"',
+      syntaxCode: 'logger -p auth.notice "Git Academy security audit test"',
       syntaxTokens: [
         { token: 'logger', role: 'command', explanation: 'A shell command interface to the syslog system log module' },
         { token: '-p auth.notice', role: 'option', explanation: 'Set facility to "auth" and severity to "notice"' },
-        { token: '"CommitForge security audit test"', role: 'argument', explanation: 'Message string injected into system logs' }
+        { token: '"Git Academy security audit test"', role: 'argument', explanation: 'Message string injected into system logs' }
       ],
       variations: [
         { command: 'logger -p local0.err "Database connection lost"', description: 'Inject error message tagged with custom local0 facility' },
@@ -569,7 +569,7 @@ export const CHAPTER_20: LinuxTopic = {
     buildLinuxConcept({
       id: 'c-20-10',
       subChapterNumber: '20.10',
-      command: 'logger -t COMMITFORGE "Manual diagnostic entry"',
+      command: 'logger -t CLOUDSTACK "Manual diagnostic entry"',
       title: 'Generating Custom Log Entries (logger)',
       topicId: 'ch-20',
       topicNumber: '20',
@@ -608,18 +608,18 @@ export const CHAPTER_20: LinuxTopic = {
         { term: 'logger', simple: 'A command to write messages directly into Linux\'s official system logs.', technical: 'Userland command-line tool connecting to syslog socket interface.' },
         { term: 'Tag (-t)', simple: 'The program name attached to the message so you can search for it later.', technical: 'Sets the SYSLOG_IDENTIFIER header field on the syslog record.' }
       ],
-      syntaxCode: 'logger -t COMMITFORGE "Manual diagnostic entry"',
+      syntaxCode: 'logger -t CLOUDSTACK "Manual diagnostic entry"',
       syntaxTokens: [
         { token: 'logger', role: 'command', explanation: 'Syslog injection command' },
-        { token: '-t COMMITFORGE', role: 'option', explanation: 'Tag the entry with the identifier "COMMITFORGE"' },
+        { token: '-t CLOUDSTACK', role: 'option', explanation: 'Tag the entry with the identifier "CLOUDSTACK"' },
         { token: '"Manual diagnostic entry"', role: 'argument', explanation: 'Message payload string' }
       ],
       variations: [
         { command: 'logger -t BACKUP -p local0.info "Backup finished successfully"', description: 'Log tagged message with specific facility and severity' },
         { command: 'logger -s "Console alert"', description: 'Output message to stderr in addition to writing to system logs (-s)' },
-        { command: 'journalctl -t COMMITFORGE', description: 'Query all logs generated with the "COMMITFORGE" tag' }
+        { command: 'journalctl -t CLOUDSTACK', description: 'Query all logs generated with the "CLOUDSTACK" tag' }
       ],
-      expectedOutput: '(Injects entry silently; verify with "journalctl -t COMMITFORGE -n 1 --no-pager")',
+      expectedOutput: '(Injects entry silently; verify with "journalctl -t CLOUDSTACK -n 1 --no-pager")',
       commonMistakes: [
         { mistake: 'Writing custom logging functions in bash that write to unrotated text files', whyWrong: 'Unrotated text files grow indefinitely until they consume 100% of the server\'s disk space.', correctWay: 'Use "logger -t MY_SCRIPT" and let systemd and logrotate manage log lifecycle.' },
         { mistake: 'Logging sensitive passwords or API tokens with logger', whyWrong: 'Messages passed to logger are recorded in system logs and forwarded to central SIEMs, exposing secrets to all log readers.', correctWay: 'Sanitize strings to ensure tokens are never logged.' }

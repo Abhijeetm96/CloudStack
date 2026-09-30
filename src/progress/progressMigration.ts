@@ -21,13 +21,13 @@ export function createDefaultProgress(): ForgeSuiteProgress {
   return {
     version: CURRENT_PROGRESS_VERSION,
     academies: {
-      commitforge: createDefaultCourseProgress('commitforge'),
-      dockforge: createDefaultCourseProgress('dockforge'),
-      podforge: createDefaultCourseProgress('podforge'),
+      git: createDefaultCourseProgress('git'),
+      docker: createDefaultCourseProgress('docker'),
+      kubernetes: createDefaultCourseProgress('kubernetes'),
       linuxforge: createDefaultCourseProgress('linuxforge'),
     },
     preferences: {
-      lastAcademy: 'commitforge',
+      lastAcademy: 'git',
     },
   };
 }
@@ -44,13 +44,13 @@ export function detectAndMigrateLegacyStorage(progress: ForgeSuiteProgress): For
   let mutated = false;
   const migrated = { ...progress };
 
-  // 1. PodForge legacy: `podforge_completed` was stored as a JSON string array of IDs
+  // 1. Kubernetes Academy legacy: `kubernetes_completed` was stored as a JSON string array of IDs
   try {
-    const rawPod = window.localStorage.getItem('podforge_completed');
+    const rawPod = window.localStorage.getItem('kubernetes_completed');
     if (rawPod) {
       const parsedPod = JSON.parse(rawPod);
       if (Array.isArray(parsedPod) && parsedPod.length > 0) {
-        const podCourse = migrated.academies.podforge || createDefaultCourseProgress('podforge');
+        const podCourse = migrated.academies.kubernetes || createDefaultCourseProgress('kubernetes');
         const mergedSet = new Set([...podCourse.completedLessonIds, ...parsedPod]);
         const newCompleted = Array.from(mergedSet);
 
@@ -78,13 +78,13 @@ export function detectAndMigrateLegacyStorage(progress: ForgeSuiteProgress): For
               };
             }
           });
-          migrated.academies.podforge = podCourse;
+          migrated.academies.kubernetes = podCourse;
           mutated = true;
         }
       }
     }
   } catch (err) {
-    console.warn('[ProgressMigration] Error scanning legacy podforge_completed:', err);
+    console.warn('[ProgressMigration] Error scanning legacy kubernetes_completed:', err);
   }
 
   return mutated ? migrated : progress;
@@ -124,13 +124,13 @@ export function migrateProgress(raw: any): ForgeSuiteProgress {
   const migrated: ForgeSuiteProgress = {
     version: Math.max(rawVersion, CURRENT_PROGRESS_VERSION),
     academies: {
-      commitforge: ensureAcademy('commitforge'),
-      dockforge: ensureAcademy('dockforge'),
-      podforge: ensureAcademy('podforge'),
+      git: ensureAcademy('git'),
+      docker: ensureAcademy('docker'),
+      kubernetes: ensureAcademy('kubernetes'),
       linuxforge: ensureAcademy('linuxforge'),
     },
     preferences: {
-      lastAcademy: raw.preferences?.lastAcademy || 'commitforge',
+      lastAcademy: raw.preferences?.lastAcademy || 'git',
       lastRoute: raw.preferences?.lastRoute,
     },
   };

@@ -66,7 +66,7 @@ export const CHAPTER_18: LinuxTopic = {
         { command: 'bash script.sh', description: 'Run script directly via bash interpreter without needing execute permissions' },
         { command: './script.sh', description: 'Run executable script from current directory using its embedded shebang' }
       ],
-      expectedOutput: 'Hello, CommitForge Linux Engineer!',
+      expectedOutput: 'Hello, Git Academy Linux Engineer!',
       commonMistakes: [
         { mistake: 'Trying to run "./script.sh" without granting execute permissions first', whyWrong: 'Linux prevents execution by default, returning "bash: ./script.sh: Permission denied".', correctWay: 'Run "chmod +x script.sh" before running directly.' },
         { mistake: 'Editing shell scripts on Windows and getting "^M: bad interpreter" errors', whyWrong: 'Windows uses CRLF line endings; Linux requires LF. The hidden carriage return \\r breaks the shebang.', correctWay: 'Convert line endings to Unix LF using "dos2unix script.sh" or inside your code editor.' }
@@ -879,7 +879,7 @@ export const CHAPTER_18: LinuxTopic = {
     buildLinuxConcept({
       id: 'c-18-15',
       subChapterNumber: '18.15',
-      command: 'VAR="commitforge" && echo ${VAR:0:6}',
+      command: 'VAR="cloudstack" && echo ${VAR:0:5}',
       title: 'String Manipulation (Length, Substring, Replace)',
       topicId: 'ch-18',
       topicNumber: '18',
@@ -918,11 +918,11 @@ export const CHAPTER_18: LinuxTopic = {
         { term: 'Parameter Expansion', simple: 'Special tricks inside ${VAR} to slice, clean up, or change text.', technical: 'Shell evaluation of parameters with operators modifying the expanded string.' },
         { term: 'Prefix/Suffix Stripping', simple: 'Chopping off file extensions (.txt) or leading folder paths (/var/log/).', technical: 'Pattern matching removal operators (#, ##, %, %%) operating on parameter values.' }
       ],
-      syntaxCode: 'VAR="commitforge" && echo ${VAR:0:6}',
+      syntaxCode: 'VAR="cloudstack" && echo ${VAR:0:5}',
       syntaxTokens: [
-        { token: 'VAR="commitforge"', role: 'argument', explanation: 'Assign sample text to variable' },
+        { token: 'VAR="cloudstack"', role: 'argument', explanation: 'Assign sample text to variable' },
         { token: '&&', role: 'operator', explanation: 'Execute next command' },
-        { token: 'echo ${VAR:0:6}', role: 'command', explanation: 'Extract substring starting at offset 0 for a length of 6 characters' }
+        { token: 'echo ${VAR:0:5}', role: 'command', explanation: 'Extract substring starting at offset 0 for a length of 5 characters' }
       ],
       variations: [
         { command: 'FILE="/var/log/nginx/access.log" && echo ${FILE##*/}', description: 'Extract filename only (strips everything up to last slash) -> "access.log"' },
@@ -930,7 +930,7 @@ export const CHAPTER_18: LinuxTopic = {
         { command: 'NAME="alice" && echo ${NAME^^}', description: 'Convert string to uppercase -> "ALICE"' },
         { command: 'TEXT="cat and cat" && echo ${TEXT//cat/dog}', description: 'Global search and replace all instances -> "dog and dog"' }
       ],
-      expectedOutput: 'commit',
+      expectedOutput: 'cloud',
       commonMistakes: [
         { mistake: 'Using "cut" or "awk" to strip a file extension when "${FILE%.*}" does it natively', whyWrong: 'Spawning cut requires a subshell and process fork, which is 100x slower in large loops.', correctWay: 'Use "${FILE%.*}" for instant in-memory extension removal.' },
         { mistake: 'Confusing single slash (${VAR/old/new}) with double slash (${VAR//old/new})', whyWrong: 'Single slash only replaces the FIRST occurrence; double slash replaces ALL occurrences.', correctWay: 'Use double slash "//" when you want global replacement.' }

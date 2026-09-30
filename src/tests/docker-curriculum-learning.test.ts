@@ -1,8 +1,8 @@
 import { describe, it, expect } from 'vitest';
-import { DOCKER_14_TOPICS, DOCKER_UNIVERSAL_CONCEPTS } from '../dockforge/data/unifiedDockerData';
-import { ensureFullConceptData } from '../dockforge/data/conceptDataEnricher';
+import { DOCKER_14_TOPICS, DOCKER_UNIVERSAL_CONCEPTS } from '../docker/data/unifiedDockerData';
+import { ensureFullConceptData } from '../docker/data/conceptDataEnricher';
 
-describe('DockForge Master Docker Curriculum & Interactive Pedagogy Audit', () => {
+describe('Docker Academy Master Docker Curriculum & Interactive Pedagogy Audit', () => {
   it('covers all 14 Docker topics spanning absolute beginner to enterprise SRE', () => {
     expect(DOCKER_14_TOPICS.length).toBe(14);
 

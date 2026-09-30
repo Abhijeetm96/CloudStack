@@ -1,15 +1,15 @@
 import { describe, it, expect } from 'vitest';
-import { ACADEMY_18_TOPICS, getUniversalConcept } from '../commitforge/data/unifiedAcademyData';
-import { DOCKER_14_TOPICS } from '../dockforge/data/unifiedDockerData';
-import { ensureFullConceptData } from '../dockforge/data/conceptDataEnricher';
-import { KUBE_CHAPTERS } from '../podforge/data/topics';
+import { ACADEMY_18_TOPICS, getUniversalConcept } from '../git/data/unifiedAcademyData';
+import { DOCKER_14_TOPICS } from '../docker/data/unifiedDockerData';
+import { ensureFullConceptData } from '../docker/data/conceptDataEnricher';
+import { KUBE_CHAPTERS } from '../kubernetes/data/topics';
 import { LINUX_15_TOPICS } from '../linuxforge/data/topics';
 
 describe('Deep Curriculum & Lesson Population Audit Across All 3 Sections', () => {
   // =========================================================================
-  // SECTION 1: COMMITFORGE (Git & Version Control Academy)
+  // SECTION 1: CLOUDSTACK (Git & Version Control Academy)
   // =========================================================================
-  describe('CommitForge Lessons Population (18 Topics, 75 Concepts)', () => {
+  describe('Git Academy Lessons Population (18 Topics, 75 Concepts)', () => {
     it('verifies all 18 topics are populated with valid metadata and non-empty concept lists', () => {
       expect(ACADEMY_18_TOPICS.length).toBe(18);
 
@@ -72,9 +72,9 @@ describe('Deep Curriculum & Lesson Population Audit Across All 3 Sections', () =
   });
 
   // =========================================================================
-  // SECTION 2: DOCKFORGE (Docker & Containers Academy)
+  // SECTION 2: DOCKER (Docker & Containers Academy)
   // =========================================================================
-  describe('DockForge Lessons Population (14 Topics, 42 Concepts)', () => {
+  describe('Docker Academy Lessons Population (14 Topics, 42 Concepts)', () => {
     it('verifies all 14 topics are populated with valid numbers, titles, and icons', () => {
       expect(DOCKER_14_TOPICS.length).toBe(14);
 
@@ -141,9 +141,9 @@ describe('Deep Curriculum & Lesson Population Audit Across All 3 Sections', () =
   });
 
   // =========================================================================
-  // SECTION 3: PODFORGE (Kubernetes & Cloud Native Academy)
+  // SECTION 3: KUBERNETES (Kubernetes & Cloud Native Academy)
   // =========================================================================
-  describe('PodForge Lessons Population (15 Chapters, 71 Concepts)', () => {
+  describe('Kubernetes Academy Lessons Population (15 Chapters, 71 Concepts)', () => {
     it('verifies all 15 chapters are populated with valid numbers, titles, and concepts', () => {
       expect(KUBE_CHAPTERS.length).toBe(15);
 

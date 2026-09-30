@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { ViewMode } from '../context/AppContext';
-import { ACADEMY_18_TOPICS, ALL_ACADEMY_CONCEPTS } from '../commitforge/data/unifiedAcademyData';
+import { ACADEMY_18_TOPICS, ALL_ACADEMY_CONCEPTS } from '../git/data/unifiedAcademyData';
 
 describe('Forge Suite Unified Portal Tests', () => {
   it('supports home in ViewMode union type', () => {
@@ -8,26 +8,26 @@ describe('Forge Suite Unified Portal Tests', () => {
     expect(validHomeMode).toBe('home');
   });
 
-  it('verifies CommitForge academy data integrity for portal showcase', () => {
+  it('verifies Git Academy academy data integrity for portal showcase', () => {
     expect(ACADEMY_18_TOPICS.length).toBe(18);
     const totalConcepts = ACADEMY_18_TOPICS.flatMap((t) => t.concepts).length;
     expect(totalConcepts).toBe(75);
   });
 
-  it('validates PodForge target endpoint format', () => {
-    const podForgeDevPort = 5174;
-    const podForgeUrl = `http://localhost:${podForgeDevPort}/`;
-    expect(podForgeUrl).toMatch(/^http:\/\/localhost:\d+\/$/);
+  it('validates Kubernetes Academy target endpoint format', () => {
+    const kubernetesDevPort = 5174;
+    const kubernetesUrl = `http://localhost:${kubernetesDevPort}/`;
+    expect(kubernetesUrl).toMatch(/^http:\/\/localhost:\d+\/$/);
   });
 
   it('validates suite aggregate statistics', () => {
-    const commitForgeTopics = 18;
-    const commitForgeConcepts = 75;
-    const podForgeModules = 16;
-    const podForgeConcepts = 56;
+    const gitTopics = 18;
+    const gitConcepts = 75;
+    const kubernetesModules = 16;
+    const kubernetesConcepts = 56;
 
-    const totalModules = commitForgeTopics + podForgeModules;
-    const totalConcepts = commitForgeConcepts + podForgeConcepts;
+    const totalModules = gitTopics + kubernetesModules;
+    const totalConcepts = gitConcepts + kubernetesConcepts;
 
     expect(totalModules).toBe(34);
     expect(totalConcepts).toBe(131);

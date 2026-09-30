@@ -36,8 +36,8 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
   const mockProgress: ForgeSuiteProgress = {
     version: 1,
     academies: {
-      commitforge: {
-        academyId: 'commitforge',
+      git: {
+        academyId: 'git',
         completedLessonIds: ['c-git-init', 'c-git-commit'],
         startedLessonIds: ['c-git-init', 'c-git-commit', 'c-git-branch'],
         lessons: {
@@ -61,15 +61,15 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
         achievements: ['first-commit'],
         lastVisitedAt: '2026-09-25T10:00:00.000Z',
       },
-      dockforge: {
-        academyId: 'dockforge',
+      docker: {
+        academyId: 'docker',
         completedLessonIds: [],
         startedLessonIds: [],
         lessons: {},
         achievements: [],
       },
-      podforge: {
-        academyId: 'podforge',
+      kubernetes: {
+        academyId: 'kubernetes',
         completedLessonIds: [],
         startedLessonIds: [],
         lessons: {},
@@ -84,7 +84,7 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
       },
     },
     preferences: {
-      lastAcademy: 'commitforge',
+      lastAcademy: 'git',
     },
   };
 
@@ -109,21 +109,21 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
       const parsed = JSON.parse(exported);
       expect(parsed.format).toBe('forgesuite-progress-backup');
       expect(parsed.version).toBe(1);
-      expect(parsed.data.academies.commitforge.completedLessonIds).toContain('c-git-commit');
+      expect(parsed.data.academies.git.completedLessonIds).toContain('c-git-commit');
     });
 
     it('imports and validates an exported package', () => {
       const exported = adapter.exportProgress(mockProgress);
       const imported = adapter.importProgress(exported);
-      expect(imported.academies.commitforge.completedLessonIds).toEqual(['c-git-init', 'c-git-commit']);
+      expect(imported.academies.git.completedLessonIds).toEqual(['c-git-init', 'c-git-commit']);
     });
 
     it('merges local and remote progress with conflict resolution', () => {
       const remoteProgress: ForgeSuiteProgress = {
         version: 1,
         academies: {
-          commitforge: {
-            academyId: 'commitforge',
+          git: {
+            academyId: 'git',
             completedLessonIds: ['c-git-push'],
             startedLessonIds: ['c-git-push'],
             lessons: {
@@ -147,15 +147,15 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
             achievements: ['remote-pusher'],
             lastVisitedAt: '2026-09-25T12:00:00.000Z',
           },
-          dockforge: {
-            academyId: 'dockforge',
+          docker: {
+            academyId: 'docker',
             completedLessonIds: ['docker-run'],
             startedLessonIds: ['docker-run'],
             lessons: {},
             achievements: [],
           },
-          podforge: {
-            academyId: 'podforge',
+          kubernetes: {
+            academyId: 'kubernetes',
             completedLessonIds: [],
             startedLessonIds: [],
             lessons: {},
@@ -174,16 +174,16 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
       const merged = adapter.mergeProgress(mockProgress, remoteProgress);
 
       // Union of completed lessons
-      expect(merged.academies.commitforge.completedLessonIds).toContain('c-git-init');
-      expect(merged.academies.commitforge.completedLessonIds).toContain('c-git-commit');
-      expect(merged.academies.commitforge.completedLessonIds).toContain('c-git-push');
+      expect(merged.academies.git.completedLessonIds).toContain('c-git-init');
+      expect(merged.academies.git.completedLessonIds).toContain('c-git-commit');
+      expect(merged.academies.git.completedLessonIds).toContain('c-git-push');
 
       // Union of achievements
-      expect(merged.academies.commitforge.achievements).toContain('first-commit');
-      expect(merged.academies.commitforge.achievements).toContain('remote-pusher');
+      expect(merged.academies.git.achievements).toContain('first-commit');
+      expect(merged.academies.git.achievements).toContain('remote-pusher');
 
       // Remote course added
-      expect(merged.academies.dockforge.completedLessonIds).toContain('docker-run');
+      expect(merged.academies.docker.completedLessonIds).toContain('docker-run');
     });
   });
 

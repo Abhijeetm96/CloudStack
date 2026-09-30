@@ -40,12 +40,12 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
     it('creates default progress with version 1 and all 3 academies', () => {
       const def = createDefaultProgress();
       expect(def.version).toBe(1);
-      expect(def.academies.commitforge).toBeDefined();
-      expect(def.academies.dockforge).toBeDefined();
-      expect(def.academies.podforge).toBeDefined();
-      expect(def.academies.commitforge.completedLessonIds).toEqual([]);
-      expect(def.academies.dockforge.completedLessonIds).toEqual([]);
-      expect(def.academies.podforge.completedLessonIds).toEqual([]);
+      expect(def.academies.git).toBeDefined();
+      expect(def.academies.docker).toBeDefined();
+      expect(def.academies.kubernetes).toBeDefined();
+      expect(def.academies.git.completedLessonIds).toEqual([]);
+      expect(def.academies.docker.completedLessonIds).toEqual([]);
+      expect(def.academies.kubernetes.completedLessonIds).toEqual([]);
     });
 
     it('initializes ProgressManager with clean storage', async () => {
@@ -54,7 +54,7 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       await manager.initialize();
 
       expect(manager.getIsLoaded()).toBe(true);
-      const stats = manager.getCourseStats('dockforge');
+      const stats = manager.getCourseStats('docker');
       expect(stats.completedLessons).toBe(0);
       expect(stats.percentage).toBe(0);
       expect(stats.totalLessons).toBe(42); // 42 Docker concepts
@@ -67,14 +67,14 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       const manager = new ProgressManager(storage);
       await manager.initialize();
 
-      manager.startLesson('dockforge', 'c-what-are-containers');
-      const lesson = manager.getLessonProgress('dockforge', 'c-what-are-containers');
+      manager.startLesson('docker', 'c-what-are-containers');
+      const lesson = manager.getLessonProgress('docker', 'c-what-are-containers');
 
       expect(lesson).toBeDefined();
       expect(lesson?.status).toBe('in_progress');
       expect(lesson?.firstStartedAt).toBeDefined();
 
-      const course = manager.getAcademyProgress('dockforge');
+      const course = manager.getAcademyProgress('docker');
       expect(course.startedLessonIds).toContain('c-what-are-containers');
       expect(course.completedLessonIds).not.toContain('c-what-are-containers');
     });
@@ -85,24 +85,24 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       await manager.initialize();
 
       const lessonId = 'c-what-are-containers';
-      manager.startLesson('dockforge', lessonId);
-      expect(manager.getLessonProgress('dockforge', lessonId)?.masteryPercent).toBe(0);
+      manager.startLesson('docker', lessonId);
+      expect(manager.getLessonProgress('docker', lessonId)?.masteryPercent).toBe(0);
 
-      manager.markConceptViewed('dockforge', lessonId);
-      expect(manager.getLessonProgress('dockforge', lessonId)?.masteryPercent).toBe(15);
+      manager.markConceptViewed('docker', lessonId);
+      expect(manager.getLessonProgress('docker', lessonId)?.masteryPercent).toBe(15);
 
-      manager.markSyntaxExplored('dockforge', lessonId);
-      expect(manager.getLessonProgress('dockforge', lessonId)?.masteryPercent).toBe(30);
+      manager.markSyntaxExplored('docker', lessonId);
+      expect(manager.getLessonProgress('docker', lessonId)?.masteryPercent).toBe(30);
 
-      manager.completeSimulator('dockforge', lessonId, { attempts: 2, mistakes: 1 });
-      const afterSim = manager.getLessonProgress('dockforge', lessonId);
+      manager.completeSimulator('docker', lessonId, { attempts: 2, mistakes: 1 });
+      const afterSim = manager.getLessonProgress('docker', lessonId);
       expect(afterSim?.simulatorCompleted).toBe(true);
       expect(afterSim?.attempts).toBe(2);
       expect(afterSim?.mistakes).toBe(1);
       expect(afterSim?.masteryPercent).toBe(55);
 
-      manager.completeChallenge('dockforge', lessonId, 95);
-      const afterChal = manager.getLessonProgress('dockforge', lessonId);
+      manager.completeChallenge('docker', lessonId, 95);
+      const afterChal = manager.getLessonProgress('docker', lessonId);
       expect(afterChal?.challengeCompleted).toBe(true);
       expect(afterChal?.score).toBe(95);
       expect(afterChal?.masteryPercent).toBe(75);
@@ -114,16 +114,16 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       await manager.initialize();
 
       const lessonId = 'c-what-are-containers';
-      manager.completeLesson('dockforge', lessonId);
+      manager.completeLesson('docker', lessonId);
 
-      const lesson = manager.getLessonProgress('dockforge', lessonId);
+      const lesson = manager.getLessonProgress('docker', lessonId);
       expect(lesson?.status).toBe('completed');
       expect(lesson?.masteryPercent).toBe(100);
       expect(lesson?.completedAt).toBeDefined();
 
-      const stats = manager.getCourseStats('dockforge');
+      const stats = manager.getCourseStats('docker');
       expect(stats.completedLessons).toBe(1);
-      expect(manager.getAcademyProgress('dockforge').completedLessonIds).toContain(lessonId);
+      expect(manager.getAcademyProgress('docker').completedLessonIds).toContain(lessonId);
     });
   });
 
@@ -134,12 +134,12 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       await manager.initialize();
 
       // Complete 2 lessons in Git
-      manager.completeLesson('commitforge', 'c-what-is-vcs');
-      manager.completeLesson('commitforge', 'c-why-use-vcs');
+      manager.completeLesson('git', 'c-what-is-vcs');
+      manager.completeLesson('git', 'c-why-use-vcs');
 
-      const gitStats = manager.getCourseStats('commitforge');
-      const dockerStats = manager.getCourseStats('dockforge');
-      const kubeStats = manager.getCourseStats('podforge');
+      const gitStats = manager.getCourseStats('git');
+      const dockerStats = manager.getCourseStats('docker');
+      const kubeStats = manager.getCourseStats('kubernetes');
 
       expect(gitStats.completedLessons).toBe(2);
       expect(gitStats.percentage).toBeGreaterThan(0);
@@ -155,14 +155,14 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
   describe('4. Derived Progress Calculations & Next Lesson', () => {
     it('computes accurate total, completed, remaining, and percentage', () => {
       const def = createDefaultProgress();
-      const lessons = getCourseLessons('dockforge');
+      const lessons = getCourseLessons('docker');
       expect(lessons.length).toBe(42);
 
       // Complete 21 of 42 lessons
       const halfIds = lessons.slice(0, 21).map((l) => l.id);
-      def.academies.dockforge.completedLessonIds = halfIds;
+      def.academies.docker.completedLessonIds = halfIds;
 
-      const stats = calculateCourseProgress('dockforge', def.academies.dockforge);
+      const stats = calculateCourseProgress('docker', def.academies.docker);
       expect(stats.totalLessons).toBe(42);
       expect(stats.completedLessons).toBe(21);
       expect(stats.remainingLessons).toBe(21);
@@ -173,10 +173,10 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
 
     it('computes accurate topic progress', () => {
       const def = createDefaultProgress();
-      // Topic 1 has 4 concepts in DockForge: c-what-are-containers, c-why-need-containers, c-baremetal-vm-containers, c-docker-and-oci
-      def.academies.dockforge.completedLessonIds = ['c-what-are-containers', 'c-why-need-containers'];
+      // Topic 1 has 4 concepts in Docker Academy: c-what-are-containers, c-why-need-containers, c-baremetal-vm-containers, c-docker-and-oci
+      def.academies.docker.completedLessonIds = ['c-what-are-containers', 'c-why-need-containers'];
 
-      const topicStats = calculateTopicProgress('dockforge', 'topic-01', def.academies.dockforge);
+      const topicStats = calculateTopicProgress('docker', 'topic-01', def.academies.docker);
       expect(topicStats.totalLessons).toBe(4);
       expect(topicStats.completedLessons).toBe(2);
       expect(topicStats.percentage).toBe(50);
@@ -211,17 +211,17 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
   });
 
   describe('6. Legacy Migration', () => {
-    it('automatically migrates legacy podforge_completed localStorage key', async () => {
-      mockStorageData['podforge_completed'] = JSON.stringify(['c-k8s-overview', 'c-k8s-why-use']);
+    it('automatically migrates legacy kubernetes_completed localStorage key', async () => {
+      mockStorageData['kubernetes_completed'] = JSON.stringify(['c-k8s-overview', 'c-k8s-why-use']);
 
       const storage = new LocalStorageProgressStorage('test:migration');
       const manager = new ProgressManager(storage);
       await manager.initialize();
 
-      const podStats = manager.getCourseStats('podforge');
+      const podStats = manager.getCourseStats('kubernetes');
       expect(podStats.completedLessons).toBe(2);
-      expect(manager.getAcademyProgress('podforge').completedLessonIds).toContain('c-k8s-overview');
-      expect(manager.getAcademyProgress('podforge').completedLessonIds).toContain('c-k8s-why-use');
+      expect(manager.getAcademyProgress('kubernetes').completedLessonIds).toContain('c-k8s-overview');
+      expect(manager.getAcademyProgress('kubernetes').completedLessonIds).toContain('c-k8s-why-use');
     });
   });
 
@@ -231,12 +231,12 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       const manager = new ProgressManager(storage);
       await manager.initialize();
 
-      manager.completeLesson('dockforge', 'c-what-are-containers');
-      expect(manager.getCourseStats('dockforge').completedLessons).toBe(1);
+      manager.completeLesson('docker', 'c-what-are-containers');
+      expect(manager.getCourseStats('docker').completedLessons).toBe(1);
 
       await manager.resetProgress();
-      expect(manager.getCourseStats('dockforge').completedLessons).toBe(0);
-      expect(manager.getAcademyProgress('dockforge').completedLessonIds).toEqual([]);
+      expect(manager.getCourseStats('docker').completedLessons).toBe(0);
+      expect(manager.getAcademyProgress('docker').completedLessonIds).toEqual([]);
     });
 
     it('exports and imports progress with complete roundtrip fidelity', async () => {
@@ -244,9 +244,9 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       const manager1 = new ProgressManager(storage1);
       await manager1.initialize();
 
-      manager1.completeLesson('commitforge', 'c-what-is-vcs');
-      manager1.completeLesson('dockforge', 'c-what-are-containers');
-      manager1.completeLesson('podforge', 'c-k8s-overview');
+      manager1.completeLesson('git', 'c-what-is-vcs');
+      manager1.completeLesson('docker', 'c-what-are-containers');
+      manager1.completeLesson('kubernetes', 'c-k8s-overview');
 
       const json = manager1.exportProgress();
       expect(typeof json).toBe('string');
@@ -256,14 +256,14 @@ describe('ForgeSuite Local-First Progress Tracking Architecture', () => {
       const manager2 = new ProgressManager(storage2);
       await manager2.initialize();
 
-      expect(manager2.getCourseStats('commitforge').completedLessons).toBe(0);
+      expect(manager2.getCourseStats('git').completedLessons).toBe(0);
 
       const importResult = await manager2.importProgress(json);
       expect(importResult.success).toBe(true);
 
-      expect(manager2.getCourseStats('commitforge').completedLessons).toBe(1);
-      expect(manager2.getCourseStats('dockforge').completedLessons).toBe(1);
-      expect(manager2.getCourseStats('podforge').completedLessons).toBe(1);
+      expect(manager2.getCourseStats('git').completedLessons).toBe(1);
+      expect(manager2.getCourseStats('docker').completedLessons).toBe(1);
+      expect(manager2.getCourseStats('kubernetes').completedLessons).toBe(1);
     });
 
     it('rejects invalid JSON string during import', async () => {

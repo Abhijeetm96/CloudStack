@@ -1,9 +1,9 @@
 # Standardized Academy Layout System
 
-This directory provides the standardized layout, navigation, and curriculum UI components for all **Forge Suite Academies** (CommitForge, DockForge, PodForge, and all upcoming sections).
+This directory provides the standardized layout, navigation, and curriculum UI components for all **Forge Suite Academies** (Git Academy, Docker Academy, Kubernetes Academy, and all upcoming sections).
 
 ## Purpose
-Every academy in the suite must follow the exact same visual hierarchy, layout, responsiveness, and interaction patterns pioneered by **CommitForge**:
+Every academy in the suite must follow the exact same visual hierarchy, layout, responsiveness, and interaction patterns pioneered by **Git Academy**:
 1. **Header Navigation (`StandardAcademyHeaderNav`)**: 60px sticky top bar with Suite Home return, academy brand badge, Suite switcher dropdown, standardized 6-tab navigation (`Learn`, `Concepts Universe`, `Practice`, `Labs`, `IDE`, `Reference`), and `Problem Solver (⌘K)`.
 2. **Left Sidebar (`StandardAcademySidebar`)**: Standard 240px responsive accordion sidebar (`.academy-sidebar-desktop`), search filter, topic accordions with monospace concept commands, and a pinned progress tracker footer at the bottom.
 3. **Center Stage Area**: Interactive routed breadcrumbs, Hero card with sub-tabs, content container, and a pinned bottom bar (`StandardAcademyBottomBar`) with Previous Concept, Mark Complete, and Next Concept buttons.
@@ -13,7 +13,7 @@ Every academy in the suite must follow the exact same visual hierarchy, layout, 
 
 ## How to Create an Upcoming Section (e.g. HelmCraft, PipelinePilot, TerraStack)
 
-To add a new section that looks 100% standardized with CommitForge:
+To add a new section that looks 100% standardized with Git Academy:
 
 ### 1. Define Topics and Concepts
 Create a `data/` module containing your curriculum topics and concepts following the `StandardTopicItem` and `UniverseConceptItem` schemas.

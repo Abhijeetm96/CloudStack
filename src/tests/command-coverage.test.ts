@@ -1,13 +1,13 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GitEngine } from '../commitforge/git-engine/engine';
-import { GIT_COMMAND_COVERAGE, calculateCommandCoverage } from '../commitforge/data/gitCommandCoverage';
+import { GitEngine } from '../git/git-engine/engine';
+import { GIT_COMMAND_COVERAGE, calculateCommandCoverage } from '../git/data/gitCommandCoverage';
 
-describe('CommitForge Complete Git Command Coverage', () => {
+describe('Git Academy Complete Git Command Coverage', () => {
   let engine: GitEngine;
 
   beforeEach(() => {
     engine = new GitEngine({
-      'index.html': '<h1>Hello CommitForge</h1>',
+      'index.html': '<h1>Hello Git Academy</h1>',
       'style.css': 'body { background: #111; }',
       'script.js': 'console.log("Ready");',
     });

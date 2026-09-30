@@ -67,9 +67,9 @@ export const DevOpsAcademyMasterView: React.FC = () => {
   const handleLaunchLive = (action: DevOpsChapter['liveAction']) => {
     if (!action) return;
     if (action.route === '/linuxforge') setMode('linuxforge');
-    else if (action.route === '/commitforge') setMode('learn');
-    else if (action.route === '/dockforge') setMode('dockforge');
-    else if (action.route === '/podforge') setMode('podforge');
+    else if (action.route === '/git') setMode('learn');
+    else if (action.route === '/docker') setMode('docker');
+    else if (action.route === '/kubernetes') setMode('kubernetes');
     else if (action.route === '/solver') setMode('hospital');
     else setMode('home');
   };

@@ -3,7 +3,7 @@ import {
   ACADEMY_18_TOPICS,
   ALL_ACADEMY_CONCEPTS,
   getUniversalConcept,
-} from '../commitforge/data/unifiedAcademyData';
+} from '../git/data/unifiedAcademyData';
 
 describe('All 18 Topics Complete Curriculum Verification & Quality Audit', () => {
   it('verifies all 18 topics exist with metadata, icon, and valid concept counts', () => {

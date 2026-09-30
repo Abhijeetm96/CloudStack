@@ -185,7 +185,7 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
       }}
     >
       {/* ================================================================ */}
-      {/* 1. SIDEBAR HEADER (CommitForge Design: 32x32 Icon + Title + Sub) */}
+      {/* 1. SIDEBAR HEADER (Git Academy Design: 32x32 Icon + Title + Sub) */}
       {/* ================================================================ */}
       <div
         style={{
@@ -268,7 +268,7 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
       </div>
 
       {/* ================================================================ */}
-      {/* 2. SEARCH & EXPAND CONTROLS (CommitForge Compact Bar)            */}
+      {/* 2. SEARCH & EXPAND CONTROLS (Git Academy Compact Bar)            */}
       {/* ================================================================ */}
       <div
         style={{
@@ -728,7 +728,7 @@ export const StandardAcademySidebar: React.FC<StandardAcademySidebarProps> = ({
       </div>
 
       {/* ================================================================ */}
-      {/* 4. PINNED PROGRESS FOOTER (Standard CommitForge Progress Box)    */}
+      {/* 4. PINNED PROGRESS FOOTER (Standard Git Academy Progress Box)    */}
       {/* ================================================================ */}
       <div
         style={{

@@ -1,7 +1,7 @@
 // src/platform/adapters/dockerAdapter.ts
-import { DockerEngine } from '../../dockforge/docker-engine/engine';
-import { UniversalDockerConcept } from '../../dockforge/data/unifiedDockerData';
-import { ensureFullConceptData } from '../../dockforge/data/conceptDataEnricher';
+import { DockerEngine } from '../../docker/docker-engine/engine';
+import { UniversalDockerConcept } from '../../docker/data/unifiedDockerData';
+import { ensureFullConceptData } from '../../docker/data/conceptDataEnricher';
 import {
   UniversalLesson,
   SyntaxTokenBreakdown,
@@ -71,7 +71,7 @@ export class DockerRuntimeAdapter implements RuntimeAdapter {
 }
 
 /**
- * Maps a DockForge UniversalDockerConcept into the platform-wide UniversalLesson schema.
+ * Maps a Docker Academy UniversalDockerConcept into the platform-wide UniversalLesson schema.
  */
 export function dockerLessonAdapter(rawConcept: UniversalDockerConcept): UniversalLesson {
   const concept = ensureFullConceptData(rawConcept);

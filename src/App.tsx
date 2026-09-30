@@ -11,14 +11,14 @@ import { SuiteErrorBoundary } from './platform/errors/SuiteErrorBoundary';
 import { lazyWithRetry } from './platform/utils/lazyWithRetry';
 
 // Code-split heavy academy engines and secondary views with automated chunk-retry on deployment
-const CommitForgeApp = lazyWithRetry(() =>
-  import('./commitforge/CommitForgeApp').then((m) => ({ default: m.CommitForgeApp }))
+const GitAcademyApp = lazyWithRetry(() =>
+  import('./git/GitAcademyApp').then((m) => ({ default: m.GitAcademyApp }))
 );
-const PodForgeApp = lazyWithRetry(() =>
-  import('./podforge/PodForgeApp').then((m) => ({ default: m.PodForgeApp }))
+const KubernetesAcademyApp = lazyWithRetry(() =>
+  import('./kubernetes/KubernetesAcademyApp').then((m) => ({ default: m.KubernetesAcademyApp }))
 );
-const DockForgeApp = lazyWithRetry(() =>
-  import('./dockforge/DockForgeApp').then((m) => ({ default: m.DockForgeApp }))
+const DockerAcademyApp = lazyWithRetry(() =>
+  import('./docker/DockerAcademyApp').then((m) => ({ default: m.DockerAcademyApp }))
 );
 const LinuxForgeApp = lazyWithRetry(() =>
   import('./linuxforge/LinuxForgeApp').then((m) => ({ default: m.LinuxForgeApp }))
@@ -80,8 +80,8 @@ const AppContent: React.FC = () => {
 
   const handleSelectLessonFromSolver = (tech: TechnologyType, lessonId: string) => {
     if (tech === 'git') setMode('learn', lessonId);
-    else if (tech === 'docker') setMode('dockforge', lessonId);
-    else if (tech === 'kubernetes') setMode('podforge', lessonId);
+    else if (tech === 'docker') setMode('docker', lessonId);
+    else if (tech === 'kubernetes') setMode('kubernetes', lessonId);
   };
 
   const renderActiveView = () => {
@@ -156,11 +156,11 @@ const AppContent: React.FC = () => {
       );
     }
 
-    if (mode === 'podforge') {
+    if (mode === 'kubernetes') {
       return (
-        <SuiteErrorBoundary fallbackTitle="PodForge Kubernetes Academy Error">
+        <SuiteErrorBoundary fallbackTitle="Kubernetes Academy Error">
           <Suspense fallback={<ViewLoadingFallback label="Booting Kubernetes Engine..." />}>
-            <PodForgeApp
+            <KubernetesAcademyApp
               initialConceptId={activeLessonConcept || undefined}
               onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)}
             />
@@ -169,11 +169,11 @@ const AppContent: React.FC = () => {
       );
     }
 
-    if (mode === 'dockforge') {
+    if (mode === 'docker') {
       return (
-        <SuiteErrorBoundary fallbackTitle="DockForge Docker Academy Error">
+        <SuiteErrorBoundary fallbackTitle="Docker Academy Error">
           <Suspense fallback={<ViewLoadingFallback label="Starting Docker Daemon..." />}>
-            <DockForgeApp
+            <DockerAcademyApp
               initialConceptId={activeLessonConcept || undefined}
               onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)}
             />
@@ -196,9 +196,9 @@ const AppContent: React.FC = () => {
     }
 
     return (
-      <SuiteErrorBoundary fallbackTitle="CommitForge Git Academy Error">
+      <SuiteErrorBoundary fallbackTitle="Git Academy Error">
         <Suspense fallback={<ViewLoadingFallback label="Initializing Git Academy..." />}>
-          <CommitForgeApp onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)} />
+          <GitAcademyApp onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)} />
         </Suspense>
       </SuiteErrorBoundary>
     );

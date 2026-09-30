@@ -1,6 +1,6 @@
 # ForgeSuite • GitHub Issues & Incomplete Features Tracker
 
-Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/CommitForge).
+Live issue tracker for [Abhijeetm96/Git Academy](https://github.com/Abhijeetm96/Git Academy).
 
 ---
 
@@ -8,21 +8,21 @@ Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/
 
 | Issue # | Title | Domain | Milestone | GitHub Link | Status |
 | :--- | :--- | :--- | :--- | :--- | :--- |
-| **#1** | **[Roadmap] Build Simulator Engine for Helm & Kustomize Academy** | Package Management | Q4 2026 | [#1](https://github.com/Abhijeetm96/CommitForge/issues/1) | Planned |
-| **#2** | **[Roadmap] Implement Ansible & OpenTofu Configuration Engine** | Config Management | Q4 2026 | [#2](https://github.com/Abhijeetm96/CommitForge/issues/2) | Planned |
-| **#3** | **[Roadmap] Develop Terraform & OpenTofu Infrastructure as Code Simulator** | IaC & Drift | Q1 2027 | [#3](https://github.com/Abhijeetm96/CommitForge/issues/3) | Planned |
-| **#4** | **[Roadmap] Build Prometheus, Grafana & OpenTelemetry Observability Engine** | SRE & Telemetry | Q1 2027 | [#4](https://github.com/Abhijeetm96/CommitForge/issues/4) | Planned |
-| **#5** | **[Platform] Wire UniversalLessonRuntime & UniversalTerminal into All Academies** | Architecture & DX | Immediate | [#5](https://github.com/Abhijeetm96/CommitForge/issues/5) | **RESOLVED** |
-| **#6** | **[Progress] Implement IndexedDB Provider & Remote Cloud Sync API Adapter** | Persistence | High Priority | [#6](https://github.com/Abhijeetm96/CommitForge/issues/6) | **RESOLVED** |
-| **#7** | **[UI/Theme] Complete Light Theme Support Across All Canvas & Terminal Visualizers** | Design / Theming | Polish | [#7](https://github.com/Abhijeetm96/CommitForge/issues/7) | **RESOLVED** |
-| **#8** | **[Code Quality] Resolve Remaining 370 ESLint & Oxlint Warnings Across Lab Components** | Hygiene | Clean Code | [#8](https://github.com/Abhijeetm96/CommitForge/issues/8) | **RESOLVED** |
+| **#1** | **[Roadmap] Build Simulator Engine for Helm & Kustomize Academy** | Package Management | Q4 2026 | [#1](https://github.com/Abhijeetm96/Git Academy/issues/1) | Planned |
+| **#2** | **[Roadmap] Implement Ansible & OpenTofu Configuration Engine** | Config Management | Q4 2026 | [#2](https://github.com/Abhijeetm96/Git Academy/issues/2) | Planned |
+| **#3** | **[Roadmap] Develop Terraform & OpenTofu Infrastructure as Code Simulator** | IaC & Drift | Q1 2027 | [#3](https://github.com/Abhijeetm96/Git Academy/issues/3) | Planned |
+| **#4** | **[Roadmap] Build Prometheus, Grafana & OpenTelemetry Observability Engine** | SRE & Telemetry | Q1 2027 | [#4](https://github.com/Abhijeetm96/Git Academy/issues/4) | Planned |
+| **#5** | **[Platform] Wire UniversalLessonRuntime & UniversalTerminal into All Academies** | Architecture & DX | Immediate | [#5](https://github.com/Abhijeetm96/Git Academy/issues/5) | **RESOLVED** |
+| **#6** | **[Progress] Implement IndexedDB Provider & Remote Cloud Sync API Adapter** | Persistence | High Priority | [#6](https://github.com/Abhijeetm96/Git Academy/issues/6) | **RESOLVED** |
+| **#7** | **[UI/Theme] Complete Light Theme Support Across All Canvas & Terminal Visualizers** | Design / Theming | Polish | [#7](https://github.com/Abhijeetm96/Git Academy/issues/7) | **RESOLVED** |
+| **#8** | **[Code Quality] Resolve Remaining 370 ESLint & Oxlint Warnings Across Lab Components** | Hygiene | Clean Code | [#8](https://github.com/Abhijeetm96/Git Academy/issues/8) | **RESOLVED** |
 
 ---
 
 ## Detailed Issue Breakdown
 
 ### Issue #1: [Roadmap] Build Simulator Engine for Helm & Kustomize Academy (Q4 2026)
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/1
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/1
 * **Status:** Planned (Q4 2026 Roadmap)
 * **Scope:**
   - In-browser Helm chart manifest templating engine (`Chart.yaml`, `values.yaml`, templates)
@@ -33,7 +33,7 @@ Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/
 ---
 
 ### Issue #2: [Roadmap] Implement Ansible & OpenTofu Configuration Engine (Q4 2026)
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/2
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/2
 * **Status:** Planned (Q4 2026 Roadmap)
 * **Scope:**
   - In-browser YAML playbook runner with step-by-step task execution
@@ -44,7 +44,7 @@ Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/
 ---
 
 ### Issue #3: [Roadmap] Develop Terraform & OpenTofu Infrastructure as Code Simulator (Q1 2027)
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/3
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/3
 * **Status:** Planned (Q1 2027 Roadmap)
 * **Scope:**
   - HCL parser and virtual resource DAG execution graph
@@ -55,7 +55,7 @@ Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/
 ---
 
 ### Issue #4: [Roadmap] Build Prometheus, Grafana & OpenTelemetry Observability Engine (Q1 2027)
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/4
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/4
 * **Status:** Planned (Q1 2027 Roadmap)
 * **Scope:**
   - PromQL query editor and virtual time-series metric engine
@@ -66,18 +66,18 @@ Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/
 ---
 
 ### Issue #5: [Platform] Wire UniversalLessonRuntime & UniversalTerminal into All Academies
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/5
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/5
 * **Status:** **RESOLVED**
 * **Verification:** `npx vitest run src/tests/universal-lesson-runtime-integration.test.ts` (4/4 passed)
 * **Resolution:**
-  - Added `'lesson'` and `'guided-lesson'` view modes to `AppContext.tsx`, `DockerContext.tsx`, `podforge/AppContext.tsx`, and `urlRouter.ts`.
-  - Wired `UniversalLessonRuntime` and adapters (`GitRuntimeAdapter`, `DockerRuntimeAdapter`, `KubeRuntimeAdapter`) into `CommitForgeApp.tsx`, `DockForgeApp.tsx`, and `PodForgeApp.tsx`.
+  - Added `'lesson'` and `'guided-lesson'` view modes to `AppContext.tsx`, `DockerContext.tsx`, `kubernetes/AppContext.tsx`, and `urlRouter.ts`.
+  - Wired `UniversalLessonRuntime` and adapters (`GitRuntimeAdapter`, `DockerRuntimeAdapter`, `KubeRuntimeAdapter`) into `GitAcademyApp.tsx`, `DockerAcademyApp.tsx`, and `KubernetesAcademyApp.tsx`.
   - Standardized interactive command execution using `UniversalTerminal.tsx` and 14-step pedagogical models.
 
 ---
 
 ### Issue #6: [Progress] Implement IndexedDB Provider & Remote Cloud Sync API Adapter
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/6
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/6
 * **Status:** **RESOLVED**
 * **Verification:** `npx vitest run src/tests/indexeddb-progress-storage.test.ts` (6/6 passed)
 * **Resolution:**
@@ -89,7 +89,7 @@ Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/
 ---
 
 ### Issue #7: [UI/Theme] Complete Light Theme Support Across All Canvas & Terminal Visualizers
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/7
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/7
 * **Status:** **RESOLVED**
 * **Verification:** `npx vitest run src/tests/theme-support.test.ts` (3/3 passed)
 * **Resolution:**
@@ -100,7 +100,7 @@ Live issue tracker for [Abhijeetm96/CommitForge](https://github.com/Abhijeetm96/
 ---
 
 ### Issue #8: [Code Quality] Resolve Remaining 370 ESLint & Oxlint Warnings Across Lab Components
-* **URL:** https://github.com/Abhijeetm96/CommitForge/issues/8
+* **URL:** https://github.com/Abhijeetm96/Git Academy/issues/8
 * **Status:** **RESOLVED**
 * **Verification:** `npm run lint` returns 0 warnings and 0 errors across 249 files.
 * **Resolution:**

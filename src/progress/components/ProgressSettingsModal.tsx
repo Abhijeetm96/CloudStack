@@ -50,9 +50,9 @@ export const ProgressSettingsModal: React.FC = () => {
   if (!showSettingsModal) return null;
 
   // Stats summary for the modal
-  const commitStats = manager.getCourseStats('commitforge');
-  const dockerStats = manager.getCourseStats('dockforge');
-  const kubeStats = manager.getCourseStats('podforge');
+  const commitStats = manager.getCourseStats('git');
+  const dockerStats = manager.getCourseStats('docker');
+  const kubeStats = manager.getCourseStats('kubernetes');
 
   const handleDownloadExport = () => {
     try {
@@ -242,7 +242,7 @@ export const ProgressSettingsModal: React.FC = () => {
                 marginTop: '0.6rem',
               }}
             >
-              {/* CommitForge */}
+              {/* Git Academy */}
               <div
                 style={{
                   background: 'rgba(255, 255, 255, 0.03)',
@@ -253,7 +253,7 @@ export const ProgressSettingsModal: React.FC = () => {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                   <Flame size={16} color="#f05033" />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>CommitForge</span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>Git Academy</span>
                 </div>
                 <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#f05033' }}>
                   {commitStats.percentage}%
@@ -263,7 +263,7 @@ export const ProgressSettingsModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* DockForge */}
+              {/* Docker Academy */}
               <div
                 style={{
                   background: 'rgba(255, 255, 255, 0.03)',
@@ -274,7 +274,7 @@ export const ProgressSettingsModal: React.FC = () => {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                   <Container size={16} color="#0ea5e9" />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>DockForge</span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>Docker Academy</span>
                 </div>
                 <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#0ea5e9' }}>
                   {dockerStats.percentage}%
@@ -284,7 +284,7 @@ export const ProgressSettingsModal: React.FC = () => {
                 </div>
               </div>
 
-              {/* PodForge */}
+              {/* Kubernetes Academy */}
               <div
                 style={{
                   background: 'rgba(255, 255, 255, 0.03)',
@@ -295,7 +295,7 @@ export const ProgressSettingsModal: React.FC = () => {
               >
                 <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.4rem' }}>
                   <Boxes size={16} color="#326ce5" />
-                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>PodForge</span>
+                  <span style={{ fontSize: '0.82rem', fontWeight: 700, color: '#f8fafc' }}>Kubernetes Academy</span>
                 </div>
                 <div style={{ fontSize: '1.25rem', fontWeight: 800, color: '#326ce5' }}>
                   {kubeStats.percentage}%
@@ -444,8 +444,8 @@ export const ProgressSettingsModal: React.FC = () => {
                 <div style={{ display: 'flex', alignItems: 'flex-start', gap: '0.65rem' }}>
                   <AlertTriangle size={18} color="#f87171" style={{ flexShrink: 0, marginTop: '2px' }} />
                   <span style={{ fontSize: '0.8rem', color: '#e2e8f0', lineHeight: 1.4 }}>
-                    <strong>Warning:</strong> You will lose all your local learning progress across CommitForge,
-                    DockForge, and PodForge. This action cannot be undone unless you have a downloaded backup.
+                    <strong>Warning:</strong> You will lose all your local learning progress across Git Academy,
+                    Docker Academy, and Kubernetes Academy. This action cannot be undone unless you have a downloaded backup.
                   </span>
                 </div>
 

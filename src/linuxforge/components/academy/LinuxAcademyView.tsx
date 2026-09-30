@@ -253,7 +253,7 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
           />
         </div>
 
-        {/* Standard Pinned Bottom Bar (Matching CommitForge) */}
+        {/* Standard Pinned Bottom Bar (Matching Git Academy) */}
         <StandardAcademyBottomBar
           prevConcept={prevConcept}
           nextConcept={nextConcept}

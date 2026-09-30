@@ -1,6 +1,6 @@
 // src/platform/adapters/gitAdapter.ts
-import { GitEngine } from '../../commitforge/git-engine/engine';
-import { UniversalConcept } from '../../commitforge/data/unifiedAcademyData';
+import { GitEngine } from '../../git/git-engine/engine';
+import { UniversalConcept } from '../../git/data/unifiedAcademyData';
 import {
   UniversalLesson,
   SyntaxTokenBreakdown,
@@ -77,7 +77,7 @@ export class GitRuntimeAdapter implements RuntimeAdapter {
 }
 
 /**
- * Maps a CommitForge UniversalConcept into the platform-wide UniversalLesson schema.
+ * Maps a Git Academy UniversalConcept into the platform-wide UniversalLesson schema.
  */
 export function gitLessonAdapter(concept: UniversalConcept): UniversalLesson {
   // 1. Map Syntax Tokens

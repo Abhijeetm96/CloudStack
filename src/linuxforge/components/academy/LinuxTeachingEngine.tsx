@@ -590,7 +590,7 @@ export const LinuxTeachingEngine: React.FC<LinuxTeachingEngineProps> = ({
             ))}
           </div>
 
-          {/* Hero Row: 46x46 glowing icon box + Title/Command (Matching CommitForge) */}
+          {/* Hero Row: 46x46 glowing icon box + Title/Command (Matching Git Academy) */}
           <div style={{ display: 'flex', alignItems: 'center', gap: '1.15rem' }}>
             <div
               style={{

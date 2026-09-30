@@ -1,11 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { ACADEMY_18_TOPICS, getUniversalConcept } from '../commitforge/data/unifiedAcademyData';
-import { PROJECTS } from '../commitforge/data/projects';
-import { ALL_CONCEPT_REFERENCES } from '../commitforge/data/academyReferences';
-import { DOCKER_14_TOPICS } from '../dockforge/data/unifiedDockerData';
-import { ensureFullConceptData } from '../dockforge/data/conceptDataEnricher';
-import { DockerEngine } from '../dockforge/docker-engine/engine';
-import { KUBE_CHAPTERS } from '../podforge/data/topics';
+import { ACADEMY_18_TOPICS, getUniversalConcept } from '../git/data/unifiedAcademyData';
+import { PROJECTS } from '../git/data/projects';
+import { ALL_CONCEPT_REFERENCES } from '../git/data/academyReferences';
+import { DOCKER_14_TOPICS } from '../docker/data/unifiedDockerData';
+import { ensureFullConceptData } from '../docker/data/conceptDataEnricher';
+import { DockerEngine } from '../docker/docker-engine/engine';
+import { KUBE_CHAPTERS } from '../kubernetes/data/topics';
 import { LINUX_8_MODULES, ALL_LINUX_CONCEPTS } from '../linuxforge/data/topics';
 import { defaultLinuxSimulator } from '../linuxforge/data/linuxSimulatorEngine';
 import {
@@ -16,9 +16,9 @@ import {
 
 describe('Global Forge Suite & DevOps Academy Master Population Audit', () => {
   // =========================================================================
-  // 1. COMMITFORGE (Git & Version Control Academy)
+  // 1. CLOUDSTACK (Git & Version Control Academy)
   // =========================================================================
-  describe('CommitForge: 18 Topics, 75 Concepts, Auxiliary Labs & References', () => {
+  describe('Git Academy: 18 Topics, 75 Concepts, Auxiliary Labs & References', () => {
     it('verifies 18 topics and exactly 75 concepts with zero unpopulated fields', () => {
       expect(ACADEMY_18_TOPICS.length).toBe(18);
       const allConcepts = ACADEMY_18_TOPICS.flatMap((t) => t.concepts);
@@ -73,9 +73,9 @@ describe('Global Forge Suite & DevOps Academy Master Population Audit', () => {
   });
 
   // =========================================================================
-  // 2. DOCKFORGE (Docker & Containerization Academy)
+  // 2. DOCKER (Docker & Containerization Academy)
   // =========================================================================
-  describe('DockForge: 14 Topics, 42 Concepts, CLI Simulator & Compose', () => {
+  describe('Docker Academy: 14 Topics, 42 Concepts, CLI Simulator & Compose', () => {
     it('verifies 14 topics and 42 concepts with enriched 5-stage pedagogical data', () => {
       expect(DOCKER_14_TOPICS.length).toBe(14);
       const allConcepts = DOCKER_14_TOPICS.flatMap((t) => t.concepts);
@@ -142,9 +142,9 @@ describe('Global Forge Suite & DevOps Academy Master Population Audit', () => {
   });
 
   // =========================================================================
-  // 3. PODFORGE (Kubernetes & Cloud Native Academy)
+  // 3. KUBERNETES (Kubernetes & Cloud Native Academy)
   // =========================================================================
-  describe('PodForge: 15 Chapters, 71 Concepts, YAML Snippets & kubectl CLI', () => {
+  describe('Kubernetes Academy: 15 Chapters, 71 Concepts, YAML Snippets & kubectl CLI', () => {
     it('verifies 15 chapters and 71 concepts with non-empty learning runbooks', () => {
       expect(KUBE_CHAPTERS.length).toBe(15);
       const allConcepts = KUBE_CHAPTERS.flatMap((ch) => ch.concepts);

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { DockerEngine } from '../dockforge/docker-engine/engine';
+import { DockerEngine } from '../docker/docker-engine/engine';
 
 describe('DockerEngine Compose Stack Simulation (Issue #4)', () => {
   it('adds both app-web-1 and app-db-1 containers to state on docker compose up', () => {

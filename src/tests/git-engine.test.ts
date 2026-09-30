@@ -1,14 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GitEngine } from '../commitforge/git-engine/engine';
-import { extractObjectDatabase } from '../commitforge/git-engine/internals';
-import { evaluateDanger } from '../commitforge/git-engine/danger';
+import { GitEngine } from '../git/git-engine/engine';
+import { extractObjectDatabase } from '../git/git-engine/internals';
+import { evaluateDanger } from '../git/git-engine/danger';
 
-describe('CommitForge Git Engine', () => {
+describe('Git Academy Git Engine', () => {
   let engine: GitEngine;
 
   beforeEach(() => {
     engine = new GitEngine({
-      'index.html': '<h1>Hello CommitForge</h1>',
+      'index.html': '<h1>Hello Git Academy</h1>',
       'style.css': 'body { background: #111; }',
       'script.js': 'console.log("Ready");',
     });
@@ -28,7 +28,7 @@ describe('CommitForge Git Engine', () => {
 
     const addRes = engine.execute('git add index.html');
     expect(addRes.exitCode).toBe(0);
-    expect(engine.getRepo().index['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().index['index.html']).toBe('<h1>Hello Git Academy</h1>');
 
     const statusAfter = engine.execute('git status');
     expect(statusAfter.stdout.some(l => l.includes('Changes to be committed:'))).toBe(true);
@@ -62,7 +62,7 @@ describe('CommitForge Git Engine', () => {
     const headCommit = repo.commits[mainBranch.targetCommitHash];
     expect(headCommit).toBeDefined();
     expect(headCommit.message).toBe('Initial commit');
-    expect(headCommit.files['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(headCommit.files['index.html']).toBe('<h1>Hello Git Academy</h1>');
   });
 
   it('should handle branching and switching', () => {
@@ -83,7 +83,7 @@ describe('CommitForge Git Engine', () => {
     // Switch back to main
     const switchBack = engine.execute('git switch main');
     expect(switchBack.exitCode).toBe(0);
-    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello Git Academy</h1>');
   });
 
   it('should support detached HEAD on checkout of commit hash', () => {
@@ -100,7 +100,7 @@ describe('CommitForge Git Engine', () => {
     expect(checkoutRes.exitCode).toBe(0);
     expect(engine.getRepo().head.type).toBe('detached');
     expect(engine.getRepo().head.ref).toBe(commit1Hash);
-    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello Git Academy</h1>');
   });
 
   it('should perform fast-forward merge', () => {
@@ -166,7 +166,7 @@ describe('CommitForge Git Engine', () => {
     const hardRes = engine.execute('git reset --hard HEAD~1');
     expect(hardRes.exitCode).toBe(0);
     expect(hardRes.dangerLevel).toBe('HIGH');
-    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello Git Academy</h1>');
   });
 
   it('should support git restore and restore --staged', () => {
@@ -181,13 +181,13 @@ describe('CommitForge Git Engine', () => {
     // Unstage
     const restoreStaged = engine.execute('git restore --staged index.html');
     expect(restoreStaged.exitCode).toBe(0);
-    expect(engine.getRepo().index['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().index['index.html']).toBe('<h1>Hello Git Academy</h1>');
     expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Unsaved Temporary Edit</h1>');
 
     // Discard working copy changes
     const restoreWork = engine.execute('git restore index.html');
     expect(restoreWork.exitCode).toBe(0);
-    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello Git Academy</h1>');
   });
 
   it('should support git revert', () => {
@@ -201,7 +201,7 @@ describe('CommitForge Git Engine', () => {
 
     const revertRes = engine.execute('git revert HEAD');
     expect(revertRes.exitCode).toBe(0);
-    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello Git Academy</h1>');
   });
 
   it('should support git stash push and pop', () => {
@@ -212,7 +212,7 @@ describe('CommitForge Git Engine', () => {
     engine.updateFileContent('index.html', '<h1>Half Done Work</h1>');
     const stashRes = engine.execute('git stash push -m "WIP on index"');
     expect(stashRes.exitCode).toBe(0);
-    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello CommitForge</h1>');
+    expect(engine.getRepo().workingDirectory['index.html']).toBe('<h1>Hello Git Academy</h1>');
 
     const popRes = engine.execute('git stash pop');
     expect(popRes.exitCode).toBe(0);

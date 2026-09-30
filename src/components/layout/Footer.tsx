@@ -126,7 +126,7 @@ export const Footer: React.FC = () => {
 
               <li>
                 <button
-                  onClick={() => setMode('dockforge')}
+                  onClick={() => setMode('docker')}
                   style={{
                     background: 'none',
                     border: 'none',
@@ -149,7 +149,7 @@ export const Footer: React.FC = () => {
 
               <li>
                 <button
-                  onClick={() => setMode('podforge')}
+                  onClick={() => setMode('kubernetes')}
                   style={{
                     background: 'none',
                     border: 'none',
@@ -238,7 +238,7 @@ export const Footer: React.FC = () => {
               <li>
                 <button
                   onClick={() => {
-                    setMode('podforge');
+                    setMode('kubernetes');
                   }}
                   style={{ background: 'none', border: 'none', padding: 0, color: '#94a3b8', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.45rem' }}
                 >

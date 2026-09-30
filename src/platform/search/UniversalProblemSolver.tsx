@@ -123,7 +123,7 @@ export const UniversalProblemSolver: React.FC<UniversalProblemSolverProps> = ({
                   : 'bg-slate-800 text-slate-400 hover:text-slate-200'
               }`}
             >
-              Git (CommitForge)
+              Git (Git Academy)
             </button>
             <button
               onClick={() => setTechFilter('docker')}
@@ -133,7 +133,7 @@ export const UniversalProblemSolver: React.FC<UniversalProblemSolverProps> = ({
                   : 'bg-slate-800 text-slate-400 hover:text-slate-200'
               }`}
             >
-              Docker (DockForge)
+              Docker (Docker Academy)
             </button>
             <button
               onClick={() => setTechFilter('kubernetes')}
@@ -143,7 +143,7 @@ export const UniversalProblemSolver: React.FC<UniversalProblemSolverProps> = ({
                   : 'bg-slate-800 text-slate-400 hover:text-slate-200'
               }`}
             >
-              Kubernetes (PodForge)
+              Kubernetes (Kubernetes Academy)
             </button>
           </div>
           <span className="text-[11px] text-slate-500 font-mono hidden md:inline">

@@ -38,7 +38,7 @@ export interface RoadmapStage {
   subtitle: string;
   category: 'developer' | 'cloud-native' | 'sre';
   status: 'live' | 'coming-soon';
-  liveAction?: 'learn' | 'podforge' | 'cicd' | 'dockforge';
+  liveAction?: 'learn' | 'kubernetes' | 'cicd' | 'docker';
   platformName: string;
   techStack: string;
   duration: string;
@@ -77,7 +77,7 @@ const ROADMAP_STAGES: RoadmapStage[] = [
     category: 'developer',
     status: 'live',
     liveAction: 'learn',
-    platformName: 'CommitForge Git Academy',
+    platformName: 'Git Academy',
     techStack: 'Git 2.45+ • DAG Graph • Virtual Objects Engine',
     duration: '18 Topics • 75 Concepts',
     color: '#f43f5e',
@@ -160,8 +160,8 @@ const ROADMAP_STAGES: RoadmapStage[] = [
     subtitle: 'Containerization & Docker',
     category: 'developer',
     status: 'live',
-    liveAction: 'dockforge',
-    platformName: 'DockForge Docker Academy',
+    liveAction: 'docker',
+    platformName: 'Docker Academy',
     techStack: 'Virtual Docker Engine • 14 Topics • Multi-Stage IDE',
     duration: '14 Topics • 44 Concepts • Active In-App',
     color: '#0ea5e9',
@@ -202,8 +202,8 @@ const ROADMAP_STAGES: RoadmapStage[] = [
     subtitle: 'Kubernetes & Cloud-Native Systems',
     category: 'cloud-native',
     status: 'live',
-    liveAction: 'podforge',
-    platformName: 'PodForge Kubernetes Academy',
+    liveAction: 'kubernetes',
+    platformName: 'Kubernetes Academy',
     techStack: 'Kubernetes 1.30+ • 16 Topics • Self-Healing Clusters',
     duration: '16 Topics • 71 Concepts • Active In-App',
     color: '#06b6d4',
@@ -456,9 +456,9 @@ export const DevOpsRoadmapView: React.FC = () => {
   const [userCustomCompleted, setUserCustomCompleted] = useState<Record<string, boolean>>({});
 
   const { manager } = useProgress();
-  const commitStats = manager.getCourseStats('commitforge');
-  const dockerStats = manager.getCourseStats('dockforge');
-  const kubeStats = manager.getCourseStats('podforge');
+  const commitStats = manager.getCourseStats('git');
+  const dockerStats = manager.getCourseStats('docker');
+  const kubeStats = manager.getCourseStats('kubernetes');
 
   const liveStageProgress: Record<
     string,
@@ -555,10 +555,10 @@ export const DevOpsRoadmapView: React.FC = () => {
       } else if (stage.liveAction === 'cicd') {
         setActiveLessonConcept('c-actions-workflow');
         setMode('learn');
-      } else if (stage.liveAction === 'podforge') {
-        setMode('podforge');
-      } else if (stage.liveAction === 'dockforge') {
-        setMode('dockforge');
+      } else if (stage.liveAction === 'kubernetes') {
+        setMode('kubernetes');
+      } else if (stage.liveAction === 'docker') {
+        setMode('docker');
       }
     } else {
       setVotedStages((prev) => ({
@@ -1621,13 +1621,13 @@ export const DevOpsRoadmapView: React.FC = () => {
                 )}
                 {selectedStage.number === 3 && (
                   <div>
-                    <span style={{ color: '#4ade80' }}>docker@dockforge:~$</span> docker buildx build -t app:v1 .
+                    <span style={{ color: '#4ade80' }}>docker@docker:~$</span> docker buildx build -t app:v1 .
                     <div style={{ color: '#38bdf8', marginTop: '0.2rem' }}>[+] Building 1.2s (14/14) FINISHED distroless export</div>
                   </div>
                 )}
                 {selectedStage.number === 4 && (
                   <div>
-                    <span style={{ color: '#4ade80' }}>sre@podforge:~$</span> kubectl get pods -n production
+                    <span style={{ color: '#4ade80' }}>sre@kubernetes:~$</span> kubectl get pods -n production
                     <div style={{ color: '#60a5fa', marginTop: '0.2rem' }}>web-service-7f9b8c-x9k2   1/1   Running   0   42m</div>
                   </div>
                 )}
@@ -1805,7 +1805,7 @@ export const DevOpsRoadmapView: React.FC = () => {
                     cursor: 'pointer',
                   }}
                 >
-                  Start at Milestone 01 (CommitForge)
+                  Start at Milestone 01 (Git Academy)
                 </button>
               </div>
             </div>

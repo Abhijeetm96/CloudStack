@@ -7,9 +7,9 @@ import {
   TopicStats,
   AcademyLessonSummary,
 } from './progressTypes';
-import { ACADEMY_18_TOPICS } from '../commitforge/data/unifiedAcademyData';
-import { DOCKER_14_TOPICS } from '../dockforge/data/unifiedDockerData';
-import { KUBE_CHAPTERS } from '../podforge/data/topics/index';
+import { ACADEMY_18_TOPICS } from '../git/data/unifiedAcademyData';
+import { DOCKER_14_TOPICS } from '../docker/data/unifiedDockerData';
+import { KUBE_CHAPTERS } from '../kubernetes/data/topics/index';
 import { LINUX_15_TOPICS } from '../linuxforge/data/topics/index';
 
 /**
@@ -17,7 +17,7 @@ import { LINUX_15_TOPICS } from '../linuxforge/data/topics/index';
  */
 export function getCourseLessons(academyId: AcademyId): AcademyLessonSummary[] {
   switch (academyId) {
-    case 'commitforge':
+    case 'git':
       return ACADEMY_18_TOPICS.flatMap((topic) =>
         topic.concepts.map((concept) => ({
           id: concept.id,
@@ -27,7 +27,7 @@ export function getCourseLessons(academyId: AcademyId): AcademyLessonSummary[] {
         }))
       );
 
-    case 'dockforge':
+    case 'docker':
       return DOCKER_14_TOPICS.flatMap((topic) =>
         topic.concepts.map((concept) => ({
           id: concept.id,
@@ -37,7 +37,7 @@ export function getCourseLessons(academyId: AcademyId): AcademyLessonSummary[] {
         }))
       );
 
-    case 'podforge':
+    case 'kubernetes':
       return KUBE_CHAPTERS.flatMap((chapter) =>
         chapter.concepts.map((concept) => ({
           id: concept.id,

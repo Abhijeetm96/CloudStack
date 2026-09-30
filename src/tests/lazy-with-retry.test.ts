@@ -65,9 +65,9 @@ describe('lazyWithRetry (Deployment & Stale Chunk Recovery)', () => {
     const appContent = fs.readFileSync(appPath, 'utf-8');
     expect(appContent).toContain('lazyWithRetry');
     expect(appContent).toContain('const DevOpsRoadmapView = lazyWithRetry');
-    expect(appContent).toContain('const CommitForgeApp = lazyWithRetry');
-    expect(appContent).toContain('const DockForgeApp = lazyWithRetry');
-    expect(appContent).toContain('const PodForgeApp = lazyWithRetry');
+    expect(appContent).toContain('const GitAcademyApp = lazyWithRetry');
+    expect(appContent).toContain('const DockerAcademyApp = lazyWithRetry');
+    expect(appContent).toContain('const KubernetesAcademyApp = lazyWithRetry');
     expect(appContent).toContain('const UniversalProblemSolver = lazyWithRetry');
   });
 

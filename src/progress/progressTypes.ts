@@ -3,7 +3,7 @@
 /**
  * Supported learning academy identifiers across ForgeSuite.
  */
-export type AcademyId = 'commitforge' | 'dockforge' | 'podforge' | 'linuxforge';
+export type AcademyId = 'git' | 'docker' | 'kubernetes' | 'linuxforge';
 
 /**
  * Status of an individual lesson/concept.

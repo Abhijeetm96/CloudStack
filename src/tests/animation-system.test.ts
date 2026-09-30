@@ -1,15 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { GitEngine } from '../commitforge/git-engine/engine';
-import { calculateGitStateDiff } from '../commitforge/components/animation/stateDiff';
-import { deriveVisualSnapshot } from '../commitforge/components/animation/gitPhysics';
-import { getCausalStory } from '../commitforge/components/animation/causalStories';
+import { GitEngine } from '../git/git-engine/engine';
+import { calculateGitStateDiff } from '../git/components/animation/stateDiff';
+import { deriveVisualSnapshot } from '../git/components/animation/gitPhysics';
+import { getCausalStory } from '../git/components/animation/causalStories';
 
-describe('CommitForge Animation-First Git Physics & Causal Engine', () => {
+describe('Git Academy Animation-First Git Physics & Causal Engine', () => {
   let engine: GitEngine;
 
   beforeEach(() => {
     engine = new GitEngine({
-      'index.html': '<h1>Hello CommitForge</h1>',
+      'index.html': '<h1>Hello Git Academy</h1>',
       'style.css': 'body { background: #000; }',
     });
   });

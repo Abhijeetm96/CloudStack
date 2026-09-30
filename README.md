@@ -3,10 +3,10 @@
 > **Master the Modern Cloud & DevOps Stack.**  
 > Interactive, browser-native engineering simulators. Real command engines, visual DAGs, live cluster topologies, emergency triage laboratories, and professional developer sandboxes. Zero slides. Zero fluff.
 
-[![Tests](https://img.shields.io/badge/Tests-84%2F84%20Passing-success?style=for-the-badge&logo=vitest)](file:///c:/Users/abhis/OneDrive/Desktop/CommitForge)
-[![Build](https://img.shields.io/badge/Vite%20Build-Passing-blue?style=for-the-badge&logo=vite)](file:///c:/Users/abhis/OneDrive/Desktop/CommitForge)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)](file:///c:/Users/abhis/OneDrive/Desktop/CommitForge)
-[![React](https://img.shields.io/badge/React-19.x-61dafb?style=for-the-badge&logo=react)](file:///c:/Users/abhis/OneDrive/Desktop/CommitForge)
+[![Tests](https://img.shields.io/badge/Tests-84%2F84%20Passing-success?style=for-the-badge&logo=vitest)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
+[![Build](https://img.shields.io/badge/Vite%20Build-Passing-blue?style=for-the-badge&logo=vite)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
+[![React](https://img.shields.io/badge/React-19.x-61dafb?style=for-the-badge&logo=react)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
 [![Agentation MCP](https://img.shields.io/badge/Agentation%20MCP-v1.2.0-8a2be2?style=for-the-badge)](https://www.agentation.com/mcp)
 
 ---
@@ -15,8 +15,8 @@
 
 1. [Overview & Vision](#-overview--vision)
 2. [Live Academies in Forge Suite](#-live-academies-in-forge-suite)
-   - [CommitForge (Git & Version Control)](#1-commitforge--git--version-control-academy)
-   - [PodForge (Kubernetes & Cloud Orchestration)](#2-podforge--kubernetes--cloud-orchestration-academy)
+   - [Git Academy (Git & Version Control)](#1-git--git--version-control-academy)
+   - [Kubernetes Academy (Kubernetes & Cloud Orchestration)](#2-kubernetes--kubernetes--cloud-orchestration-academy)
    - [Upcoming Cloud & DevOps Roadmap](#3-upcoming-cloud--devops-roadmap)
 3. [Architecture & Folder Structure](#-architecture--folder-structure)
 4. [Two-Tier Styling Architecture](#-two-tier-styling-architecture)
@@ -49,7 +49,7 @@
 
 ## 🎓 Live Academies in Forge Suite
 
-### 1. CommitForge — Git & Version Control Academy
+### 1. Git Academy — Git & Version Control Academy
 * **Core Curriculum**: 18 canonical topics, 71 interactive concepts structured from fundamentals to advanced plumbing.
 * **Virtual Git Engine**: Deterministic in-browser Git simulation tracking the Three-Area Lifecycle (Working Directory ➔ Staging Tree ➔ Commit Graph ➔ Remotes).
 * **Interactive Visualizers**:
@@ -63,7 +63,7 @@
   * **Team Sim (Two-Developer Collaboration)**: Split-screen simulation of Developer A and Developer B demonstrating race conditions and upstream push rejections.
   * **Capstone ("Your First Day as a Developer")**: 5-phase production bug triage producing a personalized **Git Competency Profile**.
 
-### 2. PodForge — Kubernetes & Cloud Orchestration Academy
+### 2. Kubernetes Academy — Kubernetes & Cloud Orchestration Academy
 * **Core Curriculum**: 16 chapters, 56 interactive concepts covering containers, Pods, Deployments, Services, Ingress, NetworkPolicies, StatefulSets, Gateway API, and CRDs.
 * **Virtual K8s Control Plane**: High-fidelity Kubernetes engine with a simulated reconciliation loop, etcd state store, controller manager, and scheduler.
 * **Interactive Visualizers**:
@@ -88,34 +88,34 @@ Forge Suite is actively expanding with specialized academies marked for upcoming
 ## 🏗️ Architecture & Folder Structure
 
 ```
-CommitForge/
+Git Academy/
 ├── .gemini/                       # IDE & agent configurations
 ├── dist/                          # Production bundle output
 ├── node_modules/                  # Installed dependencies
 ├── public/                        # Static public assets
 ├── src/
-│   ├── commitforge/               # 📦 CommitForge Academy (Git & Version Control)
+│   ├── git/               # 📦 Git Academy (Git & Version Control)
 │   │   ├── components/            # Academy UI (Academy, IDE, Labs, Visualizer, Animation, Tutor)
-│   │   │   └── layout/HeaderNav.tsx # CommitForge sub-navigation bar (Learn, Practice, Labs, IDE, Reference)
-│   │   ├── context/AppContext.tsx # CommitForge local context integration
+│   │   │   └── layout/HeaderNav.tsx # Git Academy sub-navigation bar (Learn, Practice, Labs, IDE, Reference)
+│   │   ├── context/AppContext.tsx # Git Academy local context integration
 │   │   ├── data/                  # 18 Topics, 71 Concepts, Challenges, Hospital Cases, Projects
 │   │   ├── git-engine/            # Virtual Git DAG engine, staging tree, diff, danger analyzer
 │   │   ├── styles/                # 🎨 Academy-specific styles
-│   │   │   └── commitforge.css    # Scoped overrides & custom rules for CommitForge
-│   │   ├── CommitForgeApp.tsx     # Top-level CommitForge academy container
-│   │   ├── index.ts               # Barrel export for CommitForge
-│   │   └── README.md              # CommitForge architecture documentation
+│   │   │   └── gitacademy.css    # Scoped overrides & custom rules for Git Academy
+│   │   ├── GitAcademyApp.tsx     # Top-level Git Academy academy container
+│   │   ├── index.ts               # Barrel export for Git Academy
+│   │   └── README.md              # Git Academy architecture documentation
 │   │
-│   ├── podforge/                  # 📦 PodForge Academy (Kubernetes & Cloud Orchestration)
+│   ├── kubernetes/                  # 📦 Kubernetes Academy (Kubernetes & Cloud Orchestration)
 │   │   ├── components/            # Pod Academy, Triage Labs, Cluster IDE, Live Mesh
-│   │   │   └── layout/HeaderNav.tsx # PodForge sub-navigation bar (Academy, Labs, IDE, Cluster)
-│   │   ├── context/AppContext.tsx # PodForge local context & virtual control plane state
+│   │   │   └── layout/HeaderNav.tsx # Kubernetes Academy sub-navigation bar (Academy, Labs, IDE, Cluster)
+│   │   ├── context/AppContext.tsx # Kubernetes Academy local context & virtual control plane state
 │   │   ├── data/                  # 16 Chapters, 56 K8s concepts, scenarios, quiz data
 │   │   ├── kube-engine/           # Virtual K8s control plane & reconciliation engine
 │   │   ├── styles/                # 🎨 Academy-specific styles
-│   │   │   └── podforge.css       # Scoped overrides & custom rules for PodForge
-│   │   ├── PodForgeApp.tsx        # Top-level PodForge academy container
-│   │   └── index.ts               # Barrel export for PodForge
+│   │   │   └── kubernetes.css       # Scoped overrides & custom rules for Kubernetes Academy
+│   │   ├── KubernetesAcademyApp.tsx        # Top-level Kubernetes Academy academy container
+│   │   └── index.ts               # Barrel export for Kubernetes Academy
 │   │
 │   ├── styles/                    # 🌐 Global Shared Styles (Tier 1 Foundation)
 │   │   ├── index.css              # Single global stylesheet (tokens, dark/light themes, typography, utilities)
@@ -128,7 +128,7 @@ CommitForge/
 │   ├── context/                   # AppContext.tsx (Global Suite state & active academy routing)
 │   ├── services/                  # Shared sound effects & audio feedback
 │   ├── tests/                     # 12 Vitest automated test suites (84 tests)
-│   ├── App.tsx                    # Root router between ForgeSuiteHome, CommitForge, PodForge
+│   ├── App.tsx                    # Root router between ForgeSuiteHome, Git Academy, Kubernetes Academy
 │   ├── index.css                  # Re-export from src/styles/index.css
 │   └── main.tsx                   # Vite application entry point importing src/styles/index.css
 │
@@ -161,9 +161,9 @@ Forge Suite enforces a strict **two-tier styling model**:
                  ┌───────────────┴───────────────┐
                  ▼                               ▼
 ┌────────────────────────────────┐ ┌────────────────────────────────┐
-│ Tier 2: CommitForge Scoped     │ │ Tier 2: PodForge Scoped        │
-│ (src/commitforge/styles/)      │ │ (src/podforge/styles/)         │
-│ - commitforge.css              │ │ - podforge.css                 │
+│ Tier 2: Git Academy Scoped     │ │ Tier 2: Kubernetes Academy Scoped        │
+│ (src/git/styles/)      │ │ (src/kubernetes/styles/)         │
+│ - gitacademy.css              │ │ - kubernetes.css                 │
 │ - Git visualizer overrides     │ │ - Cluster canvas overrides     │
 │ - DAG graph node theme         │ │ - Pod mesh node theme          │
 └────────────────────────────────┘ └────────────────────────────────┘
@@ -174,7 +174,7 @@ Forge Suite enforces a strict **two-tier styling model**:
    - Accessible by every component, view, and academy.
    - Contains all design tokens, resets, light/dark themes, and common utility classes.
 2. **Academy-Scoped Styles (`src/<academy>/styles/<academy>.css`)**:
-   - Imported directly by the respective academy's top-level container (`CommitForgeApp.tsx` or `PodForgeApp.tsx`).
+   - Imported directly by the respective academy's top-level container (`GitAcademyApp.tsx` or `KubernetesAcademyApp.tsx`).
    - Encapsulates academy-specific styling without creating CSS collisions.
 
 ---
@@ -200,14 +200,14 @@ Open your preferred terminal (PowerShell, Command Prompt, or Bash/Zsh) and clone
 
 #### Using HTTPS:
 ```bash
-git clone https://github.com/Abhijeetm96/CommitForge.git
-cd CommitForge
+git clone https://github.com/Abhijeetm96/Git Academy.git
+cd Git Academy
 ```
 
 #### Using SSH:
 ```bash
-git clone git@github.com:Abhijeetm96/CommitForge.git
-cd CommitForge
+git clone git@github.com:Abhijeetm96/Git Academy.git
+cd Git Academy
 ```
 
 ---
@@ -282,7 +282,7 @@ npm run dev -- --host
 
 ### Step 5: (Optional) Set Up Agentation MCP Server
 
-CommitForge includes native integration with **Agentation** (`agentation-mcp`), allowing AI coding assistants (Claude Desktop, Antigravity IDE, Cursor) to inspect active user sessions, capture annotations, and provide real-time pair-programming feedback.
+Git Academy includes native integration with **Agentation** (`agentation-mcp`), allowing AI coding assistants (Claude Desktop, Antigravity IDE, Cursor) to inspect active user sessions, capture annotations, and provide real-time pair-programming feedback.
 
 #### 1. Test Agentation MCP Server Doctor:
 ```bash
@@ -326,7 +326,7 @@ All commands are defined in `package.json`:
 
 ## 🧪 Automated Testing Suite
 
-CommitForge features **84 automated tests across 12 test suites** validating the virtual Git engine, Kubernetes engine, and curriculum coverage.
+Git Academy features **84 automated tests across 12 test suites** validating the virtual Git engine, Kubernetes engine, and curriculum coverage.
 
 ### Run All Tests:
 ```bash
@@ -350,7 +350,7 @@ npx vitest run src/tests/command-coverage.test.ts
 npx vitest run src/tests/animation-system.test.ts
 
 # Test Kubernetes control plane curriculum
-npx vitest run src/podforge/kube-engine/curriculum.test.ts
+npx vitest run src/kubernetes/kube-engine/curriculum.test.ts
 
 # Test all 18 topics curriculum integrity
 npx vitest run src/tests/all-topics-curriculum.test.ts
@@ -405,8 +405,8 @@ The contents of `dist/` are 100% static client assets and can be deployed anywhe
 
 ## 🛠️ Extending the Platform (Developer Guide)
 
-### 1. Adding a New Concept to CommitForge
-1. Open or create a topic file in `src/commitforge/data/academyTopics/` (e.g. `topic01_basics.ts`).
+### 1. Adding a New Concept to Git Academy
+1. Open or create a topic file in `src/git/data/academyTopics/` (e.g. `topic01_basics.ts`).
 2. Define the concept with:
    - `id`: Unique identifier (e.g. `c-git-restore`).
    - `title`, `command`, `difficulty`: Metadata.
@@ -414,18 +414,18 @@ The contents of `dist/` are 100% static client assets and can be deployed anywhe
    - `syntaxCode`, `syntaxTokens`: Interactive tokenized syntax explorer.
    - `actionStage`: Three-phase state (`before`, `running`, `after`).
    - `challenge`: Practical coding lab with `seedCommands` and `expectedCommands`.
-3. Register the topic in `src/commitforge/data/unifiedAcademyData.ts`.
+3. Register the topic in `src/git/data/unifiedAcademyData.ts`.
 4. Run `npm test` to verify automatic curriculum audit tests pass!
 
-### 2. Adding a New Chapter to PodForge
-1. Open `src/podforge/data/topics.ts`.
+### 2. Adding a New Chapter to Kubernetes Academy
+1. Open `src/kubernetes/data/topics.ts`.
 2. Add a new `KubeChapter` definition to `KUBE_CHAPTERS`.
 3. Provide concepts with `conceptId`, `title`, `summary`, `realWorldScenario`, `yamlExample`, and `kubectlCommand`.
 4. Run `npm test` to ensure `curriculum.test.ts` passes.
 
 ### 3. Adding Academy-Specific Custom Styling
-* For CommitForge: Add styles in `src/commitforge/styles/commitforge.css`.
-* For PodForge: Add styles in `src/podforge/styles/podforge.css`.
+* For Git Academy: Add styles in `src/git/styles/gitacademy.css`.
+* For Kubernetes Academy: Add styles in `src/kubernetes/styles/kubernetes.css`.
 * For Global Tokens/Theme: Add styles in `src/styles/index.css`.
 
 ---

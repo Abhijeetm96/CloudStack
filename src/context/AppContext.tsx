@@ -1,15 +1,15 @@
 import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
-import { GitEngine } from '../commitforge/git-engine/engine';
-import { GitRepo, CommandResult, StateInspectorData, WhyExplanation, CommandComparison } from '../commitforge/git-engine/types';
-import { PROJECTS, ProjectDefinition } from '../commitforge/data/projects';
+import { GitEngine } from '../git/git-engine/engine';
+import { GitRepo, CommandResult, StateInspectorData, WhyExplanation, CommandComparison } from '../git/git-engine/types';
+import { PROJECTS, ProjectDefinition } from '../git/data/projects';
 import { ProgressManager } from '../progress/ProgressManager';
 import { parseCurrentRoute, syncUrlWithMode, getTitleForMode } from '../platform/routing/urlRouter';
 
 export type ViewMode =
   | 'home'
   | 'devops'
-  | 'podforge'
-  | 'dockforge'
+  | 'kubernetes'
+  | 'docker'
   | 'linuxforge'
   | 'dashboard'
   | 'roadmap'
@@ -197,14 +197,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const setActiveLessonConcept = useCallback((c: string | null) => {
     setActiveLessonConceptState(c);
     if (c) {
-      progressManager.startLesson('commitforge', c);
+      progressManager.startLesson('git', c);
     }
     syncUrlWithMode(mode, c);
   }, [mode, progressManager]);
 
   const [instructionMode, setInstructionModeState] = useState<InstructionMode>(() => {
     try {
-      return (localStorage.getItem('commitforge_instruction_mode') as InstructionMode) || 'beginner';
+      return (localStorage.getItem('git_instruction_mode') as InstructionMode) || 'beginner';
     } catch {
       return 'beginner';
     }
@@ -215,7 +215,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [theme, setThemeState] = useState<'dark' | 'light'>(() => {
     if (!LIGHT_MODE_ENABLED) return 'dark';
     try {
-      return (localStorage.getItem('commitforge_theme') as 'dark' | 'light') || 'dark';
+      return (localStorage.getItem('git_theme') as 'dark' | 'light') || 'dark';
     } catch {
       return 'dark';
     }
@@ -225,14 +225,14 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!LIGHT_MODE_ENABLED) {
       setThemeState('dark');
       try {
-        localStorage.setItem('commitforge_theme', 'dark');
+        localStorage.setItem('git_theme', 'dark');
       } catch {}
       document.documentElement.setAttribute('data-theme', 'dark');
       return;
     }
     setThemeState(t);
     try {
-      localStorage.setItem('commitforge_theme', t);
+      localStorage.setItem('git_theme', t);
     } catch {}
     document.documentElement.setAttribute('data-theme', t);
   };
@@ -241,7 +241,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     if (!LIGHT_MODE_ENABLED && theme !== 'dark') {
       setThemeState('dark');
       try {
-        localStorage.setItem('commitforge_theme', 'dark');
+        localStorage.setItem('git_theme', 'dark');
       } catch {}
     }
     const activeTheme = LIGHT_MODE_ENABLED ? theme : 'dark';
@@ -263,7 +263,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const setInstructionMode = (im: InstructionMode) => {
     setInstructionModeState(im);
     try {
-      localStorage.setItem('commitforge_instruction_mode', im);
+      localStorage.setItem('git_instruction_mode', im);
     } catch {}
   };
 
@@ -272,7 +272,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     const targetConcept = conceptId !== undefined ? conceptId : (m === mode ? activeLessonConcept : null);
     setActiveLessonConceptState(targetConcept);
     if (targetConcept) {
-      progressManager.startLesson('commitforge', targetConcept);
+      progressManager.startLesson('git', targetConcept);
     }
     syncUrlWithMode(m, targetConcept);
   }, [mode, activeLessonConcept, progressManager]);
@@ -320,7 +320,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [terminalHistory, setTerminalHistory] = useState<{ command?: string; stdout?: string[]; stderr?: string[]; exitCode?: number }[]>([
     {
       stdout: [
-        'Welcome to CommitForge Interactive Terminal ⚡',
+        'Welcome to Git Academy Interactive Terminal ⚡',
         'Type Git commands or Unix navigation (ls, pwd, cd, cat, touch, rm).',
         'Type `git status` or `git --help` to begin.',
       ],
@@ -329,23 +329,23 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   // Lessons
   const [currentLessonId, setCurrentLessonIdState] = useState<string>(() => {
-    return progressManager.getAcademyProgress('commitforge').currentLessonId || DEFAULT_LESSON.id;
+    return progressManager.getAcademyProgress('git').currentLessonId || DEFAULT_LESSON.id;
   });
   const currentLesson = DEFAULT_LESSON;
   const [completedLessonIds, setCompletedLessonIds] = useState<string[]>(() => {
-    return progressManager.getAcademyProgress('commitforge').completedLessonIds;
+    return progressManager.getAcademyProgress('git').completedLessonIds;
   });
 
   useEffect(() => {
     return progressManager.subscribe((state) => {
-      const ids = state.academies.commitforge?.completedLessonIds || [];
+      const ids = state.academies.git?.completedLessonIds || [];
       setCompletedLessonIds([...ids]);
     });
   }, [progressManager]);
 
   const setCurrentLessonId = (id: string) => {
     setCurrentLessonIdState(id);
-    progressManager.startLesson('commitforge', id);
+    progressManager.startLesson('git', id);
   };
   const [predictionRecord, setPredictionRecord] = useState<{ total: number; correct: number }>({ total: 0, correct: 0 });
 
@@ -405,7 +405,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   // Beginner-First & Tutor State
   const [showOnboarding, setShowOnboardingState] = useState<boolean>(() => {
     try {
-      return !localStorage.getItem('commitforge_onboarded');
+      return !localStorage.getItem('git_onboarded');
     } catch {
       return false;
     }
@@ -415,7 +415,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setShowOnboardingState(v);
     if (!v) {
       try {
-        localStorage.setItem('commitforge_onboarded', 'true');
+        localStorage.setItem('git_onboarded', 'true');
       } catch {}
     }
   };
@@ -440,7 +440,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const markLessonComplete = (id: string) => {
-    progressManager.completeLesson('commitforge', id);
+    progressManager.completeLesson('git', id);
     recordSkillEvidence('foundations', 'practiced');
     recordSkillEvidence('commits', 'practiced');
   };

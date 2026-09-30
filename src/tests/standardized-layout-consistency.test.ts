@@ -1,20 +1,20 @@
 import { describe, it, expect } from 'vitest';
 import fs from 'fs';
 import path from 'path';
-import { DOCKER_14_TOPICS } from '../dockforge/data/unifiedDockerData';
-import { KUBE_CHAPTERS } from '../podforge/data/topics';
-import { ACADEMY_18_TOPICS } from '../commitforge/data/unifiedAcademyData';
+import { DOCKER_14_TOPICS } from '../docker/data/unifiedDockerData';
+import { KUBE_CHAPTERS } from '../kubernetes/data/topics';
+import { ACADEMY_18_TOPICS } from '../git/data/unifiedAcademyData';
 import { LINUX_15_TOPICS } from '../linuxforge/data/topics';
 
 describe('Standardized Academy Architecture & Consistency Audit', () => {
   describe('Universal Navigation & Layout Integrity across All 4 Sections', () => {
-    it('verifies CommitForge, DockForge, PodForge, and LinuxForge have standardized 60px HeaderNav with matching routes', () => {
-      const commitNav = fs.readFileSync(path.resolve(__dirname, '../commitforge/components/layout/HeaderNav.tsx'), 'utf-8');
-      const dockNav = fs.readFileSync(path.resolve(__dirname, '../dockforge/components/layout/HeaderNav.tsx'), 'utf-8');
-      const podNav = fs.readFileSync(path.resolve(__dirname, '../podforge/components/layout/HeaderNav.tsx'), 'utf-8');
+    it('verifies Git Academy, Docker Academy, Kubernetes Academy, and LinuxForge have standardized 60px HeaderNav with matching routes', () => {
+      const commitNav = fs.readFileSync(path.resolve(__dirname, '../git/components/layout/HeaderNav.tsx'), 'utf-8');
+      const dockNav = fs.readFileSync(path.resolve(__dirname, '../docker/components/layout/HeaderNav.tsx'), 'utf-8');
+      const podNav = fs.readFileSync(path.resolve(__dirname, '../kubernetes/components/layout/HeaderNav.tsx'), 'utf-8');
       const linuxNav = fs.readFileSync(path.resolve(__dirname, '../linuxforge/components/layout/HeaderNav.tsx'), 'utf-8');
 
-      // DockForge, PodForge, and LinuxForge use the shared StandardAcademyHeaderNav
+      // Docker Academy, Kubernetes Academy, and LinuxForge use the shared StandardAcademyHeaderNav
       expect(dockNav).toContain('StandardAcademyHeaderNav');
       expect(dockNav).toContain('universeConceptCount={42}');
       expect(dockNav).toContain('onOpenProblemSearch');
@@ -26,7 +26,7 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
       expect(linuxNav).toContain('StandardAcademyHeaderNav');
       expect(linuxNav).toMatch(/universeConceptCount=\{(46|TOTAL_LINUX_CONCEPTS)\}/);
 
-      // Check CommitForge has matching tabs
+      // Check Git Academy has matching tabs
       expect(commitNav).toContain('Learn');
       expect(commitNav).toContain('71 Concepts');
       expect(commitNav).toContain('Practice');
@@ -37,9 +37,9 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
     });
 
     it('verifies all 4 academies mount an independent Concepts Universe catalog view', () => {
-      const commitApp = fs.readFileSync(path.resolve(__dirname, '../commitforge/CommitForgeApp.tsx'), 'utf-8');
-      const dockApp = fs.readFileSync(path.resolve(__dirname, '../dockforge/DockForgeApp.tsx'), 'utf-8');
-      const podApp = fs.readFileSync(path.resolve(__dirname, '../podforge/PodForgeApp.tsx'), 'utf-8');
+      const commitApp = fs.readFileSync(path.resolve(__dirname, '../git/GitAcademyApp.tsx'), 'utf-8');
+      const dockApp = fs.readFileSync(path.resolve(__dirname, '../docker/DockerAcademyApp.tsx'), 'utf-8');
+      const podApp = fs.readFileSync(path.resolve(__dirname, '../kubernetes/KubernetesAcademyApp.tsx'), 'utf-8');
       const linuxApp = fs.readFileSync(path.resolve(__dirname, '../linuxforge/LinuxForgeApp.tsx'), 'utf-8');
 
       expect(commitApp).toContain("mode === 'universe' && <ConceptsUniverseView />");
@@ -49,9 +49,9 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
     });
 
     it('verifies all 4 academies use 240px standardized responsive accordion sidebars with pinned progress footer', () => {
-      const commitAcademy = fs.readFileSync(path.resolve(__dirname, '../commitforge/components/academy/GitAcademyView.tsx'), 'utf-8');
-      const dockAcademy = fs.readFileSync(path.resolve(__dirname, '../dockforge/components/academy/DockerAcademyView.tsx'), 'utf-8');
-      const podAcademy = fs.readFileSync(path.resolve(__dirname, '../podforge/components/academy/PodAcademyView.tsx'), 'utf-8');
+      const commitAcademy = fs.readFileSync(path.resolve(__dirname, '../git/components/academy/GitAcademyView.tsx'), 'utf-8');
+      const dockAcademy = fs.readFileSync(path.resolve(__dirname, '../docker/components/academy/DockerAcademyView.tsx'), 'utf-8');
+      const podAcademy = fs.readFileSync(path.resolve(__dirname, '../kubernetes/components/academy/PodAcademyView.tsx'), 'utf-8');
       const linuxAcademy = fs.readFileSync(path.resolve(__dirname, '../linuxforge/components/academy/LinuxAcademyView.tsx'), 'utf-8');
 
       // All 4 use academy-sidebar-desktop class (which enforces 240px and responsiveness in index.css)
@@ -60,7 +60,7 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
       expect(podAcademy).toContain('academy-sidebar-desktop');
       expect(linuxAcademy).toContain('academy-sidebar-desktop');
 
-      // DockForge, PodForge, and LinuxForge use the StandardAcademySidebar
+      // Docker Academy, Kubernetes Academy, and LinuxForge use the StandardAcademySidebar
       expect(dockAcademy).toContain('StandardAcademySidebar');
       expect(podAcademy).toContain('StandardAcademySidebar');
       expect(linuxAcademy).toContain('StandardAcademySidebar');
@@ -79,9 +79,9 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
     });
 
     it('verifies all 4 academies provide pinned bottom bars for seamless Prev / Next navigation', () => {
-      const commitAcademy = fs.readFileSync(path.resolve(__dirname, '../commitforge/components/academy/GitAcademyView.tsx'), 'utf-8');
-      const dockAcademy = fs.readFileSync(path.resolve(__dirname, '../dockforge/components/academy/DockerAcademyView.tsx'), 'utf-8');
-      const podAcademy = fs.readFileSync(path.resolve(__dirname, '../podforge/components/academy/PodAcademyView.tsx'), 'utf-8');
+      const commitAcademy = fs.readFileSync(path.resolve(__dirname, '../git/components/academy/GitAcademyView.tsx'), 'utf-8');
+      const dockAcademy = fs.readFileSync(path.resolve(__dirname, '../docker/components/academy/DockerAcademyView.tsx'), 'utf-8');
+      const podAcademy = fs.readFileSync(path.resolve(__dirname, '../kubernetes/components/academy/PodAcademyView.tsx'), 'utf-8');
       const linuxAcademy = fs.readFileSync(path.resolve(__dirname, '../linuxforge/components/academy/LinuxAcademyView.tsx'), 'utf-8');
 
       expect(commitAcademy).toContain('academy-bottom-bar');
@@ -97,14 +97,14 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
     });
   });
 
-  describe('Curriculum Data Integrity across CommitForge, DockForge, PodForge, and LinuxForge', () => {
-    it('verifies CommitForge has 18 Topics and 75 Concepts', () => {
+  describe('Curriculum Data Integrity across Git Academy, Docker Academy, Kubernetes Academy, and LinuxForge', () => {
+    it('verifies Git Academy has 18 Topics and 75 Concepts', () => {
       expect(ACADEMY_18_TOPICS.length).toBe(18);
       const totalConcepts = ACADEMY_18_TOPICS.reduce((acc, t) => acc + t.concepts.length, 0);
       expect(totalConcepts).toBe(75);
     });
 
-    it('verifies DockForge has 14 Topics and 42 Concepts with standard attributes', () => {
+    it('verifies Docker Academy has 14 Topics and 42 Concepts with standard attributes', () => {
       expect(DOCKER_14_TOPICS.length).toBe(14);
       const totalConcepts = DOCKER_14_TOPICS.reduce((acc, t) => acc + t.concepts.length, 0);
       expect(totalConcepts).toBe(42);
@@ -122,7 +122,7 @@ describe('Standardized Academy Architecture & Consistency Audit', () => {
       });
     });
 
-    it('verifies PodForge has 15 Chapters and 71 Concepts with standard attributes', () => {
+    it('verifies Kubernetes Academy has 15 Chapters and 71 Concepts with standard attributes', () => {
       expect(KUBE_CHAPTERS.length).toBe(15);
       const totalConcepts = KUBE_CHAPTERS.reduce((acc, ch) => acc + ch.concepts.length, 0);
       expect(totalConcepts).toBe(71);

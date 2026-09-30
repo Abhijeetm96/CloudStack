@@ -87,10 +87,10 @@ export const SuiteHeaderNav: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setMode('dockforge')}
+          onClick={() => setMode('docker')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'dockforge' ? 'rgba(14, 165, 233, 0.24)' : 'rgba(14, 165, 233, 0.12)',
+            background: mode === 'docker' ? 'rgba(14, 165, 233, 0.24)' : 'rgba(14, 165, 233, 0.12)',
             border: '1px solid rgba(14, 165, 233, 0.35)',
             color: '#38bdf8',
           }}
@@ -102,10 +102,10 @@ export const SuiteHeaderNav: React.FC = () => {
         </button>
 
         <button
-          onClick={() => setMode('podforge')}
+          onClick={() => setMode('kubernetes')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'podforge' ? 'rgba(50, 108, 229, 0.22)' : 'rgba(50, 108, 229, 0.1)',
+            background: mode === 'kubernetes' ? 'rgba(50, 108, 229, 0.22)' : 'rgba(50, 108, 229, 0.1)',
             border: '1px solid rgba(50, 108, 229, 0.3)',
             color: '#60a5fa',
           }}
@@ -228,7 +228,7 @@ export const SuiteHeaderNav: React.FC = () => {
 
           <button
             onClick={() => {
-              setMode('dockforge');
+              setMode('docker');
               setMobileMenuOpen(false);
             }}
             className="suite-mobile-item"
@@ -243,7 +243,7 @@ export const SuiteHeaderNav: React.FC = () => {
 
           <button
             onClick={() => {
-              setMode('podforge');
+              setMode('kubernetes');
               setMobileMenuOpen(false);
             }}
             className="suite-mobile-item"

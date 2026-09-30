@@ -1,14 +1,14 @@
-# COMMITFORGE FINAL CODEBASE AUDIT & ARCHITECTURAL REPORT
+# CLOUDSTACK FINAL CODEBASE AUDIT & ARCHITECTURAL REPORT
 
 **Date:** September 19, 2026  
 **Auditor:** Antigravity Autonomous Pair Programmer  
-**Objective:** Transform CommitForge from multiple overlapping experimental prototypes into one deliberate Git learning product with a clean, canonical architecture.
+**Objective:** Transform Git Academy from multiple overlapping experimental prototypes into one deliberate Git learning product with a clean, canonical architecture.
 
 ---
 
 ## 1. Executive Architectural Summary
 
-Over multiple iterations, CommitForge accumulated duplicate learning UX generations, multiple roadmap paradigms, legacy teacher slice models, and redundant data schemas.
+Over multiple iterations, Git Academy accumulated duplicate learning UX generations, multiple roadmap paradigms, legacy teacher slice models, and redundant data schemas.
 
 At the current entry point (`src/App.tsx`), the application already funnels primary navigation modes (`learn`, `dashboard`, `roadmap`, `first10`, `visualize`, `community`) into the single unified **GitAcademyView** (`src/components/academy/GitAcademyView.tsx`).
 
@@ -46,7 +46,7 @@ The goal of this cleanup is to:
 ## 3. Canonical Learning System
 
 ```
-                           COMMITFORGE
+                           CLOUDSTACK
                                 |
                            GIT ACADEMY
                       (GitAcademyView.tsx)
@@ -73,7 +73,7 @@ The goal of this cleanup is to:
 
 ## 4. Canonical Visualization Architecture
 
-CommitForge has unified visualization responsibilities across distinct tools:
+Git Academy has unified visualization responsibilities across distinct tools:
 1. **ThreeAreaVisualizer** (`components/visualizer/ThreeAreaVisualizer.tsx`):
    - Clear three-tier visualization of Working Tree → Staging Area (Index) → Git Repository (HEAD / Commits).
    - Used in `ConceptVisualizerTab` and `DeveloperIdeView`.

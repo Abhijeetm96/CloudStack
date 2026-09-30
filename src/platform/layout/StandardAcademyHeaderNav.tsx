@@ -28,7 +28,7 @@ export interface StandardAcademyNavTab {
 }
 
 export interface StandardAcademyHeaderNavProps {
-  academyId: 'commitforge' | 'dockforge' | 'podforge' | string;
+  academyId: 'git' | 'docker' | 'kubernetes' | string;
   brandTitle: string;
   brandTagline: string;
   brandIcon: LucideIcon;
@@ -311,7 +311,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                 </div>
               </button>
 
-              {/* Item 1: CommitForge */}
+              {/* Item 1: Git Academy */}
               <button
                 onClick={() => {
                   setShowSuiteMenu(false);
@@ -323,8 +323,8 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   gap: '0.65rem',
                   padding: '0.5rem 0.65rem',
                   borderRadius: '8px',
-                  background: academyId === 'commitforge' ? 'rgba(240, 80, 51, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-                  border: academyId === 'commitforge' ? '1px solid rgba(240, 80, 51, 0.35)' : '1px solid transparent',
+                  background: academyId === 'git' ? 'rgba(240, 80, 51, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  border: academyId === 'git' ? '1px solid rgba(240, 80, 51, 0.35)' : '1px solid transparent',
                   cursor: 'pointer',
                   textAlign: 'left',
                   width: '100%',
@@ -346,19 +346,19 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   <Flame size={14} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>CommitForge</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>Git Academy</div>
                   <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Git &amp; Version Control</div>
                 </div>
-                {academyId === 'commitforge' && (
+                {academyId === 'git' && (
                   <div style={{ fontSize: '0.65rem', color: '#4ade80', fontWeight: 700 }}>Active</div>
                 )}
               </button>
 
-              {/* Item 2: DockForge */}
+              {/* Item 2: Docker Academy */}
               <button
                 onClick={() => {
                   setShowSuiteMenu(false);
-                  onSwitchToSuite?.('dockforge');
+                  onSwitchToSuite?.('docker');
                 }}
                 style={{
                   display: 'flex',
@@ -366,8 +366,8 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   gap: '0.65rem',
                   padding: '0.5rem 0.65rem',
                   borderRadius: '8px',
-                  background: academyId === 'dockforge' ? 'rgba(14, 165, 233, 0.15)' : 'rgba(255, 255, 255, 0.03)',
-                  border: academyId === 'dockforge' ? '1px solid rgba(14, 165, 233, 0.35)' : '1px solid transparent',
+                  background: academyId === 'docker' ? 'rgba(14, 165, 233, 0.15)' : 'rgba(255, 255, 255, 0.03)',
+                  border: academyId === 'docker' ? '1px solid rgba(14, 165, 233, 0.35)' : '1px solid transparent',
                   cursor: 'pointer',
                   textAlign: 'left',
                   width: '100%',
@@ -389,19 +389,19 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   <Container size={14} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>DockForge</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>Docker Academy</div>
                   <div style={{ fontSize: '0.68rem', color: '#38bdf8' }}>Docker &amp; Containers</div>
                 </div>
-                {academyId === 'dockforge' && (
+                {academyId === 'docker' && (
                   <div style={{ fontSize: '0.65rem', color: '#38bdf8', fontWeight: 700 }}>Active</div>
                 )}
               </button>
 
-              {/* Item 3: PodForge */}
+              {/* Item 3: Kubernetes Academy */}
               <button
                 onClick={() => {
                   setShowSuiteMenu(false);
-                  onSwitchToSuite?.('podforge');
+                  onSwitchToSuite?.('kubernetes');
                 }}
                 style={{
                   display: 'flex',
@@ -409,8 +409,8 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   gap: '0.65rem',
                   padding: '0.5rem 0.65rem',
                   borderRadius: '8px',
-                  background: academyId === 'podforge' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                  border: academyId === 'podforge' ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
+                  background: academyId === 'kubernetes' ? 'rgba(56, 189, 248, 0.12)' : 'rgba(255, 255, 255, 0.03)',
+                  border: academyId === 'kubernetes' ? '1px solid rgba(56, 189, 248, 0.3)' : '1px solid transparent',
                   cursor: 'pointer',
                   textAlign: 'left',
                   width: '100%',
@@ -432,10 +432,10 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
                   <Compass size={14} />
                 </div>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>PodForge</div>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>Kubernetes Academy</div>
                   <div style={{ fontSize: '0.68rem', color: '#94a3b8' }}>Kubernetes Academy</div>
                 </div>
-                {academyId === 'podforge' && (
+                {academyId === 'kubernetes' && (
                   <div style={{ fontSize: '0.65rem', color: '#4ade80', fontWeight: 700 }}>Active</div>
                 )}
               </button>
@@ -613,7 +613,7 @@ export const StandardAcademyHeaderNav: React.FC<StandardAcademyHeaderNavProps> =
       </div>
 
       {/* ================================================================ */}
-      {/* CENTER: STANDARDIZED NAVIGATION TABS (CommitForge Identical)   */}
+      {/* CENTER: STANDARDIZED NAVIGATION TABS (Git Academy Identical)   */}
       {/* ================================================================ */}
       <nav className="header-nav-tabs" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
         {standardTabs.map((tab) => {

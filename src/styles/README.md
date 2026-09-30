@@ -14,8 +14,8 @@ Imported globally at application root (`src/main.tsx`):
 
 ### 2. Academy-Scoped Custom Styles (Within Respective Academy Folders)
 Each academy can maintain its own custom stylesheets, animations, or overrides strictly within its own folder:
-- **CommitForge**: `src/commitforge/styles/commitforge.css` (imported by `CommitForgeApp.tsx`)
-- **PodForge**: `src/podforge/styles/podforge.css` (imported by `PodForgeApp.tsx`)
+- **Git Academy**: `src/git/styles/gitacademy.css` (imported by `GitAcademyApp.tsx`)
+- **Kubernetes Academy**: `src/kubernetes/styles/kubernetes.css` (imported by `KubernetesAcademyApp.tsx`)
 - **Future Academies**: `src/<academy>/styles/<academy>.css` (imported by `<Academy>App.tsx`)
 
 This structure ensures:

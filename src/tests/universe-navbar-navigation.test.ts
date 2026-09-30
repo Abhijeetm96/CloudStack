@@ -5,7 +5,7 @@ import { mapSegmentToMode, mapModeToSegment, getTitleForMode } from '../platform
 
 describe('Concepts Universe Independent Page Architecture', () => {
   it('ensures HeaderNav has Concepts button that routes to independent mode universe', () => {
-    const headerNavPath = path.resolve(__dirname, '../commitforge/components/layout/HeaderNav.tsx');
+    const headerNavPath = path.resolve(__dirname, '../git/components/layout/HeaderNav.tsx');
     const content = fs.readFileSync(headerNavPath, 'utf-8');
 
     expect(content).toContain('Concepts');
@@ -13,8 +13,8 @@ describe('Concepts Universe Independent Page Architecture', () => {
     expect(content).toContain("mode === 'universe'");
   });
 
-  it('ensures CommitForgeApp mounts ConceptsUniverseView as an independent experience', () => {
-    const appPath = path.resolve(__dirname, '../commitforge/CommitForgeApp.tsx');
+  it('ensures GitAcademyApp mounts ConceptsUniverseView as an independent experience', () => {
+    const appPath = path.resolve(__dirname, '../git/GitAcademyApp.tsx');
     const content = fs.readFileSync(appPath, 'utf-8');
 
     expect(content).toContain("import { ConceptsUniverseView } from './components/universe/ConceptsUniverseView'");
@@ -30,7 +30,7 @@ describe('Concepts Universe Independent Page Architecture', () => {
   });
 
   it('ensures UniversalConceptHero removes All 71 Concepts section from concept subtabs', () => {
-    const heroPath = path.resolve(__dirname, '../commitforge/components/academy/UniversalConceptHero.tsx');
+    const heroPath = path.resolve(__dirname, '../git/components/academy/UniversalConceptHero.tsx');
     const content = fs.readFileSync(heroPath, 'utf-8');
 
     // All 71 Concepts / Universe should be removed from concept subtabs bar
@@ -48,12 +48,12 @@ describe('Concepts Universe Independent Page Architecture', () => {
   });
 
   it('ensures ConceptsUniverseView contains full curriculum catalog with all 35 chapters and StandardConceptsUniverse', () => {
-    const universeViewPath = path.resolve(__dirname, '../commitforge/components/universe/ConceptsUniverseView.tsx');
+    const universeViewPath = path.resolve(__dirname, '../git/components/universe/ConceptsUniverseView.tsx');
     const content = fs.readFileSync(universeViewPath, 'utf-8');
 
     expect(content).toContain('StandardConceptsUniverse');
-    expect(content).toContain('COMMITFORGE_35_CHAPTERS');
-    expect(content).toContain('TOTAL_COMMITFORGE_CONCEPTS');
+    expect(content).toContain('GIT_35_CHAPTERS');
+    expect(content).toContain('TOTAL_GIT_CONCEPTS');
     expect(content).toContain('handleLaunchLesson');
   });
 });

@@ -1,7 +1,7 @@
 // src/platform/lesson-runtime/types.ts
 /**
  * Universal Lesson Model & Pedagogical Schema for Forge Platform
- * Powers CommitForge (Git), DockForge (Docker), and PodForge (Kubernetes).
+ * Powers Git Academy, Docker Academy, and Kubernetes Academy.
  * Supports the complete 14-step progressive disclosure learning flow.
  */
 

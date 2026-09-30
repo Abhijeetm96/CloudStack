@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ACADEMY_18_TOPICS, ALL_ACADEMY_CONCEPTS } from '../commitforge/data/unifiedAcademyData';
+import { ACADEMY_18_TOPICS, ALL_ACADEMY_CONCEPTS } from '../git/data/unifiedAcademyData';
 
 describe('Practice Section All Topics Quality & Completeness Audit', () => {
   const allConceptIds = ACADEMY_18_TOPICS.flatMap((topic) =>

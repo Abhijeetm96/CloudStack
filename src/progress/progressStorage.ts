@@ -287,7 +287,7 @@ export class RemoteCloudSyncAdapter {
       preferences: { ...local.preferences, ...remote.preferences },
     };
 
-    for (const academyId of ['commitforge', 'dockforge', 'podforge', 'linuxforge'] as const) {
+    for (const academyId of ['git', 'docker', 'kubernetes', 'linuxforge'] as const) {
       const localCourse = local.academies?.[academyId];
       const remoteCourse = remote.academies?.[academyId];
 

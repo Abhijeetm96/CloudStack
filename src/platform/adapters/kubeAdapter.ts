@@ -1,6 +1,6 @@
 // src/platform/adapters/kubeAdapter.ts
-import { KubeEngine } from '../../podforge/kube-engine/engine';
-import { KubeConcept } from '../../podforge/data/topics/types';
+import { KubeEngine } from '../../kubernetes/kube-engine/engine';
+import { KubeConcept } from '../../kubernetes/data/topics/types';
 import {
   UniversalLesson,
   SyntaxTokenBreakdown,
@@ -68,7 +68,7 @@ export class KubeRuntimeAdapter implements RuntimeAdapter {
 }
 
 /**
- * Maps a PodForge KubeConcept into the platform-wide UniversalLesson schema.
+ * Maps a Kubernetes Academy KubeConcept into the platform-wide UniversalLesson schema.
  */
 export function kubeLessonAdapter(
   concept: KubeConcept,

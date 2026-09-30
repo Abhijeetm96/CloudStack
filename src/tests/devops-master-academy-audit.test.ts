@@ -113,19 +113,19 @@ describe('DevOps & Cloud Engineering Academy Master Curriculum Audit', () => {
     expect(ch01?.liveAction?.route).toBe('/linuxforge');
 
     const ch03 = DEVOPS_29_CHAPTERS.find((c) => c.number === 3);
-    expect(ch03?.liveAction?.route).toBe('/commitforge');
+    expect(ch03?.liveAction?.route).toBe('/git');
 
     const ch04 = DEVOPS_29_CHAPTERS.find((c) => c.number === 4);
-    expect(ch04?.liveAction?.route).toBe('/dockforge');
+    expect(ch04?.liveAction?.route).toBe('/docker');
 
     const ch06 = DEVOPS_29_CHAPTERS.find((c) => c.number === 6);
-    expect(ch06?.liveAction?.route).toBe('/podforge');
+    expect(ch06?.liveAction?.route).toBe('/kubernetes');
 
     const ch07 = DEVOPS_29_CHAPTERS.find((c) => c.number === 7);
-    expect(ch07?.liveAction?.route).toBe('/podforge');
+    expect(ch07?.liveAction?.route).toBe('/kubernetes');
 
     const ch08 = DEVOPS_29_CHAPTERS.find((c) => c.number === 8);
-    expect(ch08?.liveAction?.route).toBe('/podforge');
+    expect(ch08?.liveAction?.route).toBe('/kubernetes');
   });
 
   it('verifies key topics from the user syllabus are accurately present', () => {

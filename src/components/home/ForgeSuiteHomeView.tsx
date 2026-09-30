@@ -109,18 +109,18 @@ export const ForgeSuiteHomeView: React.FC = () => {
     }));
   };
 
-  const handleNavigatePodForge = (initialMode: 'academy' | 'labs' | 'ide' | 'cluster') => {
+  const handleNavigateKubernetes = (initialMode: 'academy' | 'labs' | 'ide' | 'cluster') => {
     try {
-      localStorage.setItem('podforge_initial_mode', initialMode);
+      localStorage.setItem('kubernetes_initial_mode', initialMode);
     } catch {}
-    setMode('podforge');
+    setMode('kubernetes');
   };
 
-  const handleNavigateDockForge = (initialMode: 'academy' | 'labs' | 'ide' | 'visualizer') => {
+  const handleNavigateDocker = (initialMode: 'academy' | 'labs' | 'ide' | 'visualizer') => {
     try {
-      localStorage.setItem('dockforge_initial_mode', initialMode);
+      localStorage.setItem('docker_initial_mode', initialMode);
     } catch {}
-    setMode('dockforge');
+    setMode('docker');
   };
 
   const handleNavigateLinuxForge = (initialMode: 'academy' | 'universe' | 'practice') => {
@@ -283,7 +283,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
           }}
         >
           {/* ========================================================================= */}
-          {/* CARD 1: COMMITFORGE (GIT & CI/CD ACADEMY) */}
+          {/* CARD 1: CLOUDSTACK (GIT & CI/CD ACADEMY) */}
           {/* ========================================================================= */}
           <div
             style={{
@@ -360,7 +360,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                       Git
                     </h2>
                     <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.12rem 0.45rem', borderRadius: '4px', background: 'rgba(240, 80, 51, 0.15)', border: '1px solid rgba(240, 80, 51, 0.35)', color: '#fb923c' }}>
-                      CommitForge
+                      Git Academy
                     </span>
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#fb923c', fontWeight: 600, letterSpacing: '0.01em', marginTop: '0.15rem' }}>
@@ -617,7 +617,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
           </div>
 
           {/* ========================================================================= */}
-          {/* CARD 2: PODFORGE (KUBERNETES & CLOUD-NATIVE ACADEMY) */}
+          {/* CARD 2: KUBERNETES (KUBERNETES & CLOUD-NATIVE ACADEMY) */}
           {/* ========================================================================= */}
           <div
             style={{
@@ -694,7 +694,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                       Kubernetes
                     </h2>
                     <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.12rem 0.45rem', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.15)', border: '1px solid rgba(56, 189, 248, 0.35)', color: '#38bdf8' }}>
-                      PodForge
+                      Kubernetes Academy
                     </span>
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600, letterSpacing: '0.01em', marginTop: '0.15rem' }}>
@@ -790,7 +790,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
             {/* Launch Actions */}
             <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button
-                onClick={() => setMode('podforge')}
+                onClick={() => setMode('kubernetes')}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -824,7 +824,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
               {/* Sub-Route Navigation Dock */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
                 <button
-                  onClick={() => handleNavigatePodForge('academy')}
+                  onClick={() => handleNavigateKubernetes('academy')}
                   style={{
                     padding: '0.45rem 0.35rem',
                     borderRadius: '7px',
@@ -853,7 +853,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                   Modules
                 </button>
                 <button
-                  onClick={() => handleNavigatePodForge('labs')}
+                  onClick={() => handleNavigateKubernetes('labs')}
                   style={{
                     padding: '0.45rem 0.35rem',
                     borderRadius: '7px',
@@ -882,7 +882,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                   Labs
                 </button>
                 <button
-                  onClick={() => handleNavigatePodForge('ide')}
+                  onClick={() => handleNavigateKubernetes('ide')}
                   style={{
                     padding: '0.45rem 0.35rem',
                     borderRadius: '7px',
@@ -911,7 +911,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                   IDE
                 </button>
                 <button
-                  onClick={() => handleNavigatePodForge('cluster')}
+                  onClick={() => handleNavigateKubernetes('cluster')}
                   title="Jump to Kubernetes Cluster Topology Mesh"
                   style={{
                     padding: '0.45rem 0.35rem',
@@ -945,7 +945,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
           </div>
 
           {/* ========================================================================= */}
-          {/* CARD 3: DOCKFORGE (DOCKER & CONTAINER ENGINE ACADEMY) */}
+          {/* CARD 3: DOCKER (DOCKER & CONTAINER ENGINE ACADEMY) */}
           {/* ========================================================================= */}
           <div
             style={{
@@ -1022,7 +1022,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                       Docker
                     </h2>
                     <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.12rem 0.45rem', borderRadius: '4px', background: 'rgba(14, 165, 233, 0.15)', border: '1px solid rgba(14, 165, 233, 0.35)', color: '#38bdf8' }}>
-                      DockForge
+                      Docker Academy
                     </span>
                   </div>
                   <div style={{ fontSize: '0.78rem', color: '#38bdf8', fontWeight: 600, letterSpacing: '0.01em', marginTop: '0.15rem' }}>
@@ -1118,7 +1118,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
             {/* Launch Actions */}
             <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               <button
-                onClick={() => setMode('dockforge')}
+                onClick={() => setMode('docker')}
                 style={{
                   width: '100%',
                   display: 'flex',
@@ -1152,7 +1152,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
               {/* Sub-Route Navigation Dock */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '0.4rem' }}>
                 <button
-                  onClick={() => handleNavigateDockForge('academy')}
+                  onClick={() => handleNavigateDocker('academy')}
                   style={{
                     padding: '0.45rem 0.35rem',
                     borderRadius: '7px',
@@ -1181,7 +1181,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                   Topics
                 </button>
                 <button
-                  onClick={() => handleNavigateDockForge('labs')}
+                  onClick={() => handleNavigateDocker('labs')}
                   style={{
                     padding: '0.45rem 0.35rem',
                     borderRadius: '7px',
@@ -1210,7 +1210,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                   Labs
                 </button>
                 <button
-                  onClick={() => handleNavigateDockForge('ide')}
+                  onClick={() => handleNavigateDocker('ide')}
                   style={{
                     padding: '0.45rem 0.35rem',
                     borderRadius: '7px',
@@ -1239,7 +1239,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
                   IDE
                 </button>
                 <button
-                  onClick={() => handleNavigateDockForge('visualizer')}
+                  onClick={() => handleNavigateDocker('visualizer')}
                   title="Jump to Container Mesh Visualizer"
                   style={{
                     padding: '0.45rem 0.35rem',

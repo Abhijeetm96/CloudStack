@@ -8,7 +8,7 @@ describe('Theme Support & Light Theme Integration (Issue #7)', () => {
     const appContextContent = fs.readFileSync(appContextPath, 'utf-8');
     expect(appContextContent).toContain('const LIGHT_MODE_ENABLED = true;');
 
-    const headerNavPath = path.resolve(__dirname, '../commitforge/components/layout/HeaderNav.tsx');
+    const headerNavPath = path.resolve(__dirname, '../git/components/layout/HeaderNav.tsx');
     const headerNavContent = fs.readFileSync(headerNavPath, 'utf-8');
     expect(headerNavContent).toContain('const LIGHT_MODE_ENABLED = true;');
   });

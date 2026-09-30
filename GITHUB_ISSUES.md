@@ -1,6 +1,6 @@
 # Forge Suite — GitHub Issues Backlog
 
-This document lists prioritized, production-ready GitHub Issues discovered during the comprehensive codebase audit of CommitForge, PodForge, and DockForge. Each issue has been systematically resolved, verified with unit tests, and audited against production builds.
+This document lists prioritized, production-ready GitHub Issues discovered during the comprehensive codebase audit of Git Academy, Kubernetes Academy, and Docker Academy. Each issue has been systematically resolved, verified with unit tests, and audited against production builds.
 
 ---
 
@@ -13,7 +13,7 @@ This document lists prioritized, production-ready GitHub Issues discovered durin
 | **#3** | Application Roots | High | Missing Global React Error Boundary across application roots | **RESOLVED** | `SuiteErrorBoundary.tsx` implemented with recovery actions |
 | **#4** | `DockerEngine` | Medium | Docker simulator `docker compose up` omits DB service | **RESOLVED** | `app-db-1` pushed to containers and cleaned on down |
 | **#5** | `AppContext.tsx` | Medium | Uncaught `SecurityError` in localStorage access | **RESOLVED** | Safe storage try/catch wrappers; unit test in `local-storage-safety.test.ts` |
-| **#6** | DockForge Header | Low | Inert / Non-functional "Toggle Theme" button in Header | **RESOLVED** | Removed dead button, aligned with dark-first theme system |
+| **#6** | Docker Academy Header | Low | Inert / Non-functional "Toggle Theme" button in Header | **RESOLVED** | Removed dead button, aligned with dark-first theme system |
 | **#7** | `DockerTerminal.tsx` | Medium | Command history traversal with Up/Down arrow keys missing | **RESOLVED** | `historyIndex` pointer ported; unit test in `docker-terminal-history.test.ts` |
 | **#8** | `SuiteHeaderNav.tsx` | Medium | Header navigation overflows on viewports under 900px | **RESOLVED** | `suiteHeaderNav.css` tablet icon collapse & mobile drawer |
 | **#9** | Repository-wide | Low | Oxlint warnings for unused imports & effect setState | **RESOLVED** | Pruned unused imports, converted effect syncing to derived state |
@@ -33,8 +33,8 @@ This document lists prioritized, production-ready GitHub Issues discovered durin
 In `<AppContent>` (`src/App.tsx`), the callback `handleSelectLessonFromSolver` receives `(tech: TechnologyType, _lessonId: string)`. It only switched the primary app mode without propagating the selected concept ID.
 
 ### Resolution
-1. Corrected concept IDs in `src/platform/search/problemDatabase.ts` to match real curriculum IDs across CommitForge, DockForge, and PodForge.
-2. Added `initialConceptId` state to `App.tsx` and routed through `DockForgeApp`, `PodForgeApp`, and `GitAcademyView`.
+1. Corrected concept IDs in `src/platform/search/problemDatabase.ts` to match real curriculum IDs across Git Academy, Docker Academy, and Kubernetes Academy.
+2. Added `initialConceptId` state to `App.tsx` and routed through `DockerAcademyApp`, `KubernetesAcademyApp`, and `GitAcademyView`.
 3. Verified via automated tests in `src/tests/problem-solver-navigation.test.ts`.
 
 ---
@@ -42,15 +42,15 @@ In `<AppContent>` (`src/App.tsx`), the callback `handleSelectLessonFromSolver` r
 ## Issue #2: `KubeFlowDiagram` component inspector modal rendered below viewport & lacks responsive styling
 
 - **Status:** **RESOLVED**
-- **Labels:** `bug`, `ui/ux`, `responsive`, `podforge`
+- **Labels:** `bug`, `ui/ux`, `responsive`, `kubernetes`
 - **Severity:** High
-- **Component:** `src/podforge/components/diagrams/KubeFlowDiagram.tsx`
+- **Component:** `src/kubernetes/components/diagrams/KubeFlowDiagram.tsx`
 
 ### Description
-In `src/podforge/components/diagrams/KubeFlowDiagram.tsx`, the inspector modal was positioned `absolute` inside a 1,000px+ tall container, causing it to render below the viewport fold.
+In `src/kubernetes/components/diagrams/KubeFlowDiagram.tsx`, the inspector modal was positioned `absolute` inside a 1,000px+ tall container, causing it to render below the viewport fold.
 
 ### Resolution
-1. Created `src/podforge/components/diagrams/kubeFlowDiagram.css`.
+1. Created `src/kubernetes/components/diagrams/kubeFlowDiagram.css`.
 2. Changed modal overlay to `position: fixed; inset: 0; z-index: 9999;` centered within the active browser window with backdrop blur and body scroll locking.
 3. Added `Escape` key dismissal and Horizontal vs. Vertical timeline sequence switcher.
 
@@ -76,9 +76,9 @@ There was no `ErrorBoundary` anywhere in the codebase. Any runtime exception unm
 ## Issue #4: Docker Engine simulator `docker compose up` omits DB service from container state
 
 - **Status:** **RESOLVED**
-- **Labels:** `bug`, `dockforge`, `simulator`
+- **Labels:** `bug`, `docker`, `simulator`
 - **Severity:** Medium
-- **Component:** `src/dockforge/docker-engine/engine.ts`
+- **Component:** `src/docker/docker-engine/engine.ts`
 
 ### Description
 In `handleCompose` (`subcmd === 'up'`), stdout claimed `app-db-1` was started, but only `webContainer` was pushed to `this.containers`.
@@ -107,15 +107,15 @@ Direct calls to `localStorage.getItem` and `localStorage.setItem` in `AppContext
 
 ---
 
-## Issue #6: Inert / Non-functional "Toggle Theme" button in DockForge Header
+## Issue #6: Inert / Non-functional "Toggle Theme" button in Docker Academy Header
 
 - **Status:** **RESOLVED**
-- **Labels:** `ui/ux`, `dockforge`, `low-priority`
+- **Labels:** `ui/ux`, `docker`, `low-priority`
 - **Severity:** Low
-- **Component:** `src/dockforge/components/layout/HeaderNav.tsx`
+- **Component:** `src/docker/components/layout/HeaderNav.tsx`
 
 ### Description
-In `src/dockforge/components/layout/HeaderNav.tsx`, a Sun icon button was rendered without an `onClick` handler, creating an inert dead-end control.
+In `src/docker/components/layout/HeaderNav.tsx`, a Sun icon button was rendered without an `onClick` handler, creating an inert dead-end control.
 
 ### Resolution
 1. Removed the inert button and unused `Sun` import from `HeaderNav.tsx`.
@@ -126,12 +126,12 @@ In `src/dockforge/components/layout/HeaderNav.tsx`, a Sun icon button was render
 ## Issue #7: `DockerTerminal` lacks command history traversal with Up/Down arrow keys
 
 - **Status:** **RESOLVED**
-- **Labels:** `enhancement`, `dockforge`, `terminal`
+- **Labels:** `enhancement`, `docker`, `terminal`
 - **Severity:** Medium
-- **Component:** `src/dockforge/components/terminal/DockerTerminal.tsx`
+- **Component:** `src/docker/components/terminal/DockerTerminal.tsx`
 
 ### Description
-In `src/dockforge/components/terminal/DockerTerminal.tsx`, keyboard input only handled form submission without command history traversal.
+In `src/docker/components/terminal/DockerTerminal.tsx`, keyboard input only handled form submission without command history traversal.
 
 ### Resolution
 1. Implemented `historyIndex` pointer and `ArrowUp` / `ArrowDown` navigation handlers.

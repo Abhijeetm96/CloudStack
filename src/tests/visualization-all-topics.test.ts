@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { ALL_ACADEMY_CONCEPTS, ACADEMY_18_TOPICS } from '../commitforge/data/unifiedAcademyData';
+import { ALL_ACADEMY_CONCEPTS, ACADEMY_18_TOPICS } from '../git/data/unifiedAcademyData';
 
 describe('Visualization Section All Topics Quality & Completeness Audit', () => {
   const concepts = Object.values(ALL_ACADEMY_CONCEPTS);

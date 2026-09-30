@@ -412,8 +412,8 @@ export const DEVOPS_29_CHAPTERS: DevOpsChapter[] = [
     status: 'live',
     liveAction: {
       type: 'route',
-      route: '/commitforge',
-      label: 'Launch CommitForge',
+      route: '/git',
+      label: 'Launch Git Academy',
       badge: 'Interactive Academy Live',
       description: '18 Topics, 75 Concepts, interactive DAG visualizer, and virtual repository simulator.',
     },
@@ -489,8 +489,8 @@ export const DEVOPS_29_CHAPTERS: DevOpsChapter[] = [
     status: 'live',
     liveAction: {
       type: 'route',
-      route: '/dockforge',
-      label: 'Launch DockForge',
+      route: '/docker',
+      label: 'Launch Docker Academy',
       badge: 'Interactive Academy Live',
       description: '14 Topics, 42 Concepts, container sandbox, and Compose orchestration visualizer.',
     },
@@ -618,8 +618,8 @@ export const DEVOPS_29_CHAPTERS: DevOpsChapter[] = [
     status: 'live',
     liveAction: {
       type: 'route',
-      route: '/podforge',
-      label: 'Launch PodForge',
+      route: '/kubernetes',
+      label: 'Launch Kubernetes Academy',
       badge: 'Interactive Academy Live',
       description: '15 Chapters, 71 Concepts, interactive cluster simulator, and manifest generator.',
     },
@@ -701,10 +701,10 @@ export const DEVOPS_29_CHAPTERS: DevOpsChapter[] = [
     status: 'live',
     liveAction: {
       type: 'route',
-      route: '/podforge',
-      label: 'Explore PodForge Networking',
-      badge: 'Integrated into PodForge',
-      description: 'Comprehensive CNI and Ingress chapters inside PodForge.',
+      route: '/kubernetes',
+      label: 'Explore Kubernetes Academy Networking',
+      badge: 'Integrated into Kubernetes Academy',
+      description: 'Comprehensive CNI and Ingress chapters inside Kubernetes Academy.',
     },
     subModules: [
       {
@@ -754,9 +754,9 @@ export const DEVOPS_29_CHAPTERS: DevOpsChapter[] = [
     status: 'live',
     liveAction: {
       type: 'route',
-      route: '/podforge',
-      label: 'Explore PodForge Advanced',
-      badge: 'Integrated into PodForge',
+      route: '/kubernetes',
+      label: 'Explore Kubernetes Academy Advanced',
+      badge: 'Integrated into Kubernetes Academy',
       description: 'Advanced scheduling, Helm packaging, and RBAC security modules.',
     },
     subModules: [
@@ -1275,9 +1275,9 @@ export const DEVOPS_29_CHAPTERS: DevOpsChapter[] = [
     status: 'live',
     liveAction: {
       type: 'route',
-      route: '/podforge',
-      label: 'Explore PodForge Internals',
-      badge: 'Integrated into PodForge',
+      route: '/kubernetes',
+      label: 'Explore Kubernetes Academy Internals',
+      badge: 'Integrated into Kubernetes Academy',
       description: 'Deep dive into Kubernetes internals and runtime mechanics.',
     },
     subModules: [

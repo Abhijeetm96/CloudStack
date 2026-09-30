@@ -19,7 +19,7 @@ describe('Storage Safety & SecurityError Resilience (Issue #5)', () => {
     let safeReadValue = 'default';
     expect(() => {
       try {
-        safeReadValue = window.localStorage.getItem('commitforge_instruction_mode') || 'default';
+        safeReadValue = window.localStorage.getItem('git_instruction_mode') || 'default';
       } catch {
         safeReadValue = 'default';
       }
@@ -28,7 +28,7 @@ describe('Storage Safety & SecurityError Resilience (Issue #5)', () => {
 
     expect(() => {
       try {
-        window.localStorage.setItem('commitforge_onboarded', 'true');
+        window.localStorage.setItem('git_onboarded', 'true');
       } catch {}
     }).not.toThrow();
 
