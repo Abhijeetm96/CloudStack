@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp, InstructionMode } from '../../context/AppContext';
 import { PROJECTS } from '../../data/projects';
+import { TOTAL_COMMITFORGE_CONCEPTS } from '../../data/unifiedAcademyData';
 import {
   Flame,
   Settings,
@@ -615,10 +616,10 @@ export const HeaderNav: React.FC = () => {
                     gap: '0.35rem',
                     transition: 'all 0.15s ease',
                   }}
-                  title="Explore all 71 Git concepts, 219 variations, and 79 scenarios in the Universe page"
+                  title={`Explore all ${TOTAL_COMMITFORGE_CONCEPTS} Git & CI/CD concepts across 35 chapters in the Universe page`}
                 >
                   <Sparkles size={13} color={isUniverseActive ? '#f59e0b' : '#94a3b8'} />
-                  <span>71 Concepts</span>
+                  <span>{TOTAL_COMMITFORGE_CONCEPTS} Concepts</span>
                   {isUniverseActive && (
                     <div
                       style={{
@@ -1304,8 +1305,8 @@ export const HeaderNav: React.FC = () => {
                 </button>
 
                 {[
-                  { id: 'learn', label: 'Git Academy', desc: '18 Canonical Topics & Live Sandbox' },
-                  { id: 'universe', label: '71 Concepts Universe', desc: 'Complete encyclopedia of 71 Git concepts & scenarios' },
+                  { id: 'learn', label: 'Git Academy', desc: '35 Master Chapters & Live Sandbox' },
+                  { id: 'universe', label: `${TOTAL_COMMITFORGE_CONCEPTS} Concepts Universe`, desc: `Complete encyclopedia of all ${TOTAL_COMMITFORGE_CONCEPTS} Git & CI/CD concepts` },
                   { id: 'practice', label: 'Practice Missions', desc: 'Guided interactive developer challenges' },
                   { id: 'labs', label: 'Labs', desc: 'Break, diagnose & recovery simulations' },
                   { id: 'ide', label: 'Developer IDE', desc: 'Simulated professional developer workspace' },
