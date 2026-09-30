@@ -78,10 +78,8 @@ export function mapSegmentToMode(segment: string): ViewMode {
 
     case 'kubernetes':
     case 'k8s':
-    case 'kubernetes':
       return 'kubernetes';
 
-    case 'docker':
     case 'docker':
       return 'docker';
 
@@ -90,7 +88,6 @@ export function mapSegmentToMode(segment: string): ViewMode {
     case 'kernel':
       return 'linuxforge';
 
-    case 'git':
     case 'git':
     case 'learn':
     case 'academy':
