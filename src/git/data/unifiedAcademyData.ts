@@ -5,6 +5,11 @@ import {
   TOTAL_GIT_CONCEPTS,
   getGitConcept,
   findChapterForConcept,
+  COMMITFORGE_35_CHAPTERS,
+  ALL_COMMITFORGE_CONCEPTS,
+  TOTAL_COMMITFORGE_CHAPTERS,
+  TOTAL_COMMITFORGE_CONCEPTS,
+  getCommitForgeConcept,
 } from './chapters';
 import { COMPLETE_PROBLEM_SOLUTIONS } from './problemSolutions';
 
@@ -16,6 +21,11 @@ export {
   COMPLETE_PROBLEM_SOLUTIONS,
   getGitConcept,
   findChapterForConcept,
+  COMMITFORGE_35_CHAPTERS,
+  ALL_COMMITFORGE_CONCEPTS,
+  TOTAL_COMMITFORGE_CHAPTERS,
+  TOTAL_COMMITFORGE_CONCEPTS,
+  getCommitForgeConcept,
 };
 
 export type ConceptDifficulty = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';

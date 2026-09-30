@@ -48,3 +48,11 @@ export function getGitConcept(conceptId: string): UniversalConcept | undefined {
 export function findChapterForConcept(conceptId: string): AcademyTopic | undefined {
   return GIT_35_CHAPTERS.find((ch) => ch.concepts.some((c) => c.id === conceptId));
 }
+
+// Backward-compatibility aliases for open IDE tabs & buffers
+export const COMMITFORGE_35_CHAPTERS = GIT_35_CHAPTERS;
+export const TOTAL_COMMITFORGE_CHAPTERS = TOTAL_GIT_CHAPTERS;
+export const ALL_COMMITFORGE_CONCEPTS = ALL_GIT_CONCEPTS;
+export const TOTAL_COMMITFORGE_CONCEPTS = TOTAL_GIT_CONCEPTS;
+export const getCommitForgeConcept = getGitConcept;
+

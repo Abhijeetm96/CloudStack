@@ -365,3 +365,8 @@ export function buildGitConcept(input: GitConceptInput): UniversalConcept & {
     yamlConfig: input.yamlConfig,
   };
 }
+
+// Backward-compatibility aliases for open IDE tabs & buffers
+export const buildCommitForgeConcept = buildGitConcept;
+export type CommitForgeConceptInput = GitConceptInput;
+
