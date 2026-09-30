@@ -26,6 +26,18 @@ import {
   ChevronDown,
   Sparkles,
   LucideIcon,
+  Layers,
+  Search,
+  FileCode,
+  Boxes,
+  UploadCloud,
+  TerminalSquare,
+  ListOrdered,
+  BarChart2,
+  XCircle,
+  ScrollText,
+  Network,
+  RefreshCw,
 } from 'lucide-react';
 
 const DOCKER_TOPIC_ICONS: Record<string, LucideIcon> = {
@@ -44,6 +56,32 @@ const DOCKER_TOPIC_ICONS: Record<string, LucideIcon> = {
   Workflow,
   Zap,
 };
+
+function getDockerConceptIcon(command: string = '', title: string = '', id: string = ''): LucideIcon {
+  const c = command.toLowerCase();
+  const t = title.toLowerCase();
+
+  if (c.includes('build') || c.includes('buildx') || t.includes('dockerfile')) return Hammer;
+  if (c.includes('run') || c.includes('start') || t.includes('running')) return Play;
+  if (c.includes('stop') || c.includes('kill') || c.includes(' rm ') || c.includes(' rmi ')) return XCircle;
+  if (c.includes('compose') || t.includes('multi-container')) return Layers;
+  if (c.includes('volume') || t.includes('volume') || t.includes('storage') || t.includes('persistence')) return Database;
+  if (c.includes('network') || t.includes('network') || t.includes('port')) return Network;
+  if (c.includes('logs') || t.includes('log')) return ScrollText;
+  if (c.includes('inspect') || t.includes('inspect')) return Search;
+  if (c.includes('exec') || c.includes('attach') || t.includes('shell')) return TerminalSquare;
+  if (c.includes('ps') || t.includes('process')) return ListOrdered;
+  if (c.includes('stats') || c.includes('top') || t.includes('resource') || t.includes('metrics')) return BarChart2;
+  if (c.includes('pull') || t.includes('pull')) return Download;
+  if (c.includes('push') || t.includes('registry') || t.includes('hub')) return UploadCloud;
+  if (t.includes('security') || t.includes('scan') || t.includes('trivy') || t.includes('hardening')) return ShieldCheck;
+  if (t.includes('swarm') || t.includes('kubernetes') || t.includes('orchestration')) return Boxes;
+  if (t.includes('image') || c.includes('image')) return Package;
+  if (t.includes('restart')) return RefreshCw;
+  if (t.includes('cpu') || t.includes('cgroup') || t.includes('namespace')) return Cpu;
+  if (t.includes('dockerfile') || t.includes('syntax')) return FileCode;
+  return Container;
+}
 
 export const DockerAcademyView: React.FC = () => {
   const {
@@ -80,6 +118,7 @@ export const DockerAcademyView: React.FC = () => {
           command: c.command,
           title: c.title,
           shortDesc: c.shortDesc,
+          icon: getDockerConceptIcon(c.command, c.title, c.id),
         })),
       };
     });
