@@ -80,7 +80,7 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-02',
+      id: 'c-10-02',
       subChapterNumber: '10.2',
       command: 'chmod u+r private.txt',
       title: 'Read Permission',
@@ -124,7 +124,7 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-03',
+      id: 'c-10-03',
       subChapterNumber: '10.3',
       command: 'chmod u+w script.py',
       title: 'Write Permission',
@@ -168,7 +168,7 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-04',
+      id: 'c-10-04',
       subChapterNumber: '10.4',
       command: 'chmod +x deploy.sh',
       title: 'Execute Permission',
@@ -213,7 +213,7 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-05',
+      id: 'c-10-05',
       subChapterNumber: '10.5',
       command: 'ls -l /var/www/html/index.html',
       title: 'User / Group / Others',
@@ -256,7 +256,7 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-06',
+      id: 'c-10-06',
       subChapterNumber: '10.6',
       command: 'chmod 755 deploy.sh',
       title: 'chmod',
@@ -301,7 +301,7 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-07',
+      id: 'c-10-07',
       subChapterNumber: '10.7',
       command: 'chmod 644 /etc/nginx/nginx.conf',
       title: 'Numeric Permissions',
@@ -346,11 +346,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-08',
+      id: 'c-10-08',
       subChapterNumber: '10.8',
       command: 'chmod u=rw,go=r document.txt',
       title: 'Symbolic Permissions',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'Targeted character syntax using roles (u,g,o,a), operators (+,-,=), and modes (r,w,x)',
@@ -391,11 +391,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-09',
+      id: 'c-10-09',
       subChapterNumber: '10.9',
       command: 'sudo chown -R www-data:www-data /var/www/html',
       title: 'chown',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'Change Ownership: transfer file and directory owner UIDs and group GIDs',
@@ -439,11 +439,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-10',
+      id: 'c-10-10',
       subChapterNumber: '10.10',
       command: 'chgrp developers project_notes.md',
       title: 'chgrp',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'Change Group ownership: assign files to collaborative group security circles',
@@ -482,11 +482,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-11',
+      id: 'c-10-11',
       subChapterNumber: '10.11',
       command: 'umask 022',
       title: 'umask',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'The User Mask filter: determines default permissions for newly created files and directories',
@@ -526,11 +526,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-12',
+      id: 'c-10-12',
       subChapterNumber: '10.12',
       command: 'ls -l /usr/bin/passwd',
       title: 'Special Permissions',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'The 3 high-order security bits: SUID (4000), SGID (2000), and Sticky Bit (1000)',
@@ -571,11 +571,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-13',
+      id: 'c-10-13',
       subChapterNumber: '10.13',
       command: 'chmod u+s /usr/local/bin/custom_admin',
       title: 'SUID',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'Set User ID (octal 4000): execute binaries with the effective privileges of the file owner',
@@ -616,11 +616,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-14',
+      id: 'c-10-14',
       subChapterNumber: '10.14',
       command: 'chmod g+s /var/www/shared_project',
       title: 'SGID',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'Set Group ID (octal 2000): force new child files in a directory to inherit the parent folder\'s group',
@@ -660,11 +660,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-15',
+      id: 'c-10-15',
       subChapterNumber: '10.15',
       command: 'chmod +t /shared_scratch',
       title: 'Sticky Bit',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'The deletion protection bit (octal 1000): restrict unlinking and renaming in shared folders to file owners',
@@ -704,11 +704,11 @@ export const CHAPTER_10: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-09-16',
+      id: 'c-10-16',
       subChapterNumber: '10.16',
       command: 'namei -l /var/www/html/index.html',
       title: 'Permission Troubleshooting',
-      topicId: 'ch-08',
+      topicId: 'ch-10',
       topicNumber: '10',
       topicTitle: 'File Permissions',
       subtitle: 'Surgical diagnostic methodology: traverse parent directory paths, namei, and access auditing',
