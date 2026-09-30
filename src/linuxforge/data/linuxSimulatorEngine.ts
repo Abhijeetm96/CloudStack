@@ -100,6 +100,47 @@ export class LinuxSimulator {
       return { stdout: [], stderr: [], exitCode: 0 };
     }
 
+    // Handle compound commands (cmd1 && cmd2)
+    if (trimmed.includes(' && ')) {
+      const subCommands = trimmed.split(' && ');
+      const allStdout: string[] = [];
+      const allStderr: string[] = [];
+      let lastExit = 0;
+      for (const sub of subCommands) {
+        const subRes = this.execute(sub.trim());
+        allStdout.push(...subRes.stdout);
+        allStderr.push(...subRes.stderr);
+        lastExit = subRes.exitCode;
+        if (lastExit !== 0) break;
+      }
+      return { stdout: allStdout, stderr: allStderr, exitCode: lastExit };
+    }
+
+    // Handle pipe commands (cmd1 | cmd2)
+    if (trimmed.includes(' | ')) {
+      const pipes = trimmed.split(' | ');
+      const firstRes = this.execute(pipes[0].trim());
+      const secondCmd = pipes[1].trim();
+      const secondParts = secondCmd.split(/\s+/);
+      const pipeOp = secondParts[0];
+
+      if (pipeOp === 'grep') {
+        const pattern = secondParts.slice(1).join(' ').replace(/["']/g, '').replace(/^-E\s*/, '').replace(/^-i\s*/, '').trim();
+        const filtered = firstRes.stdout.filter((line) => line.toLowerCase().includes(pattern.toLowerCase()));
+        return { stdout: filtered.length > 0 ? filtered : ['[no matches found]'], stderr: [], exitCode: 0 };
+      }
+      if (pipeOp === 'wc') {
+        return { stdout: [`${firstRes.stdout.length}`], stderr: [], exitCode: 0 };
+      }
+      if (pipeOp === 'head') {
+        return { stdout: firstRes.stdout.slice(0, 5), stderr: [], exitCode: 0 };
+      }
+      if (pipeOp === 'tail') {
+        return { stdout: firstRes.stdout.slice(-5), stderr: [], exitCode: 0 };
+      }
+      return firstRes;
+    }
+
     // Handle sudo prefix transparently
     const cmdWithoutSudo = trimmed.startsWith('sudo ') ? trimmed.slice(5).trim() : trimmed;
     const parts = cmdWithoutSudo.split(/\s+/);
@@ -172,6 +213,19 @@ export class LinuxSimulator {
         if (file === '/etc/resolv.conf') {
           return { stdout: ['nameserver 1.1.1.1', 'nameserver 8.8.8.8', 'search production.internal'], stderr: [], exitCode: 0 };
         }
+        if (file === '/etc/crontab') {
+          return {
+            stdout: [
+              'SHELL=/bin/sh',
+              'PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin',
+              '17 * * * * root    cd / && run-parts --report /etc/cron.hourly',
+              '25 6 * * * root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.daily )',
+              '47 6 * * 7 root    test -x /usr/sbin/anacron || ( cd / && run-parts --report /etc/cron.weekly )',
+            ],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
         if (file === '/proc/version') {
           return { stdout: ['Linux version 6.8.0-45-generic (buildd@lcy02-amd64-074) (gcc-13) #45-Ubuntu SMP PREEMPT_DYNAMIC'], stderr: [], exitCode: 0 };
         }
@@ -235,6 +289,19 @@ export class LinuxSimulator {
         };
 
       case 'df':
+        if (args.some(a => a.includes('i'))) {
+          return {
+            stdout: [
+              'Filesystem       Inodes  IUsed   IFree IUse% Mounted on',
+              '/dev/nvme0n1p2  6553600 241020 6312580    4% /',
+              'udev            2014210    480 2013730    1% /dev',
+              'tmpfs           2018400   1240 2017160    1% /run',
+              '/dev/sda1       32768000 148200 32619800   1% /data',
+            ],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
         return {
           stdout: [
             'Filesystem      Size  Used Avail Use% Mounted on',
@@ -243,6 +310,25 @@ export class LinuxSimulator {
             'tmpfs           1.6G  1.4M  1.6G   1% /run',
             '/dev/nvme0n1p1  512M  6.1M  506M   2% /boot/efi',
             '/dev/sda1       500G  120G  355G  26% /data',
+          ],
+          stderr: [],
+          exitCode: 0,
+        };
+
+      case 'top':
+      case 'htop':
+        return {
+          stdout: [
+            'top - 01:20:14 up 14 days,  6:47,  2 users,  load average: 0.28, 0.35, 0.31',
+            'Tasks: 184 total,   1 running, 183 sleeping,   0 stopped,   0 zombie',
+            '%Cpu(s):  3.2 us,  1.1 sy,  0.0 ni, 95.4 id,  0.3 wa,  0.0 hi,  0.0 si',
+            'MiB Mem :  16000.0 total,   4028.5 free,   3240.2 used,   8731.3 buff/cache',
+            'MiB Swap:   4096.0 total,   4096.0 free,      0.0 used.  12240.5 avail Mem',
+            '',
+            '    PID USER      PR  NI    VIRT    RES    SHR S  %CPU  %MEM     TIME+ COMMAND',
+            '   1044 www-data  20   0  120400  32400   8200 S   2.1   0.2   1:14.22 nginx',
+            '    820 root      20   0   14500   4200   2800 S   0.3   0.0   0:00.41 sshd',
+            '   2412 forge     20   0   18400   5100   3200 R   0.2   0.0   0:00.08 top',
           ],
           stderr: [],
           exitCode: 0,
@@ -556,6 +642,17 @@ export class LinuxSimulator {
           exitCode: 0,
         };
 
+      case 'du':
+        return {
+          stdout: [
+            '124K    /var/log/nginx',
+            '8.4M    /var/log/journal',
+            '45M     /var/log',
+          ],
+          stderr: [],
+          exitCode: 0,
+        };
+
       case 'wc':
         if (args.includes('-l')) {
           return { stdout: ['46 /etc/passwd'], stderr: [], exitCode: 0 };
@@ -691,6 +788,99 @@ export class LinuxSimulator {
           stderr: [],
           exitCode: 0,
         };
+
+      case 'crontab':
+        if (args.includes('-l')) {
+          return {
+            stdout: [
+              '# m h  dom mon dow   command',
+              '0 2 * * * /usr/local/bin/backup-db.sh > /dev/null 2>&1',
+              '*/15 * * * * /usr/bin/python3 /opt/metrics/collector.py',
+            ],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
+        return { stdout: ['[crontab: installing new crontab]'], stderr: [], exitCode: 0 };
+
+      case 'tar':
+        if (args.some(a => a.includes('t'))) {
+          return {
+            stdout: ['notes.txt', 'deploy.sh', 'app.log'],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
+        return {
+          stdout: ['[OK] tar archive created/extracted successfully.'],
+          stderr: [],
+          exitCode: 0,
+        };
+
+      case 'apt':
+      case 'apt-get': {
+        const sub = args[0] || 'update';
+        if (sub === 'update') {
+          return {
+            stdout: [
+              'Hit:1 http://archive.ubuntu.com/ubuntu noble InRelease',
+              'Get:2 http://archive.ubuntu.com/ubuntu noble-updates InRelease [126 kB]',
+              'Get:3 http://security.ubuntu.com/ubuntu noble-security InRelease [126 kB]',
+              'Fetched 252 kB in 1s (248 kB/s)',
+              'Reading package lists... Done',
+              'Building dependency tree... Done',
+              'All packages are up to date.',
+            ],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
+        if (sub === 'install') {
+          const pkgs = args.filter(a => !a.startsWith('-')).slice(1).join(' ') || 'nginx curl git ufw';
+          return {
+            stdout: [
+              'Reading package lists... Done',
+              'Building dependency tree... Done',
+              `The following NEW packages will be installed: ${pkgs}`,
+              '0 upgraded, 4 newly installed, 0 to remove and 0 not upgraded.',
+              `Setting up ${pkgs}...`,
+              'Processing triggers for systemd (255.4)...',
+              '[OK] Installation completed successfully.',
+            ],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
+        return { stdout: [`[apt ${args.join(' ')} completed]`], stderr: [], exitCode: 0 };
+      }
+
+      case 'git': {
+        const sub = args[0] || 'status';
+        if (sub === 'status') {
+          return {
+            stdout: [
+              'On branch main',
+              'Your branch is up to date with \'origin/main\'.',
+              'nothing to commit, working tree clean',
+            ],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
+        if (sub === 'clone') {
+          return {
+            stdout: [
+              `Cloning into '${args[1] || 'repo'}'...`,
+              'remote: Enumerating objects: 48, done.',
+              'remote: Total 48 (delta 0), reused 0 (delta 0)',
+              'Receiving objects: 100% (48/48), done.',
+            ],
+            stderr: [],
+            exitCode: 0,
+          };
+        }
+        return { stdout: [`[git ${args.join(' ')} executed]`], stderr: [], exitCode: 0 };
+      }
 
       case 'ulimit':
         if (args.includes('-n')) {
