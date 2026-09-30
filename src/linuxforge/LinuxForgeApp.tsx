@@ -14,10 +14,15 @@ interface LinuxForgeAppProps {
 
 const LinuxForgeContent: React.FC<LinuxForgeAppProps> = ({ onSwitchToSuite, initialConceptId }) => {
   const { mode, setMode, activeConceptId, setActiveConceptId } = useLinux();
+  const prevInitialRef = React.useRef<string | undefined>(initialConceptId);
 
   useEffect(() => {
-    if (initialConceptId && initialConceptId !== activeConceptId) {
-      setActiveConceptId(initialConceptId);
+    // Only synchronize when the initialConceptId prop itself changes from outside (e.g. from parent router/problem solver)
+    if (initialConceptId && initialConceptId !== prevInitialRef.current) {
+      prevInitialRef.current = initialConceptId;
+      if (initialConceptId !== activeConceptId) {
+        setActiveConceptId(initialConceptId);
+      }
       if (mode !== 'academy') {
         setMode('academy');
       }
