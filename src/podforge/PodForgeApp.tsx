@@ -19,10 +19,14 @@ interface PodForgeAppProps {
 
 const PodForgeContent: React.FC<PodForgeAppProps> = ({ onSwitchToSuite, initialConceptId }) => {
   const { mode, setMode, activeConcept, setActiveConceptId, engine } = useApp();
+  const prevInitialRef = React.useRef<string | undefined>(initialConceptId);
 
   React.useEffect(() => {
-    if (initialConceptId && initialConceptId !== activeConcept.id) {
-      setActiveConceptId(initialConceptId);
+    if (initialConceptId && initialConceptId !== prevInitialRef.current) {
+      prevInitialRef.current = initialConceptId;
+      if (initialConceptId !== activeConcept.id) {
+        setActiveConceptId(initialConceptId);
+      }
       if (mode !== 'academy') {
         setMode('academy');
       }
