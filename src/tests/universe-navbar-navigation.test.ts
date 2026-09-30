@@ -4,11 +4,11 @@ import path from 'path';
 import { mapSegmentToMode, mapModeToSegment, getTitleForMode } from '../platform/routing/urlRouter';
 
 describe('Concepts Universe Independent Page Architecture', () => {
-  it('ensures HeaderNav has 71 Concepts button that routes to independent mode universe', () => {
+  it('ensures HeaderNav has Concepts button that routes to independent mode universe', () => {
     const headerNavPath = path.resolve(__dirname, '../commitforge/components/layout/HeaderNav.tsx');
     const content = fs.readFileSync(headerNavPath, 'utf-8');
 
-    expect(content).toContain('71 Concepts');
+    expect(content).toContain('Concepts');
     expect(content).toContain("setMode('universe')");
     expect(content).toContain("mode === 'universe'");
   });
@@ -25,7 +25,7 @@ describe('Concepts Universe Independent Page Architecture', () => {
     expect(mapSegmentToMode('universe')).toBe('universe');
     expect(mapSegmentToMode('concepts')).toBe('universe');
     expect(mapModeToSegment('universe')).toBe('universe');
-    expect(getTitleForMode('universe')).toContain('71 Concepts Universe');
+    expect(getTitleForMode('universe')).toContain('Concepts Universe');
   });
 
   it('ensures UniversalConceptHero removes All 71 Concepts section from concept subtabs', () => {
@@ -46,13 +46,13 @@ describe('Concepts Universe Independent Page Architecture', () => {
     expect(content).toContain("id: 'Reference'");
   });
 
-  it('ensures ConceptsUniverseView contains full curriculum catalog with all 71 concepts and search', () => {
+  it('ensures ConceptsUniverseView contains full curriculum catalog with all 35 chapters and StandardConceptsUniverse', () => {
     const universeViewPath = path.resolve(__dirname, '../commitforge/components/universe/ConceptsUniverseView.tsx');
     const content = fs.readFileSync(universeViewPath, 'utf-8');
 
-    expect(content).toContain('The 71 Git Concepts Universe');
-    expect(content).toContain('ACADEMY_18_TOPICS');
-    expect(content).toContain('searchQuery');
-    expect(content).toContain('navigateToAcademy');
+    expect(content).toContain('StandardConceptsUniverse');
+    expect(content).toContain('COMMITFORGE_35_CHAPTERS');
+    expect(content).toContain('TOTAL_COMMITFORGE_CONCEPTS');
+    expect(content).toContain('handleLaunchLesson');
   });
 });

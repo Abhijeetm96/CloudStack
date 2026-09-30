@@ -75,6 +75,13 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
         lessons: {},
         achievements: [],
       },
+      linuxforge: {
+        academyId: 'linuxforge',
+        completedLessonIds: [],
+        startedLessonIds: [],
+        lessons: {},
+        achievements: [],
+      },
     },
     preferences: {
       lastAcademy: 'commitforge',
@@ -149,6 +156,13 @@ describe('IndexedDB & Cloud Sync Progress Storage Suite', () => {
           },
           podforge: {
             academyId: 'podforge',
+            completedLessonIds: [],
+            startedLessonIds: [],
+            lessons: {},
+            achievements: [],
+          },
+          linuxforge: {
+            academyId: 'linuxforge',
             completedLessonIds: [],
             startedLessonIds: [],
             lessons: {},
