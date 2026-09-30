@@ -162,10 +162,18 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
   const toggleCollapse = (conceptId: string) => {
     setCollapsedMap((prev) => {
       const currentlyCollapsed = prev[conceptId] !== undefined ? prev[conceptId] : true;
-      return {
-        ...prev,
-        [conceptId]: !currentlyCollapsed,
-      };
+      if (currentlyCollapsed) {
+        // At any point in time, only one card can be expanded.
+        // If there is an attempt to expand another card, the previously expanded card will collapse to its original position.
+        return {
+          [conceptId]: false,
+        };
+      } else {
+        // Collapse this card back to its original position
+        return {
+          [conceptId]: true,
+        };
+      }
     });
   };
 
@@ -916,6 +924,7 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
             style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+              gridAutoFlow: 'dense',
               gap: '1rem',
               width: '100%',
             }}

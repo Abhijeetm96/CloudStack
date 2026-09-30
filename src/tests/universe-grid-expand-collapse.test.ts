@@ -55,4 +55,14 @@ describe('StandardConceptsUniverse Grid Layout & Expand/Collapse Functionality',
     expect(fileContent).toContain('Full View');
     expect(fileContent).toContain('Full-Screen Focus Modal');
   });
+
+  it('verifies responsive grid uses dense auto-flow to replace empty space with other cards', () => {
+    expect(fileContent).toContain("gridAutoFlow: 'dense'");
+  });
+
+  it('verifies single-card accordion expansion: expanding a card collapses any previously expanded card', () => {
+    // Only one card can be expanded at any point in time
+    expect(fileContent).toContain('return {\n          [conceptId]: false,\n        };');
+    expect(fileContent).toContain('return {\n          [conceptId]: true,\n        };');
+  });
 });
