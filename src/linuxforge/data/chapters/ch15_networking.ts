@@ -199,7 +199,7 @@ export const CHAPTER_15: LinuxTopic = {
     }),
 
     buildLinuxConcept({
-      id: 'c-14-04',
+      id: 'c-15-04',
       subChapterNumber: '15.4',
       command: 'sudo ip addr add 192.168.1.50/24 dev eth0',
       title: 'Configuring IP Addresses (Static & Dynamic)',
