@@ -96,6 +96,21 @@ export const LinuxProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     },
   ]);
 
+  useEffect(() => {
+    const handlePopState = () => {
+      const route = parseCurrentRoute();
+      if (route.mode === 'linuxforge' && route.conceptId && ALL_LINUX_CONCEPTS.some((c) => c.id === route.conceptId)) {
+        setActiveConceptIdState(route.conceptId);
+        const concept = getLinuxConceptById(route.conceptId);
+        if (concept && concept.topicId) {
+          setActiveTopicIdState(concept.topicId);
+        }
+      }
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const setActiveConceptId = useCallback((id: string) => {
     setActiveConceptIdState(id);
     try {
