@@ -1,12 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import {
-  ACADEMY_18_TOPICS,
+  COMMITFORGE_35_CHAPTERS,
+  TOTAL_COMMITFORGE_CONCEPTS,
+  ALL_COMMITFORGE_CONCEPTS,
   getUniversalConcept,
   UniversalConcept,
 } from '../../data/unifiedAcademyData';
+import { syncUrlWithMode } from '../../../platform/routing/urlRouter';
 import { UniversalConceptView } from './UniversalConceptView';
 import { AcademyConceptTab } from './UniversalConceptHero';
 import { getConceptIcon, getTopicIcon } from './academyIcons';
+import { getCommitForgeConceptIcon } from '../../data/gitIcons';
 import { useApp } from '../../context/AppContext';
 import {
   CheckCircle2,
@@ -17,10 +21,61 @@ import {
   X,
   Search,
   Terminal,
+  Circle,
+  ArrowRight,
+  BookOpen,
+  Code2,
+  Target,
+  Sparkles,
 } from 'lucide-react';
 
 interface Props {
   initialConceptId?: string;
+}
+
+function normalizeCommitForgeConceptId(id: string | null | undefined): string {
+  if (!id) return 'c-01-01';
+  if (ALL_COMMITFORGE_CONCEPTS[id]) return id;
+
+  const legacyMap: Record<string, string> = {
+    'c-git-commit': 'c-07-03',
+    'c-git-status': 'c-04-01',
+    'c-git-add': 'c-06-02',
+    'c-git-init': 'c-03-01',
+    'c-git-branch': 'c-10-03',
+    'c-git-checkout': 'c-10-11',
+    'c-git-switch': 'c-10-10',
+    'c-git-merge': 'c-11-04',
+    'c-git-rebase': 'c-12-03',
+    'c-git-push': 'c-14-02',
+    'c-git-pull': 'c-15-02',
+    'c-git-fetch': 'c-15-01',
+    'c-git-diff': 'c-05-02',
+    'c-git-log': 'c-08-01',
+    'c-git-reset': 'c-09-06',
+    'c-git-revert': 'c-09-10',
+    'c-git-restore': 'c-09-02',
+    'c-git-restore-staged': 'c-06-11',
+    'c-git-stash': 'c-18-08',
+    'c-git-tag': 'c-18-04',
+    'c-git-reflog': 'c-09-15',
+    'c-git-cherry-pick': 'c-18-06',
+    'c-git-clone': 'c-03-09',
+    'c-git-remote': 'c-13-04',
+    'c-git-blame': 'c-08-14',
+    'c-git-bisect': 'c-08-15',
+    'c-git-worktree': 'c-18-13',
+    'c-actions-ci-cd': 'c-21-01',
+    'c-actions-workflow-syntax': 'c-23-01',
+    'c-actions-triggers': 'c-23-13',
+    'c-actions-matrix-builds': 'c-23-20',
+    'c-actions-artifacts': 'c-23-21',
+    'c-actions-secrets': 'c-23-24',
+    'c-actions-docker-ci': 'c-25-01',
+    'c-actions-release-automation': 'c-31-08',
+  };
+
+  return legacyMap[id] || 'c-01-01';
 }
 
 export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
@@ -31,14 +86,30 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
     mode,
     academyTab,
     setAcademyTab,
+    activeLessonConcept,
+    setActiveLessonConcept,
   } = useApp();
 
-  const [activeConceptId, setActiveConceptId] = useState<string>(
-    initialConceptId || 'c-git-commit'
-  );
+  // Concept ID state initialized from activeLessonConcept in context or initialConceptId prop
+  const [localConceptId, setLocalConceptId] = useState<string>(() => {
+    return normalizeCommitForgeConceptId(activeLessonConcept || initialConceptId);
+  });
 
-  const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>({
-    'topic-02': true,
+  // Effective active concept ID - single source of truth prioritizing context
+  const activeConceptId = useMemo(() => {
+    if (activeLessonConcept) {
+      return normalizeCommitForgeConceptId(activeLessonConcept);
+    }
+    return localConceptId;
+  }, [activeLessonConcept, localConceptId]);
+
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [expandedTopics, setExpandedTopics] = useState<Record<string, boolean>>(() => {
+    const norm = normalizeCommitForgeConceptId(activeLessonConcept || initialConceptId);
+    const parent = COMMITFORGE_35_CHAPTERS.find((ch) =>
+      ch.concepts.some((c) => c.id === norm)
+    );
+    return parent ? { [parent.id]: true } : { 'ch-01': true };
   });
 
   React.useEffect(() => {
@@ -47,38 +118,80 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
     }
   }, [mode, setAcademyTab]);
 
+  // Keep local state in sync when initialConceptId prop changes externally (e.g. route change)
   React.useEffect(() => {
-    if (initialConceptId && initialConceptId !== activeConceptId) {
-      setActiveConceptId(initialConceptId);
-      const topic = ACADEMY_18_TOPICS.find((t) => t.concepts.some((c) => c.id === initialConceptId));
-      if (topic) {
-        setExpandedTopics((prev) => ({ ...prev, [topic.id]: true }));
-      }
+    if (initialConceptId) {
+      const normalized = normalizeCommitForgeConceptId(initialConceptId);
+      setLocalConceptId(normalized);
     }
-  }, [initialConceptId, activeConceptId]);
+  }, [initialConceptId]);
+
+  // Expand parent chapter automatically whenever activeConceptId changes
+  React.useEffect(() => {
+    const parentChapter = COMMITFORGE_35_CHAPTERS.find((ch) =>
+      ch.concepts.some((c) => c.id === activeConceptId)
+    );
+    if (parentChapter) {
+      setExpandedTopics((prev) => ({
+        ...prev,
+        [parentChapter.id]: true,
+      }));
+    }
+  }, [activeConceptId]);
+
   const [showMobileTopicsDrawer, setShowMobileTopicsDrawer] = useState<boolean>(false);
 
   const activeConcept: UniversalConcept = useMemo(() => {
     return getUniversalConcept(activeConceptId);
   }, [activeConceptId]);
 
-  const toggleTopic = (topicId: string) => {
+  const toggleTopic = (chapterId: string) => {
     setExpandedTopics((prev) => ({
       ...prev,
-      [topicId]: !prev[topicId],
+      [chapterId]: !prev[chapterId],
     }));
   };
 
+  const handleToggleOrSelectChapter = (chapter: (typeof COMMITFORGE_35_CHAPTERS)[0]) => {
+    const isCurrentlyExpanded = !!expandedTopics[chapter.id];
+    setExpandedTopics((prev) => ({
+      ...prev,
+      [chapter.id]: !isCurrentlyExpanded,
+    }));
+
+    const hasActiveChild = chapter.concepts.some((c) => c.id === activeConceptId);
+    if (!hasActiveChild && chapter.concepts.length > 0) {
+      handleSelectConcept(chapter.concepts[0].id);
+    }
+  };
+
+  const handleExpandAll = () => {
+    const allExp: Record<string, boolean> = {};
+    COMMITFORGE_35_CHAPTERS.forEach((ch) => {
+      allExp[ch.id] = true;
+    });
+    setExpandedTopics(allExp);
+  };
+
+  const handleCollapseAll = () => {
+    setExpandedTopics({});
+  };
+
   const handleSelectConcept = (cId: string, tab?: AcademyConceptTab) => {
-    setActiveConceptId(cId);
+    const normalized = normalizeCommitForgeConceptId(cId);
+    setLocalConceptId(normalized);
+    if (setActiveLessonConcept) {
+      setActiveLessonConcept(normalized);
+    }
+    syncUrlWithMode('learn', normalized);
     if (tab) {
       setAcademyTab(tab);
     }
   };
 
-  // Flattened concept list for Next / Previous navigation
+  // Flattened concept list for Next / Previous navigation across all 35 chapters
   const allConceptList = useMemo(() => {
-    return ACADEMY_18_TOPICS.flatMap((topic) => topic.concepts);
+    return COMMITFORGE_35_CHAPTERS.flatMap((ch) => ch.concepts);
   }, []);
 
   const currentConceptIndex = useMemo(() => {
@@ -94,35 +207,45 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
   const isConceptDone = completedLessonIds.includes(activeConceptId);
 
   const handleNavigateConcept = (cId: string) => {
-    setActiveConceptId(cId);
-    const parentTopic = ACADEMY_18_TOPICS.find((t) => t.concepts.some((c) => c.id === cId));
-    if (parentTopic) {
-      setExpandedTopics((prev) => ({
-        ...prev,
-        [parentTopic.id]: true,
-      }));
-    }
+    handleSelectConcept(cId);
   };
 
-  // Progress metrics
-  const totalConcepts = useMemo(() => {
-    return ACADEMY_18_TOPICS.reduce((acc, t) => acc + t.concepts.length, 0);
-  }, []);
-
+  // Progress metrics across all 481 subchapters
+  const totalConcepts = TOTAL_COMMITFORGE_CONCEPTS;
   const completedCount = completedLessonIds.length;
   const progressPercent = Math.min(100, Math.round((completedCount / totalConcepts) * 100));
 
-  // Render unique relevant icons for each concept
+  // Search filter across all 35 chapters & 481 subchapters
+  const displayedChapters = useMemo(() => {
+    if (!searchQuery.trim()) return COMMITFORGE_35_CHAPTERS;
+    const q = searchQuery.toLowerCase().trim();
+    return COMMITFORGE_35_CHAPTERS.map((ch) => {
+      const matchChapter =
+        ch.title.toLowerCase().includes(q) ||
+        ch.number.includes(q);
+      const matchedConcepts = ch.concepts.filter(
+        (c) =>
+          c.title.toLowerCase().includes(q) ||
+          c.command.toLowerCase().includes(q) ||
+          (c.subChapterNum ? c.subChapterNum.toLowerCase().includes(q) : false) ||
+          (c.shortDesc ? c.shortDesc.toLowerCase().includes(q) : false)
+      );
+      if (matchChapter) return ch;
+      if (matchedConcepts.length > 0) return { ...ch, concepts: matchedConcepts };
+      return null;
+    }).filter(Boolean) as typeof COMMITFORGE_35_CHAPTERS;
+  }, [searchQuery]);
+
+  // Render concept icon with completion check
   const renderConceptIcon = (conceptId: string, command: string, isDone: boolean) => {
     if (isDone) {
-      return <CheckCircle2 size={14} color="#22c55e" />;
+      return <CheckCircle2 size={13} color="#22c55e" />;
     }
-    return getConceptIcon(conceptId, command, 14);
+    return getConceptIcon(conceptId, command, 13);
   };
 
-  // Render topic icons dynamically
   const renderTopicIcon = (iconName: string) => {
-    return getTopicIcon(iconName, 16);
+    return getTopicIcon(iconName, 15);
   };
 
   const renderTopicsSidebar = (isDrawer = false) => (
@@ -130,107 +253,217 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
       {/* Sidebar Header */}
       <div
         style={{
-          padding: '1.25rem 1.25rem 1rem 1.25rem',
+          padding: '1rem 1.15rem 0.85rem 1.15rem',
           borderBottom: '1px solid var(--border-color)',
           display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
+          flexDirection: 'column',
+          gap: '0.65rem',
           flexShrink: 0,
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-          <div
-            style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '8px',
-              background: 'rgba(56, 189, 248, 0.15)',
-              border: '1px solid rgba(56, 189, 248, 0.3)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              color: '#38bdf8',
-            }}
-          >
-            <GraduationCap size={18} />
-          </div>
-          <div>
-            <div style={{ fontSize: '0.96rem', fontWeight: 800, color: 'var(--text-primary)', lineHeight: 1.15 }}>
-              Git Academy
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '8px',
+                background: 'linear-gradient(135deg, rgba(56, 189, 248, 0.2) 0%, rgba(139, 92, 246, 0.25) 100%)',
+                border: '1px solid rgba(56, 189, 248, 0.35)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: '#38bdf8',
+              }}
+            >
+              <GraduationCap size={18} />
             </div>
-            <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)', fontWeight: 500 }}>
-              18 Topics • Your Git Journey
+            <div>
+              <div style={{ fontSize: '0.92rem', fontWeight: 900, color: 'var(--text-primary)', lineHeight: 1.15, letterSpacing: '0.01em' }}>
+                CommitForge Academy
+              </div>
+              <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 500 }}>
+                35 Chapters • 481 Subchapters
+              </div>
             </div>
           </div>
+
+          {isDrawer && (
+            <button
+              onClick={() => setShowMobileTopicsDrawer(false)}
+              style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border-color)',
+                borderRadius: '6px',
+                color: 'var(--text-secondary)',
+                padding: '0.3rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+              title="Close Topics Drawer"
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
 
-        {isDrawer && (
-          <button
-            onClick={() => setShowMobileTopicsDrawer(false)}
+        {/* Quick Filter Input */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.45rem',
+            background: 'var(--bg-app)',
+            border: '1px solid var(--border-color)',
+            borderRadius: '6px',
+            padding: '0.35rem 0.65rem',
+          }}
+        >
+          <Search size={13} color="var(--text-muted)" />
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search chapters & lessons..."
             style={{
-              background: 'var(--bg-card)',
-              border: '1px solid var(--border-color)',
-              borderRadius: '6px',
-              color: 'var(--text-secondary)',
-              padding: '0.3rem',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
+              background: 'transparent',
+              border: 'none',
+              outline: 'none',
+              color: 'var(--text-primary)',
+              fontSize: '0.74rem',
+              width: '100%',
             }}
-            title="Close Topics Drawer"
-          >
-            <X size={16} />
-          </button>
-        )}
+          />
+          {searchQuery && (
+            <button
+              onClick={() => setSearchQuery('')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                fontSize: '0.7rem',
+                padding: 0,
+              }}
+            >
+              <X size={12} />
+            </button>
+          )}
+        </div>
+
+        {/* Expand All / Collapse Controls */}
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            fontSize: '0.66rem',
+            color: 'var(--text-muted)',
+            padding: '0 0.15rem',
+          }}
+        >
+          <span>
+            {searchQuery.trim()
+              ? `Found ${displayedChapters.length} of ${COMMITFORGE_35_CHAPTERS.length} Chapters`
+              : `All 35 Chapters`}
+          </span>
+          <div style={{ display: 'flex', gap: '0.35rem' }}>
+            <button
+              onClick={handleExpandAll}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#38bdf8',
+                cursor: 'pointer',
+                fontSize: '0.65rem',
+                fontWeight: 700,
+                padding: 0,
+              }}
+            >
+              Expand All
+            </button>
+            <span>•</span>
+            <button
+              onClick={handleCollapseAll}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: 'var(--text-muted)',
+                cursor: 'pointer',
+                fontSize: '0.65rem',
+                fontWeight: 600,
+                padding: 0,
+              }}
+            >
+              Collapse
+            </button>
+          </div>
+        </div>
       </div>
 
-      {/* 18 Topics Accordion List */}
+      {/* 35 Chapters Accordion List */}
       <div
         style={{
           flex: '1 1 0%',
           minHeight: 0,
           overflowY: 'auto',
-          padding: '0.75rem 0.5rem 5rem 0.5rem',
+          padding: '0.65rem 0.45rem 5rem 0.45rem',
           display: 'flex',
           flexDirection: 'column',
-          gap: '0.35rem',
+          gap: '0.25rem',
         }}
       >
-        {ACADEMY_18_TOPICS.map((topic) => {
-          const isExpanded = !!expandedTopics[topic.id];
-          const hasActiveChild = topic.concepts.some((c) => c.id === activeConceptId);
-          const isCiCdTopic = topic.id === 'topic-15';
+        {displayedChapters.map((chapter) => {
+          const isExpanded = !!expandedTopics[chapter.id] || searchQuery.trim().length > 0;
+          const hasActiveChild = chapter.concepts.some((c) => c.id === activeConceptId);
+          const chNum = parseInt(chapter.number, 10);
+          const isCiCd = chNum >= 21 && chNum <= 34;
+          const isProject = chNum === 35;
 
           return (
-            <div key={topic.id} style={{ display: 'flex', flexDirection: 'column' }}>
-              {/* Topic Header Row */}
+            <div key={chapter.id} style={{ display: 'flex', flexDirection: 'column' }}>
+              {/* Chapter Header Row */}
               <div
-                onClick={() => toggleTopic(topic.id)}
+                onClick={() => handleToggleOrSelectChapter(chapter)}
                 style={{
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'space-between',
-                  padding: '0.55rem 0.75rem',
-                  borderRadius: '8px',
+                  padding: '0.5rem 0.65rem',
+                  borderRadius: '7px',
                   cursor: 'pointer',
-                  background: isCiCdTopic
-                    ? hasActiveChild && !isExpanded
-                      ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.25) 0%, rgba(99, 102, 241, 0.15) 100%)'
-                      : isExpanded
-                      ? 'rgba(139, 92, 246, 0.12)'
-                      : 'rgba(139, 92, 246, 0.08)'
+                  background: isProject
+                    ? hasActiveChild || isExpanded
+                      ? 'linear-gradient(90deg, rgba(234, 179, 8, 0.16) 0%, rgba(249, 115, 22, 0.12) 100%)'
+                      : 'rgba(234, 179, 8, 0.05)'
+                    : isCiCd
+                    ? hasActiveChild || isExpanded
+                      ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.18) 0%, rgba(99, 102, 241, 0.12) 100%)'
+                      : 'rgba(139, 92, 246, 0.05)'
                     : hasActiveChild && !isExpanded
                     ? 'rgba(56, 189, 248, 0.12)'
                     : 'transparent',
-                  border: isCiCdTopic
+                  border: isProject
                     ? hasActiveChild || isExpanded
-                      ? '1px solid rgba(168, 85, 247, 0.45)'
-                      : '1px solid rgba(139, 92, 246, 0.25)'
+                      ? '1px solid rgba(234, 179, 8, 0.35)'
+                      : '1px solid rgba(234, 179, 8, 0.15)'
+                    : isCiCd
+                    ? hasActiveChild || isExpanded
+                      ? '1px solid rgba(168, 85, 247, 0.35)'
+                      : '1px solid rgba(139, 92, 246, 0.15)'
                     : '1px solid transparent',
-                  borderLeft: isCiCdTopic ? '3px solid #8b5cf6' : undefined,
-                  boxShadow: isCiCdTopic && (hasActiveChild || isExpanded) ? '0 0 14px rgba(139, 92, 246, 0.18)' : undefined,
-                  color: isCiCdTopic
+                  borderLeft: isProject
+                    ? '3px solid #eab308'
+                    : isCiCd
+                    ? '3px solid #8b5cf6'
+                    : hasActiveChild
+                    ? '3px solid #38bdf8'
+                    : undefined,
+                  color: isProject
+                    ? '#fef08a'
+                    : isCiCd
                     ? hasActiveChild
                       ? '#f3e8ff'
                       : '#d8b4fe'
@@ -238,25 +471,28 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
                     ? 'var(--accent-primary)'
                     : 'var(--text-secondary)',
                   transition: 'all 0.15s ease',
+                  userSelect: 'none',
                 }}
                 className="sidebar-topic-row"
               >
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem', minWidth: 0, flex: 1 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', minWidth: 0, flex: 1 }}>
                   <span
                     style={{
                       fontFamily: 'ui-monospace, monospace',
-                      fontSize: '0.75rem',
+                      fontSize: '0.72rem',
                       fontWeight: 700,
-                      color: isCiCdTopic ? '#c084fc' : 'var(--text-muted)',
+                      color: isProject ? '#fbbf24' : isCiCd ? '#c084fc' : 'var(--text-muted)',
                       width: '18px',
                       flexShrink: 0,
                     }}
                   >
-                    {topic.number}
+                    {chapter.number}
                   </span>
                   <span
                     style={{
-                      color: isCiCdTopic
+                      color: isProject
+                        ? '#eab308'
+                        : isCiCd
                         ? '#a855f7'
                         : hasActiveChild
                         ? 'var(--accent-primary)'
@@ -266,13 +502,15 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
                       flexShrink: 0,
                     }}
                   >
-                    {renderTopicIcon(topic.iconName)}
+                    {renderTopicIcon(chapter.iconName)}
                   </span>
                   <span
                     style={{
-                      fontSize: '0.84rem',
-                      fontWeight: hasActiveChild || isCiCdTopic ? 700 : 600,
-                      color: isCiCdTopic
+                      fontSize: '0.79rem',
+                      fontWeight: hasActiveChild || isCiCd || isProject ? 700 : 600,
+                      color: isProject
+                        ? '#fef08a'
+                        : isCiCd
                         ? hasActiveChild
                           ? '#ffffff'
                           : '#e9d5ff'
@@ -280,152 +518,279 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
                         ? 'var(--accent-primary)'
                         : 'var(--text-primary)',
                       whiteSpace: 'normal',
-                      lineHeight: 1.35,
+                      lineHeight: 1.3,
                       wordBreak: 'break-word',
                     }}
                   >
-                    {topic.title}
+                    {chapter.title}
                   </span>
 
-                  {isCiCdTopic && (
+                  {isCiCd && (
                     <span
                       style={{
-                        fontSize: '0.6rem',
+                        fontSize: '0.55rem',
                         fontWeight: 800,
-                        padding: '0.1rem 0.4rem',
-                        borderRadius: '4px',
+                        padding: '0.08rem 0.35rem',
+                        borderRadius: '3px',
                         background: 'linear-gradient(135deg, #8b5cf6 0%, #6366f1 100%)',
                         color: '#ffffff',
-                        letterSpacing: '0.04em',
+                        letterSpacing: '0.03em',
                         textTransform: 'uppercase',
-                        boxShadow: '0 0 8px rgba(139, 92, 246, 0.45)',
                         marginLeft: 'auto',
-                        marginRight: '0.25rem',
+                        marginRight: '0.2rem',
                         flexShrink: 0,
                       }}
                     >
                       CI/CD
                     </span>
                   )}
+
+                  {isProject && (
+                    <span
+                      style={{
+                        fontSize: '0.55rem',
+                        fontWeight: 800,
+                        padding: '0.08rem 0.35rem',
+                        borderRadius: '3px',
+                        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                        color: '#ffffff',
+                        letterSpacing: '0.03em',
+                        textTransform: 'uppercase',
+                        marginLeft: 'auto',
+                        marginRight: '0.2rem',
+                        flexShrink: 0,
+                      }}
+                    >
+                      PROJECT
+                    </span>
+                  )}
                 </div>
 
-                <span style={{ color: isCiCdTopic ? '#c084fc' : 'var(--text-muted)', flexShrink: 0 }}>
-                  {isExpanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                <span
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleTopic(chapter.id);
+                  }}
+                  style={{
+                    color: isProject ? '#fbbf24' : isCiCd ? '#c084fc' : 'var(--text-muted)',
+                    flexShrink: 0,
+                    padding: '0.2rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                  }}
+                  title={isExpanded ? "Collapse chapter" : "Expand chapter"}
+                >
+                  {isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}
                 </span>
               </div>
 
-              {/* Sub-concepts */}
+              {/* Sub-chapters List */}
               {isExpanded && (
                 <div
                   style={{
                     display: 'flex',
                     flexDirection: 'column',
-                    gap: '0.2rem',
-                    padding: isCiCdTopic
-                      ? '0.35rem 0.5rem 0.55rem 1.6rem'
-                      : '0.25rem 0.5rem 0.5rem 1.85rem',
-                    borderLeft: isCiCdTopic ? '2px solid rgba(139, 92, 246, 0.35)' : undefined,
-                    marginLeft: isCiCdTopic ? '1.1rem' : undefined,
+                    gap: '0.15rem',
+                    padding: '0.25rem 0.25rem 0.45rem 1.45rem',
+                    borderLeft: isProject
+                      ? '1px solid rgba(234, 179, 8, 0.25)'
+                      : isCiCd
+                      ? '1px solid rgba(139, 92, 246, 0.25)'
+                      : '1px solid rgba(56, 189, 248, 0.2)',
+                    marginLeft: '0.95rem',
                   }}
                 >
-                  {topic.concepts.map((concept) => {
+                  {chapter.concepts.map((concept) => {
                     const isActive = concept.id === activeConceptId;
                     const isDone = completedLessonIds.includes(concept.id);
 
                     return (
-                      <div
-                        key={concept.id}
-                        onClick={() => {
-                          handleSelectConcept(concept.id);
-                          if (isDrawer) setShowMobileTopicsDrawer(false);
-                        }}
-                        style={{
-                          padding: '0.55rem 0.75rem',
-                          borderRadius: '8px',
-                          cursor: 'pointer',
-                          display: 'flex',
-                          alignItems: 'center',
-                          gap: '0.55rem',
-                          background: isActive
-                            ? isCiCdTopic
-                              ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.28) 0%, rgba(99, 102, 241, 0.16) 100%)'
-                              : 'rgba(56, 189, 248, 0.16)'
-                            : 'transparent',
-                          border: isActive
-                            ? isCiCdTopic
-                              ? '1px solid rgba(168, 85, 247, 0.55)'
-                              : '1px solid rgba(56, 189, 248, 0.4)'
-                            : '1px solid transparent',
-                          boxShadow: isActive && isCiCdTopic
-                            ? '0 0 12px rgba(139, 92, 246, 0.25)'
-                            : undefined,
-                          color: isActive
-                            ? isCiCdTopic
-                              ? '#ffffff'
-                              : 'var(--accent-primary)'
-                            : isDone
-                            ? '#22c55e'
-                            : isCiCdTopic
-                            ? '#e2e8f0'
-                            : 'var(--text-primary)',
-                          transition: 'all 0.15s ease',
-                        }}
-                      >
-                        <span
+                      <div key={concept.id} style={{ display: 'flex', flexDirection: 'column' }}>
+                        {/* Sub-chapter row */}
+                        <div
+                          onClick={() => {
+                            handleSelectConcept(concept.id);
+                            if (isDrawer) setShowMobileTopicsDrawer(false);
+                          }}
+                          className="sidebar-concept-row"
                           style={{
-                            color: isDone
-                              ? '#22c55e'
-                              : isCiCdTopic
-                              ? isActive
-                                ? '#c084fc'
-                                : '#a855f7'
-                              : isActive
-                              ? 'var(--accent-primary)'
-                              : 'var(--text-muted)',
+                            padding: '0.45rem 0.6rem',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
                             display: 'flex',
                             alignItems: 'center',
-                            flexShrink: 0,
+                            gap: '0.45rem',
+                            userSelect: 'none',
+                            background: isActive
+                              ? isProject
+                                ? 'rgba(234, 179, 8, 0.16)'
+                                : isCiCd
+                                ? 'linear-gradient(90deg, rgba(139, 92, 246, 0.24) 0%, rgba(99, 102, 241, 0.14) 100%)'
+                                : 'rgba(56, 189, 248, 0.14)'
+                              : 'transparent',
+                            border: isActive
+                              ? isProject
+                                ? '1px solid rgba(234, 179, 8, 0.4)'
+                                : isCiCd
+                                ? '1px solid rgba(168, 85, 247, 0.4)'
+                                : '1px solid rgba(56, 189, 248, 0.35)'
+                              : '1px solid transparent',
+                            color: isActive
+                              ? isProject
+                                ? '#fef08a'
+                                : isCiCd
+                                ? '#ffffff'
+                                : 'var(--accent-primary)'
+                              : isDone
+                              ? '#22c55e'
+                              : isCiCd
+                              ? '#cbd5e1'
+                              : 'var(--text-primary)',
+                            transition: 'all 0.15s ease',
                           }}
                         >
-                          {renderConceptIcon(concept.id, concept.command, isDone)}
-                        </span>
-                        <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
-                          <span
-                            title={concept.command}
-                            style={{
-                              fontFamily: 'ui-monospace, monospace',
-                              fontSize: '0.8rem',
-                              fontWeight: isActive ? 800 : 600,
-                              color: isActive
-                                ? isCiCdTopic
-                                  ? '#ffffff'
-                                  : 'var(--accent-primary)'
-                                : isCiCdTopic
-                                ? '#d8b4fe'
-                                : 'var(--text-primary)',
-                              overflow: 'hidden',
-                              textOverflow: 'ellipsis',
-                              whiteSpace: 'nowrap',
-                            }}
-                          >
-                            {concept.command}
-                          </span>
+                          {/* Status symbol: Checkmark (✓) if done, Arrow (→) if active, subtle dot if pending */}
                           <span
                             style={{
-                              fontSize: '0.75rem',
-                              color: isActive
-                                ? isCiCdTopic
-                                  ? '#e9d5ff'
-                                  : 'var(--accent-primary)'
-                                : isCiCdTopic
-                                ? '#a78bfa'
-                                : 'var(--text-secondary)',
-                              lineHeight: 1.3,
+                              display: 'flex',
+                              alignItems: 'center',
+                              justifyContent: 'center',
+                              flexShrink: 0,
+                              width: '14px',
                             }}
                           >
-                            {concept.shortDesc}
+                            {isDone ? (
+                              <CheckCircle2 size={12} color="#22c55e" />
+                            ) : isActive ? (
+                              <ArrowRight size={12} color={isProject ? '#fbbf24' : isCiCd ? '#c084fc' : '#38bdf8'} />
+                            ) : (
+                              <Circle size={4} color="var(--text-muted)" style={{ opacity: 0.35 }} />
+                            )}
                           </span>
+
+                          <div style={{ display: 'flex', flexDirection: 'column', minWidth: 0, flex: 1 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem' }}>
+                              <span
+                                title={`§ ${concept.subChapterNum || ''} • ${concept.title}`}
+                                style={{
+                                  display: 'inline-flex',
+                                  alignItems: 'center',
+                                  justifyContent: 'center',
+                                  flexShrink: 0,
+                                  color: isDone
+                                    ? '#22c55e'
+                                    : isActive
+                                    ? isProject ? '#fbbf24' : isCiCd ? '#c084fc' : '#38bdf8'
+                                    : isCiCd ? '#c084fc' : isProject ? '#fbbf24' : 'var(--accent-primary)',
+                                  opacity: isActive || isDone ? 1 : 0.85,
+                                  transition: 'all 0.15s ease',
+                                }}
+                              >
+                                {getCommitForgeConceptIcon(concept, 13)}
+                              </span>
+                              <span
+                                title={concept.title}
+                                style={{
+                                  fontSize: '0.76rem',
+                                  fontWeight: isActive ? 700 : 500,
+                                  color: isActive
+                                    ? isProject ? '#fef08a' : isCiCd ? '#ffffff' : 'var(--accent-primary)'
+                                    : isCiCd ? '#cbd5e1' : 'var(--text-primary)',
+                                  overflow: 'hidden',
+                                  textOverflow: 'ellipsis',
+                                  whiteSpace: 'nowrap',
+                                }}
+                              >
+                                {concept.title}
+                              </span>
+                            </div>
+                          </div>
                         </div>
+
+                        {/* If active, show nested LESSON / PRACTICE / CHALLENGE navigation */}
+                        {isActive && (
+                          <div
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.3rem',
+                              padding: '0.25rem 0.5rem 0.35rem 1.6rem',
+                            }}
+                          >
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAcademyTab('Learn');
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                padding: '0.15rem 0.45rem',
+                                borderRadius: '4px',
+                                fontSize: '0.66rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                border: academyTab === 'Learn' ? '1px solid #38bdf8' : '1px solid transparent',
+                                background: academyTab === 'Learn' ? 'rgba(56, 189, 248, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                                color: academyTab === 'Learn' ? '#38bdf8' : 'var(--text-muted)',
+                              }}
+                              title="Lesson explanation and breakdown"
+                            >
+                              <BookOpen size={11} />
+                              <span>Lesson</span>
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAcademyTab('Practice');
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                padding: '0.15rem 0.45rem',
+                                borderRadius: '4px',
+                                fontSize: '0.66rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                border: academyTab === 'Practice' ? '1px solid #22c55e' : '1px solid transparent',
+                                background: academyTab === 'Practice' ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                                color: academyTab === 'Practice' ? '#22c55e' : 'var(--text-muted)',
+                              }}
+                              title="Interactive practice scenario"
+                            >
+                              <Code2 size={11} />
+                              <span>Practice</span>
+                            </button>
+
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAcademyTab('Explore');
+                              }}
+                              style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.2rem',
+                                padding: '0.15rem 0.45rem',
+                                borderRadius: '4px',
+                                fontSize: '0.66rem',
+                                fontWeight: 700,
+                                cursor: 'pointer',
+                                border: academyTab === 'Explore' ? '1px solid #c084fc' : '1px solid transparent',
+                                background: academyTab === 'Explore' ? 'rgba(192, 132, 252, 0.2)' : 'rgba(255, 255, 255, 0.04)',
+                                color: academyTab === 'Explore' ? '#c084fc' : 'var(--text-muted)',
+                              }}
+                              title="Realistic challenge and edge cases"
+                            >
+                              <Target size={11} />
+                              <span>Challenge</span>
+                            </button>
+                          </div>
+                        )}
                       </div>
                     );
                   })}
@@ -478,7 +843,7 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
         </div>
 
         <div style={{ fontSize: '0.7rem', color: 'var(--text-muted)' }}>
-          {completedCount} of {totalConcepts} concepts completed
+          {completedCount} of {totalConcepts} subchapters completed
         </div>
       </div>
     </div>
@@ -498,14 +863,14 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
       }}
     >
       {/* ================================================================ */}
-      {/* COLUMN 1: LEFT SIDEBAR (18 Topics Accordion + Progress Tracker) */}
+      {/* COLUMN 1: LEFT SIDEBAR (35 Chapters Accordion + Progress Tracker) */}
       {/* ================================================================ */}
       <aside
         className="academy-sidebar-desktop"
         style={{
-          width: '240px',
-          minWidth: '240px',
-          maxWidth: '240px',
+          width: '260px',
+          minWidth: '260px',
+          maxWidth: '260px',
           background: 'var(--bg-surface)',
           borderRight: '1px solid var(--border-color)',
           display: 'flex',
@@ -571,7 +936,7 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
           >
             <GraduationCap size={15} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              Topics (18) • {activeConcept.command}
+              Chapters (35) • {activeConcept.title}
             </span>
             <ChevronDown size={13} />
           </button>
@@ -656,7 +1021,7 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
           <button
             disabled={!prevConcept}
             onClick={() => prevConcept && handleNavigateConcept(prevConcept.id)}
-            title={prevConcept ? `Go to ${prevConcept.command}` : 'No previous concept'}
+            title={prevConcept ? `Go to ${prevConcept.title}` : 'No previous lesson'}
             style={{
               background: prevConcept ? 'var(--bg-card)' : 'transparent',
               border: prevConcept ? '1px solid var(--border-color)' : '1px solid transparent',
@@ -674,7 +1039,7 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
           >
             <ChevronLeft size={14} />
             <span className="academy-bottom-label" style={{ maxWidth: '170px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {prevConcept ? `Prev: ${prevConcept.command}` : 'Start'}
+              {prevConcept ? `Prev: ${prevConcept.title}` : 'Start'}
             </span>
           </button>
 
@@ -710,7 +1075,7 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
           <button
             disabled={!nextConcept}
             onClick={() => nextConcept && handleNavigateConcept(nextConcept.id)}
-            title={nextConcept ? `Go to ${nextConcept.command}` : 'All concepts completed'}
+            title={nextConcept ? `Go to ${nextConcept.title}` : 'All subchapters completed'}
             style={{
               background: nextConcept
                 ? 'linear-gradient(135deg, rgba(56, 189, 248, 0.35) 0%, rgba(37, 99, 235, 0.35) 100%)'
@@ -731,7 +1096,7 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
             }}
           >
             <span className="academy-bottom-label" style={{ maxWidth: '170px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              {nextConcept ? `Next: ${nextConcept.command}` : 'Completed!'}
+              {nextConcept ? `Next: ${nextConcept.title}` : 'Completed!'}
             </span>
             <ChevronRight size={14} />
           </button>
