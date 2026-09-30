@@ -3,6 +3,8 @@ import {
   UniversalConcept,
   ACADEMY_18_TOPICS,
   ALL_ACADEMY_CONCEPTS,
+  COMMITFORGE_35_CHAPTERS,
+  ALL_COMMITFORGE_CONCEPTS,
   getUniversalConcept,
 } from '../../data/unifiedAcademyData';
 import { AcademyConceptTab } from './UniversalConceptHero';
@@ -28,14 +30,26 @@ import {
   Zap,
   Database,
   FastForward,
+  Cpu,
+  Workflow,
+  Globe,
 } from 'lucide-react';
+import { InteractiveGitWorld } from '../visualizer/InteractiveGitWorld';
+import { CiCdPipelineSimulator } from '../cicd/CiCdPipelineSimulator';
+import { GitCiCdConnectionMap } from '../cicd/GitCiCdConnectionMap';
 
 interface Props {
   concept: UniversalConcept;
   onSelectConcept?: (conceptId: string, targetTab?: AcademyConceptTab) => void;
 }
 
-type VisualizerViewMode = 'simulation' | 'liveRepo' | 'internals';
+type VisualizerViewMode =
+  | 'simulation'
+  | 'gitWorld'
+  | 'cicdPipeline'
+  | 'lifecycleMap'
+  | 'liveRepo'
+  | 'internals';
 type TopicFilterKey =
   | 'all'
   | 'basics'
@@ -83,11 +97,12 @@ export const ConceptVisualizerTab: React.FC<Props> = ({
   // Auto-play timer ref
   const timerRef = useRef<any>(null);
 
-  // Flattened list of all 71 concepts across all 18 topics
+  // Flattened list across all 35 chapters
   const allConceptsList = useMemo(() => {
-    return ACADEMY_18_TOPICS.flatMap((topic) =>
+    const sourceChapters = COMMITFORGE_35_CHAPTERS.length > 0 ? COMMITFORGE_35_CHAPTERS : ACADEMY_18_TOPICS;
+    return sourceChapters.flatMap((topic) =>
       topic.concepts.map((cRef) => {
-        const full = ALL_ACADEMY_CONCEPTS[cRef.id] || getUniversalConcept(cRef.id);
+        const full = ALL_COMMITFORGE_CONCEPTS[cRef.id] || ALL_ACADEMY_CONCEPTS[cRef.id] || getUniversalConcept(cRef.id);
         return {
           ...full,
           topicNumber: topic.number,
@@ -392,6 +407,69 @@ export const ConceptVisualizerTab: React.FC<Props> = ({
             </button>
 
             <button
+              onClick={() => setViewMode('gitWorld')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.35rem 0.85rem',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: viewMode === 'gitWorld' ? '1px solid #38bdf8' : '1px solid rgba(255, 255, 255, 0.08)',
+                background: viewMode === 'gitWorld' ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255, 255, 255, 0.03)',
+                color: viewMode === 'gitWorld' ? '#38bdf8' : '#cbd5e1',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Layers size={14} />
+              <span>Interactive Git World</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('cicdPipeline')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.35rem 0.85rem',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: viewMode === 'cicdPipeline' ? '1px solid #a855f7' : '1px solid rgba(255, 255, 255, 0.08)',
+                background: viewMode === 'cicdPipeline' ? 'rgba(168, 85, 247, 0.18)' : 'rgba(255, 255, 255, 0.03)',
+                color: viewMode === 'cicdPipeline' ? '#c084fc' : '#cbd5e1',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Workflow size={14} />
+              <span>Pipeline #142 Simulator</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('lifecycleMap')}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.4rem',
+                padding: '0.35rem 0.85rem',
+                borderRadius: '8px',
+                fontSize: '0.78rem',
+                fontWeight: 700,
+                cursor: 'pointer',
+                border: viewMode === 'lifecycleMap' ? '1px solid #fbbf24' : '1px solid rgba(255, 255, 255, 0.08)',
+                background: viewMode === 'lifecycleMap' ? 'rgba(251, 191, 36, 0.18)' : 'rgba(255, 255, 255, 0.03)',
+                color: viewMode === 'lifecycleMap' ? '#fbbf24' : '#cbd5e1',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Globe size={14} />
+              <span>Git + CI/CD Lifecycle Map</span>
+            </button>
+
+            <button
               onClick={() => setViewMode('liveRepo')}
               style={{
                 display: 'flex',
@@ -408,8 +486,8 @@ export const ConceptVisualizerTab: React.FC<Props> = ({
                 transition: 'all 0.15s ease',
               }}
             >
-              <Layers size={14} />
-              <span>Live Active Repository & DAG</span>
+              <Cpu size={14} />
+              <span>Live Active Repo & DAG</span>
             </button>
 
             <button
@@ -1369,6 +1447,27 @@ export const ConceptVisualizerTab: React.FC<Props> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* MODE: INTERACTIVE GIT PHYSICAL WORLD                             */}
+      {/* ================================================================ */}
+      {viewMode === 'gitWorld' && (
+        <InteractiveGitWorld />
+      )}
+
+      {/* ================================================================ */}
+      {/* MODE: CI/CD PIPELINE SIMULATOR & CONTROL CENTER                  */}
+      {/* ================================================================ */}
+      {viewMode === 'cicdPipeline' && (
+        <CiCdPipelineSimulator />
+      )}
+
+      {/* ================================================================ */}
+      {/* MODE: GIT + CI/CD LIFECYCLE CONNECTION MAP                       */}
+      {/* ================================================================ */}
+      {viewMode === 'lifecycleMap' && (
+        <GitCiCdConnectionMap />
       )}
 
       {/* ================================================================ */}
