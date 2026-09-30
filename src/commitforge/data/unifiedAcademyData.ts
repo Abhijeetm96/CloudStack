@@ -1,3 +1,23 @@
+import {
+  COMMITFORGE_35_CHAPTERS,
+  ALL_COMMITFORGE_CONCEPTS,
+  TOTAL_COMMITFORGE_CHAPTERS,
+  TOTAL_COMMITFORGE_CONCEPTS,
+  getCommitForgeConcept,
+  findChapterForConcept,
+} from './chapters';
+import { COMPLETE_PROBLEM_SOLUTIONS } from './problemSolutions';
+
+export {
+  COMMITFORGE_35_CHAPTERS,
+  ALL_COMMITFORGE_CONCEPTS,
+  TOTAL_COMMITFORGE_CHAPTERS,
+  TOTAL_COMMITFORGE_CONCEPTS,
+  COMPLETE_PROBLEM_SOLUTIONS,
+  getCommitForgeConcept,
+  findChapterForConcept,
+};
+
 export type ConceptDifficulty = 'Beginner' | 'Intermediate' | 'Advanced' | 'Expert';
 
 export interface SyntaxToken {
@@ -95,6 +115,9 @@ export interface UniversalConcept {
   topicNumber: string;
   topicTitle: string;
   subtitle: string;
+  shortDesc?: string;
+  subChapterNum?: string;
+  isCiCd?: boolean;
   badges: string[]; // e.g. ['Beginner', 'Essential', 'Local']
   quote: string; // e.g. "A commit is a checkpoint for your project."
   difficulty: ConceptDifficulty;
@@ -189,9 +212,10 @@ export interface AcademyTopic {
     id: string;
     command: string;
     title: string;
-    shortDesc: string;
+    shortDesc?: string;
     difficulty: ConceptDifficulty;
     isFullyDetailed?: boolean;
+    [key: string]: any;
   }[];
 }
 
@@ -1592,8 +1616,11 @@ export const ALL_ACADEMY_CONCEPTS: Record<string, UniversalConcept> = Object.fro
   })
 );
 
-// Returns bespoke concept data across all 18 topics
+// Returns bespoke concept data across all 35 chapters and legacy topics
 export function getUniversalConcept(conceptId: string): UniversalConcept {
+  if (ALL_COMMITFORGE_CONCEPTS[conceptId]) {
+    return ALL_COMMITFORGE_CONCEPTS[conceptId];
+  }
   if (ALL_ACADEMY_CONCEPTS[conceptId]) {
     return ALL_ACADEMY_CONCEPTS[conceptId];
   }
@@ -1609,20 +1636,20 @@ export function getUniversalConcept(conceptId: string): UniversalConcept {
         topicId: topic.id,
         topicNumber: topic.number,
         topicTitle: topic.title,
-        subtitle: found.shortDesc,
+        subtitle: found.shortDesc || found.title,
         badges: [found.difficulty, 'Core Concept', 'Git'],
         quote: `Mastering ${found.title} is essential for reliable Git workflows.`,
         difficulty: found.difficulty,
 
         whatIsIt: `${found.title} is a core Git mechanism used in ${topic.title}.`,
-        inSimpleWords: `It helps you manage ${found.shortDesc.toLowerCase()} in your project.`,
+        inSimpleWords: `It helps you manage ${(found.shortDesc || found.title).toLowerCase()} in your project.`,
         whyDoYouNeedIt: `Without ${found.title}, collaborating and version tracking become error-prone and chaotic.`,
         realWorldAnalogy: `Think of it like an organized filing cabinet milestone in your developer toolkit.`,
 
         syntaxCode: found.command.startsWith('git') ? `${found.command} [options]` : `git ${found.command}`,
         syntaxTokens: [
           { token: 'git', role: 'The Git tool', explanation: 'The version control executable binary.' },
-          { token: found.command.replace('git ', ''), role: 'Command Action', explanation: found.shortDesc },
+          { token: found.command.replace('git ', ''), role: 'Command Action', explanation: found.shortDesc || found.title },
         ],
 
         actionStage: {
@@ -1761,107 +1788,5 @@ export interface ProblemSolution {
   };
 }
 
-export const GLOBAL_PROBLEM_SOLUTIONS: ProblemSolution[] = [
-  {
-    id: 'prob-undo-commit',
-    problemTitle: 'I want to undo my last commit',
-    description: 'You made a commit and need to unwind it or remove it from history.',
-    keywords: ['undo commit', 'revert commit', 'reset commit', 'undo last commit', 'cancel commit', 'remove commit'],
-    decisionTree: {
-      question: 'Has the commit already been pushed to GitHub or a shared remote repository?',
-      options: [
-        {
-          label: 'YES — Already pushed to GitHub / remote',
-          actionText: 'Use git revert (Safe for shared history)',
-          recommendedCommand: 'git revert HEAD',
-          explanation: 'Since the commit is public, resetting it would break your teammates\' histories. git revert safely creates a new commit that inverts the changes.',
-          targetConceptId: 'c-git-commit',
-          targetTab: 'Explore',
-        },
-        {
-          label: 'NO — Still only on my local computer',
-          actionText: 'Use git reset (Clean local rewind)',
-          recommendedCommand: 'git reset --soft HEAD~1',
-          explanation: '`git reset --soft HEAD~1` removes the commit while keeping all your edited code staged in your working directory, ready for editing.',
-          targetConceptId: 'c-git-commit',
-          targetTab: 'Practice',
-        },
-      ],
-    },
-  },
-  {
-    id: 'prob-unstage-file',
-    problemTitle: 'I accidentally staged a file (e.g. .env or secret)',
-    description: 'You ran git add on a file that shouldn\'t be in the commit.',
-    keywords: ['unstage', 'unstage file', 'accidentally staged', 'remove from staging', 'staged .env', 'unadd'],
-    directRecommendation: {
-      recommendedCommand: 'git restore --staged <file-path>',
-      explanation: 'Removes the file from the staging area immediately without deleting or modifying your code on disk.',
-      targetConceptId: 'c-git-restore-staged',
-      targetTab: 'Learn',
-    },
-  },
-  {
-    id: 'prob-send-github',
-    problemTitle: 'I want to send my code to GitHub',
-    description: 'Upload your local commits to a remote repository branch.',
-    keywords: ['send to github', 'push to github', 'upload code', 'sync github', 'publish branch', 'git push'],
-    directRecommendation: {
-      recommendedCommand: 'git push -u origin main',
-      explanation: 'Transmits local commits to the remote `main` branch and sets up tracking.',
-      targetConceptId: 'c-git-push',
-      targetTab: 'Learn',
-    },
-  },
-  {
-    id: 'prob-discard-changes',
-    problemTitle: 'I want to discard changes in a file',
-    description: 'Throw away experimental edits and revert the file back to last commit.',
-    keywords: ['discard changes', 'throw away changes', 'revert file', 'undo edits', 'checkout file'],
-    decisionTree: {
-      question: 'Are the modifications currently staged in the index (ran `git add`)?',
-      options: [
-        {
-          label: 'YES — The changes are already staged',
-          actionText: 'Unstage first, then restore',
-          recommendedCommand: 'git restore --staged <file> && git restore <file>',
-          explanation: 'Unstage the file from the index, then restore the file to match HEAD.',
-          targetConceptId: 'c-git-restore-staged',
-          targetTab: 'Learn',
-        },
-        {
-          label: 'NO — Edits are only in the working tree',
-          actionText: 'Directly restore working tree',
-          recommendedCommand: 'git restore <file>',
-          explanation: 'Replaces your working tree file with the clean index version.',
-          targetConceptId: 'c-git-diff',
-          targetTab: 'Explore',
-        },
-      ],
-    },
-  },
-  {
-    id: 'prob-merge-conflict',
-    problemTitle: 'I have a merge conflict',
-    description: 'Git could not automatically reconcile divergent edits across branches.',
-    keywords: ['merge conflict', 'conflict', 'resolve conflict', 'conflict markers', 'both modified'],
-    directRecommendation: {
-      recommendedCommand: 'git status (Inspect conflicts, open editor, remove <<< markers, then git add)',
-      explanation: 'Open the conflicting files, choose the correct lines between `<<<<<<< HEAD` and `>>>>>>>`, then stage and commit.',
-      targetConceptId: 'c-merge-conflicts',
-      targetTab: 'Explore',
-    },
-  },
-  {
-    id: 'prob-lost-commit',
-    problemTitle: 'I lost a commit or deleted the wrong branch',
-    description: 'You ran hard reset or deleted a branch and need your code back.',
-    keywords: ['lost commit', 'lost branch', 'deleted branch', 'recover commit', 'reflog'],
-    directRecommendation: {
-      recommendedCommand: 'git reflog',
-      explanation: 'Git records every movement of HEAD in the reflog. Run `git reflog` to find the lost commit hash, then `git branch rescue <hash>`.',
-      targetConceptId: 'c-git-reflog',
-      targetTab: 'Learn',
-    },
-  },
-];
+export const GLOBAL_PROBLEM_SOLUTIONS: ProblemSolution[] = COMPLETE_PROBLEM_SOLUTIONS;
+
