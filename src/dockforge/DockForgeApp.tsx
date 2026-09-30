@@ -19,10 +19,14 @@ interface DockForgeAppProps {
 
 const DockForgeContent: React.FC<DockForgeAppProps> = ({ onSwitchToSuite, initialConceptId }) => {
   const { mode, setMode, activeConceptId, setActiveConceptId, currentConcept, engine } = useDocker();
+  const prevInitialRef = React.useRef<string | undefined>(initialConceptId);
 
   React.useEffect(() => {
-    if (initialConceptId && initialConceptId !== activeConceptId) {
-      setActiveConceptId(initialConceptId);
+    if (initialConceptId && initialConceptId !== prevInitialRef.current) {
+      prevInitialRef.current = initialConceptId;
+      if (initialConceptId !== activeConceptId) {
+        setActiveConceptId(initialConceptId);
+      }
       if (mode !== 'academy') {
         setMode('academy');
       }
