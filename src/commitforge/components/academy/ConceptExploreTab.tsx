@@ -3,6 +3,8 @@ import {
   UniversalConcept,
   ACADEMY_18_TOPICS,
   ALL_ACADEMY_CONCEPTS,
+  COMMITFORGE_35_CHAPTERS,
+  ALL_COMMITFORGE_CONCEPTS,
   getUniversalConcept,
   ConceptDifficulty,
 } from '../../data/unifiedAcademyData';
@@ -56,11 +58,12 @@ export const ConceptExploreTab: React.FC<Props> = ({
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [copiedSnippet, setCopiedSnippet] = useState<string | null>(null);
 
-  // Flattened canonical list of all 71 concepts across all 18 topics
+  // Flattened canonical list across all 35 chapters
   const allConceptsList = useMemo(() => {
-    return ACADEMY_18_TOPICS.flatMap((topic) =>
+    const sourceChapters = COMMITFORGE_35_CHAPTERS.length > 0 ? COMMITFORGE_35_CHAPTERS : ACADEMY_18_TOPICS;
+    return sourceChapters.flatMap((topic) =>
       topic.concepts.map((cRef) => {
-        const full = ALL_ACADEMY_CONCEPTS[cRef.id] || getUniversalConcept(cRef.id);
+        const full = ALL_COMMITFORGE_CONCEPTS[cRef.id] || ALL_ACADEMY_CONCEPTS[cRef.id] || getUniversalConcept(cRef.id);
         return {
           ...full,
           topicNumber: topic.number,
@@ -988,7 +991,7 @@ export const ConceptExploreTab: React.FC<Props> = ({
             >
               {allConceptsList.map((c) => (
                 <option key={c.id} value={c.id}>
-                  {c.command} — {c.title}
+                  {c.subChapterNum ? `${c.subChapterNum} ` : ''}{c.command} — {c.title}
                 </option>
               ))}
             </select>
