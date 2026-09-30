@@ -75,6 +75,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
           command: c.commandPill || `kubectl get ${c.id.replace('c-k8s-', '')}`,
           title: c.title,
           shortDesc: c.description,
+          icon: getConceptIcon(c.id),
         })),
       };
     });
