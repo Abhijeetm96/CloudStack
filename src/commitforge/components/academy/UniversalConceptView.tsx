@@ -10,6 +10,10 @@ import { ConceptReferenceTab } from './ConceptReferenceTab';
 import { ConceptVisualizerTab } from './ConceptVisualizerTab';
 import { ThreeAreaVisualizer } from '../visualizer/ThreeAreaVisualizer';
 import { GitGraph } from '../visualizer/GitGraph';
+import { InteractiveYamlExplorer } from '../cicd/InteractiveYamlExplorer';
+import { CiCdPipelineSimulator } from '../cicd/CiCdPipelineSimulator';
+import { GitCiCdConnectionMap } from '../cicd/GitCiCdConnectionMap';
+import { InteractiveGitWorld } from '../visualizer/InteractiveGitWorld';
 import { useApp } from '../../context/AppContext';
 import {
   BookOpen,
@@ -40,12 +44,27 @@ export const UniversalConceptView: React.FC<Props> = ({
   onSelectConcept,
 }) => {
   const { repo, completedLessonIds, markLessonComplete, setMode } = useApp();
-  const isCiCd = concept.topicId === 'topic-15';
+  const chNum = concept.topicId.startsWith('ch-')
+    ? parseInt(concept.topicId.replace('ch-', ''), 10)
+    : 0;
+  const isCiCd = concept.topicId === 'topic-15' || Boolean(concept.isCiCd) || (chNum >= 21 && chNum <= 34);
 
   const isCompleted = completedLessonIds.includes(concept.id);
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
   const [exploreViewMode, setExploreViewMode] = useState<'current' | 'all'>('current');
   const [exploreContentType, setExploreContentType] = useState<'all' | 'variations' | 'scenarios' | 'comparisons' | 'pitfalls'>('all');
+  const [actionStageView, setActionStageView] = useState<'stage' | 'gitWorld' | 'cicdPipeline' | 'lifecycle'>('stage');
+  const [syntaxTab, setSyntaxTab] = useState<'cli' | 'yaml'>('cli');
+
+  React.useEffect(() => {
+    if (isCiCd) {
+      setActionStageView('cicdPipeline');
+      setSyntaxTab('yaml');
+    } else {
+      setActionStageView('gitWorld');
+      setSyntaxTab('cli');
+    }
+  }, [concept.id, isCiCd]);
 
   const handleToggleComplete = () => {
     markLessonComplete(concept.id);
@@ -208,36 +227,155 @@ export const UniversalConceptView: React.FC<Props> = ({
             </div>
           </div>
 
-          {/* Section 3: Syntax */}
+          {/* Section 3: Syntax & Configuration Explorer */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <span style={{ fontFamily: 'ui-monospace, monospace', fontWeight: 800, color: isCiCd ? '#a855f7' : '#f59e0b', fontSize: '1rem' }}>
-                &gt;_
-              </span>
-              <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc' }}>
-                3. Syntax
-              </h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <span style={{ fontFamily: 'ui-monospace, monospace', fontWeight: 800, color: isCiCd ? '#a855f7' : '#f59e0b', fontSize: '1rem' }}>
+                  &gt;_
+                </span>
+                <h2 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 800, color: '#f8fafc' }}>
+                  3. Syntax &amp; Configuration
+                </h2>
+              </div>
+
+              {(isCiCd || concept.syntaxCode.includes('jobs:') || concept.syntaxCode.includes('runs-on:') || concept.syntaxCode.includes('uses:')) && (
+                <div style={{ display: 'flex', gap: '0.35rem' }}>
+                  <button
+                    onClick={() => setSyntaxTab('cli')}
+                    style={{
+                      padding: '0.25rem 0.65rem',
+                      borderRadius: '6px',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: syntaxTab === 'cli' ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+                      background: syntaxTab === 'cli' ? 'rgba(56, 189, 248, 0.15)' : 'var(--bg-card)',
+                      color: syntaxTab === 'cli' ? '#38bdf8' : 'var(--text-secondary)',
+                    }}
+                  >
+                    Command Line Syntax
+                  </button>
+                  <button
+                    onClick={() => setSyntaxTab('yaml')}
+                    style={{
+                      padding: '0.25rem 0.65rem',
+                      borderRadius: '6px',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: syntaxTab === 'yaml' ? '1px solid #a855f7' : '1px solid var(--border-color)',
+                      background: syntaxTab === 'yaml' ? 'rgba(168, 85, 247, 0.2)' : 'var(--bg-card)',
+                      color: syntaxTab === 'yaml' ? '#c084fc' : 'var(--text-secondary)',
+                    }}
+                  >
+                    Interactive YAML Explorer
+                  </button>
+                </div>
+              )}
             </div>
 
-            <InteractiveSyntaxExplorer
-              syntaxCode={concept.syntaxCode}
-              syntaxTokens={concept.syntaxTokens}
-            />
+            {syntaxTab === 'yaml' ? (
+              <InteractiveYamlExplorer />
+            ) : (
+              <InteractiveSyntaxExplorer
+                syntaxCode={concept.syntaxCode}
+                syntaxTokens={concept.syntaxTokens}
+              />
+            )}
           </div>
 
           {/* Section 4: See it in action */}
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Play size={18} color={isCiCd ? '#a855f7' : '#22c55e'} />
-              <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc' }}>
-                4. See it in action
-              </h2>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <Play size={18} color={isCiCd ? '#a855f7' : '#22c55e'} />
+                <h2 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 800, color: '#f8fafc' }}>
+                  4. See it in action
+                </h2>
+              </div>
+
+              {/* View Switcher */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', flexWrap: 'wrap' }}>
+                {!isCiCd && (
+                  <button
+                    onClick={() => setActionStageView('gitWorld')}
+                    style={{
+                      padding: '0.25rem 0.65rem',
+                      borderRadius: '6px',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: actionStageView === 'gitWorld' ? '1px solid #38bdf8' : '1px solid var(--border-color)',
+                      background: actionStageView === 'gitWorld' ? 'rgba(56, 189, 248, 0.18)' : 'var(--bg-card)',
+                      color: actionStageView === 'gitWorld' ? '#38bdf8' : 'var(--text-secondary)',
+                    }}
+                  >
+                    Interactive Git World
+                  </button>
+                )}
+
+                {isCiCd && (
+                  <button
+                    onClick={() => setActionStageView('cicdPipeline')}
+                    style={{
+                      padding: '0.25rem 0.65rem',
+                      borderRadius: '6px',
+                      fontSize: '0.74rem',
+                      fontWeight: 700,
+                      cursor: 'pointer',
+                      border: actionStageView === 'cicdPipeline' ? '1px solid #a855f7' : '1px solid var(--border-color)',
+                      background: actionStageView === 'cicdPipeline' ? 'rgba(168, 85, 247, 0.2)' : 'var(--bg-card)',
+                      color: actionStageView === 'cicdPipeline' ? '#c084fc' : 'var(--text-secondary)',
+                    }}
+                  >
+                    Pipeline #142 Control Center
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setActionStageView('stage')}
+                  style={{
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '6px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    border: actionStageView === 'stage' ? '1px solid #22c55e' : '1px solid var(--border-color)',
+                    background: actionStageView === 'stage' ? 'rgba(34, 197, 94, 0.18)' : 'var(--bg-card)',
+                    color: actionStageView === 'stage' ? '#22c55e' : 'var(--text-secondary)',
+                  }}
+                >
+                  3-Stage Flow
+                </button>
+
+                <button
+                  onClick={() => setActionStageView('lifecycle')}
+                  style={{
+                    padding: '0.25rem 0.65rem',
+                    borderRadius: '6px',
+                    fontSize: '0.74rem',
+                    fontWeight: 700,
+                    cursor: 'pointer',
+                    border: actionStageView === 'lifecycle' ? '1px solid #fbbf24' : '1px solid var(--border-color)',
+                    background: actionStageView === 'lifecycle' ? 'rgba(251, 191, 36, 0.18)' : 'var(--bg-card)',
+                    color: actionStageView === 'lifecycle' ? '#fbbf24' : 'var(--text-secondary)',
+                  }}
+                >
+                  Git + CI/CD Lifecycle Map
+                </button>
+              </div>
             </div>
 
-            <ConceptVisualActionStage
-              concept={concept}
-              onOpenVisualize={() => onSelectTab('Visualize')}
-            />
+            {actionStageView === 'gitWorld' && <InteractiveGitWorld />}
+            {actionStageView === 'cicdPipeline' && <CiCdPipelineSimulator />}
+            {actionStageView === 'lifecycle' && <GitCiCdConnectionMap />}
+            {actionStageView === 'stage' && (
+              <ConceptVisualActionStage
+                concept={concept}
+                onOpenVisualize={() => onSelectTab('Visualize')}
+              />
+            )}
           </div>
 
           {/* Section 5: Common Variations & Modifiers */}
