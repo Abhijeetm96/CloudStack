@@ -3,11 +3,11 @@
 > **Master the Modern Cloud & DevOps Stack.**  
 > Interactive, browser-native engineering simulators. Real command engines, visual DAGs, live cluster topologies, emergency triage laboratories, and professional developer sandboxes. Zero slides. Zero fluff.
 
-[![Tests](https://img.shields.io/badge/Tests-84%2F84%20Passing-success?style=for-the-badge&logo=vitest)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
-[![Build](https://img.shields.io/badge/Vite%20Build-Passing-blue?style=for-the-badge&logo=vite)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
-[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
-[![React](https://img.shields.io/badge/React-19.x-61dafb?style=for-the-badge&logo=react)](file:///c:/Users/abhis/OneDrive/Desktop/Git Academy)
-[![Agentation MCP](https://img.shields.io/badge/Agentation%20MCP-v1.2.0-8a2be2?style=for-the-badge)](https://www.agentation.com/mcp)
+[![Live Site](https://img.shields.io/badge/Live%20Demo-GitHub%20Pages-brightgreen?style=for-the-badge&logo=github)](https://abhijeetm96.github.io/CloudStack/)
+[![Tests](https://img.shields.io/badge/Tests-278%2F278%20Passing-success?style=for-the-badge&logo=vitest)](https://github.com/Abhijeetm96/CloudStack)
+[![Build](https://img.shields.io/badge/Vite%20Build-Passing-blue?style=for-the-badge&logo=vite)](https://github.com/Abhijeetm96/CloudStack)
+[![TypeScript](https://img.shields.io/badge/TypeScript-Strict-blue?style=for-the-badge&logo=typescript)](https://github.com/Abhijeetm96/CloudStack)
+[![React](https://img.shields.io/badge/React-19.x-61dafb?style=for-the-badge&logo=react)](https://github.com/Abhijeetm96/CloudStack)
 
 ---
 
