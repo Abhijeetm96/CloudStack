@@ -78,9 +78,9 @@ export const CommitForgeApp: React.FC<CommitForgeAppProps> = ({ onSwitchToSuite 
           overflowX: 'hidden',
         }}
       >
-        {/* EXPERIENCE 1: 🎓 GIT ACADEMY (18 Topics + Universal Concept View + Sandbox) */}
+        {/* EXPERIENCE 1: 🎓 GIT ACADEMY (35 Chapters + Universal Concept View + Sandbox) */}
         {(mode === 'learn' || mode === 'dashboard' || mode === 'roadmap' || mode === 'first10' || mode === 'visualize' || mode === 'community') && (
-          <GitAcademyView initialConceptId={activeLessonConcept || 'c-git-commit'} />
+          <GitAcademyView initialConceptId={activeLessonConcept || 'c-01-01'} />
         )}
 
         {/* EXPERIENCE 1.5: 🌌 71 CONCEPTS UNIVERSE (Independent Curriculum Catalog Page) */}
