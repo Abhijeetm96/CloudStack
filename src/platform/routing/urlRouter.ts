@@ -58,9 +58,24 @@ export function parseCurrentRoute(): RouteState {
 }
 
 export function mapSegmentToMode(segment: string): ViewMode {
-  const seg = segment.toLowerCase().trim();
+  let seg = segment.toLowerCase().trim();
+
+  // Strip leading slash if any
+  if (seg.startsWith('/')) {
+    seg = seg.slice(1).trim();
+  }
+
+  // Support /cloudstack/* prefixed routes
+  if (seg.startsWith('cloudstack/')) {
+    seg = seg.slice('cloudstack/'.length).trim();
+  }
 
   switch (seg) {
+    case 'cloudstack':
+    case 'home':
+    case '':
+      return 'home';
+
     case 'podforge':
     case 'k8s':
     case 'kubernetes':
@@ -117,8 +132,6 @@ export function mapSegmentToMode(segment: string): ViewMode {
     case 'guided-lesson':
       return seg as ViewMode;
 
-    case 'home':
-    case '':
     default:
       return 'home';
   }
@@ -127,25 +140,25 @@ export function mapSegmentToMode(segment: string): ViewMode {
 export function mapModeToSegment(mode: ViewMode): string {
   switch (mode) {
     case 'podforge':
-      return 'podforge';
+      return 'cloudstack/kubernetes';
     case 'dockforge':
-      return 'dockforge';
+      return 'cloudstack/docker';
     case 'linuxforge':
-      return 'linuxforge';
+      return 'cloudstack/linux';
     case 'learn':
-      return 'commitforge';
+      return 'cloudstack/git';
     case 'devops':
-      return 'devops';
+      return 'cloudstack/devops';
     case 'universe':
-      return 'universe';
+      return 'cloudstack/universe';
     case 'roadmap':
-      return 'roadmap';
+      return 'cloudstack/roadmap';
     case 'practice':
-      return 'practice';
+      return 'cloudstack/practice';
     case 'labs':
-      return 'labs';
+      return 'cloudstack/labs';
     case 'ide':
-      return 'ide';
+      return 'cloudstack/ide';
     case 'conflict-arena':
     case 'hospital':
     case 'break-it':
@@ -156,10 +169,10 @@ export function mapModeToSegment(mode: ViewMode): string {
     case 'discover':
     case 'lesson':
     case 'guided-lesson':
-      return mode;
+      return `cloudstack/${mode}`;
     case 'home':
     default:
-      return '';
+      return 'cloudstack';
   }
 }
 
@@ -170,28 +183,28 @@ export function getTitleForMode(mode: ViewMode, conceptTitle?: string | null): s
   const prefix = conceptTitle ? `${conceptTitle} | ` : '';
   switch (mode) {
     case 'devops':
-      return `${prefix}DevOps & Cloud Engineering Academy | Master 29-Chapter Syllabus`;
+      return `${prefix}DevOps Academy (29 Chapters) | CloudStack`;
     case 'podforge':
-      return `${prefix}PodForge | Interactive Kubernetes Academy`;
+      return `${prefix}Kubernetes Academy | CloudStack`;
     case 'dockforge':
-      return `${prefix}DockForge | Interactive Docker & Container Academy`;
+      return `${prefix}Docker Academy | CloudStack`;
     case 'linuxforge':
-      return `${prefix}LinuxForge | Interactive Linux Systems, Kernel & SRE Academy`;
+      return `${prefix}Linux Academy | CloudStack`;
     case 'learn':
-      return `${prefix}CommitForge | Interactive Git & Version Control Academy`;
+      return `${prefix}Git Academy | CloudStack`;
     case 'universe':
-      return `${prefix}Concepts Universe | CommitForge Git Academy`;
+      return `${prefix}Concepts Universe | CloudStack`;
     case 'roadmap':
-      return `${prefix}DevOps & Cloud-Native Engineering Roadmap | Forge Suite`;
+      return `${prefix}Cloud & DevOps Engineering Roadmap | CloudStack`;
     case 'practice':
-      return `${prefix}CommitForge Practice Challenges | Forge Suite`;
+      return `${prefix}Practice Challenges | CloudStack`;
     case 'labs':
-      return `${prefix}CommitForge Simulation Labs | Forge Suite`;
+      return `${prefix}Simulation Labs | CloudStack`;
     case 'ide':
-      return `${prefix}CommitForge Developer IDE | Forge Suite`;
+      return `${prefix}Developer Workspace | CloudStack`;
     case 'home':
     default:
-      return 'Forge Suite | Interactive Developer & Cloud-Native Academies (CommitForge & PodForge)';
+      return 'CloudStack | Interactive Cloud, DevOps & Engineering Academies';
   }
 }
 

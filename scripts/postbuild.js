@@ -19,6 +19,22 @@ console.log('✓ Generated dist/404.html');
 
 // 2. Generate static route directories with index.html for direct GitHub Pages HTTP 200 access
 const routes = [
+  'cloudstack',
+  'cloudstack/git',
+  'cloudstack/docker',
+  'cloudstack/kubernetes',
+  'cloudstack/linux',
+  'cloudstack/devops',
+  'cloudstack/roadmap',
+  'cloudstack/universe',
+  'cloudstack/practice',
+  'cloudstack/labs',
+  'cloudstack/ide',
+  'git',
+  'docker',
+  'kubernetes',
+  'k8s',
+  'linux',
   'devops',
   'curriculum',
   'master-syllabus',

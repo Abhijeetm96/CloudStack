@@ -7,14 +7,28 @@ import {
   getBaseUrl,
 } from '../platform/routing/urlRouter';
 
-describe('Forge Suite Unified SPA URL Router & Deep-Linking', () => {
-  it('correctly maps URL path segments to ViewModes', () => {
+describe('CloudStack Unified SPA URL Router & Deep-Linking', () => {
+  it('correctly maps URL path segments to ViewModes with /cloudstack/* and aliases', () => {
+    // Canonical /cloudstack/* routes
+    expect(mapSegmentToMode('cloudstack')).toBe('home');
+    expect(mapSegmentToMode('cloudstack/git')).toBe('learn');
+    expect(mapSegmentToMode('cloudstack/docker')).toBe('dockforge');
+    expect(mapSegmentToMode('cloudstack/kubernetes')).toBe('podforge');
+    expect(mapSegmentToMode('cloudstack/linux')).toBe('linuxforge');
+    expect(mapSegmentToMode('cloudstack/devops')).toBe('devops');
+    expect(mapSegmentToMode('cloudstack/roadmap')).toBe('roadmap');
+    expect(mapSegmentToMode('cloudstack/universe')).toBe('universe');
+
+    // Direct and legacy aliases
     expect(mapSegmentToMode('podforge')).toBe('podforge');
     expect(mapSegmentToMode('k8s')).toBe('podforge');
     expect(mapSegmentToMode('kubernetes')).toBe('podforge');
 
     expect(mapSegmentToMode('dockforge')).toBe('dockforge');
     expect(mapSegmentToMode('docker')).toBe('dockforge');
+
+    expect(mapSegmentToMode('linuxforge')).toBe('linuxforge');
+    expect(mapSegmentToMode('linux')).toBe('linuxforge');
 
     expect(mapSegmentToMode('commitforge')).toBe('learn');
     expect(mapSegmentToMode('git')).toBe('learn');
@@ -28,36 +42,44 @@ describe('Forge Suite Unified SPA URL Router & Deep-Linking', () => {
     expect(mapSegmentToMode('')).toBe('home');
   });
 
-  it('correctly maps ViewModes to canonical URL path segments', () => {
-    expect(mapModeToSegment('podforge')).toBe('podforge');
-    expect(mapModeToSegment('dockforge')).toBe('dockforge');
-    expect(mapModeToSegment('learn')).toBe('commitforge');
-    expect(mapModeToSegment('roadmap')).toBe('roadmap');
-    expect(mapModeToSegment('practice')).toBe('practice');
-    expect(mapModeToSegment('home')).toBe('');
+  it('correctly maps ViewModes to canonical CloudStack URL path segments', () => {
+    expect(mapModeToSegment('podforge')).toBe('cloudstack/kubernetes');
+    expect(mapModeToSegment('dockforge')).toBe('cloudstack/docker');
+    expect(mapModeToSegment('linuxforge')).toBe('cloudstack/linux');
+    expect(mapModeToSegment('learn')).toBe('cloudstack/git');
+    expect(mapModeToSegment('devops')).toBe('cloudstack/devops');
+    expect(mapModeToSegment('universe')).toBe('cloudstack/universe');
+    expect(mapModeToSegment('roadmap')).toBe('cloudstack/roadmap');
+    expect(mapModeToSegment('practice')).toBe('cloudstack/practice');
+    expect(mapModeToSegment('home')).toBe('cloudstack');
   });
 
   it('generates correct URLs with base path and optional concept deep-link parameter', () => {
     const base = getBaseUrl();
 
-    expect(getUrlForMode('home')).toBe(base);
-    expect(getUrlForMode('podforge')).toBe(`${base}podforge`);
-    expect(getUrlForMode('dockforge')).toBe(`${base}dockforge`);
-    expect(getUrlForMode('learn')).toBe(`${base}commitforge`);
+    expect(getUrlForMode('home')).toBe(`${base}cloudstack`);
+    expect(getUrlForMode('podforge')).toBe(`${base}cloudstack/kubernetes`);
+    expect(getUrlForMode('dockforge')).toBe(`${base}cloudstack/docker`);
+    expect(getUrlForMode('learn')).toBe(`${base}cloudstack/git`);
 
     // With concept deep-link
-    expect(getUrlForMode('podforge', 'c-k8s-pods')).toBe(`${base}podforge?concept=c-k8s-pods`);
-    expect(getUrlForMode('dockforge', 'c-dockerfile')).toBe(`${base}dockforge?concept=c-dockerfile`);
+    expect(getUrlForMode('podforge', 'c-k8s-pods')).toBe(`${base}cloudstack/kubernetes?concept=c-k8s-pods`);
+    expect(getUrlForMode('dockforge', 'c-dockerfile')).toBe(`${base}cloudstack/docker?concept=c-dockerfile`);
   });
 
   it('generates distinct branded titles for each academy', () => {
-    expect(getTitleForMode('podforge')).toContain('PodForge');
-    expect(getTitleForMode('dockforge')).toContain('DockForge');
-    expect(getTitleForMode('learn')).toContain('CommitForge');
+    expect(getTitleForMode('podforge')).toContain('Kubernetes');
+    expect(getTitleForMode('podforge')).toContain('CloudStack');
+    expect(getTitleForMode('dockforge')).toContain('Docker');
+    expect(getTitleForMode('dockforge')).toContain('CloudStack');
+    expect(getTitleForMode('learn')).toContain('Git');
+    expect(getTitleForMode('learn')).toContain('CloudStack');
+    expect(getTitleForMode('linuxforge')).toContain('Linux');
+    expect(getTitleForMode('linuxforge')).toContain('CloudStack');
     expect(getTitleForMode('roadmap')).toContain('Roadmap');
-    expect(getTitleForMode('home')).toContain('Forge Suite');
+    expect(getTitleForMode('home')).toContain('CloudStack');
 
     // With concept prefix
-    expect(getTitleForMode('podforge', 'Pod Lifecycle')).toBe('Pod Lifecycle | PodForge | Interactive Kubernetes Academy');
+    expect(getTitleForMode('podforge', 'Pod Lifecycle')).toBe('Pod Lifecycle | Kubernetes Academy | CloudStack');
   });
 });

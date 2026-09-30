@@ -60,7 +60,7 @@ describe('CommitForge 35 Chapters & 481 Subchapters Access and Navigation Audit'
 
     testCases.forEach(({ id, expectedQuery }) => {
       const url = getUrlForMode('learn', id);
-      expect(url).toContain('commitforge');
+      expect(url).toContain('cloudstack/git');
       expect(url).toContain(expectedQuery);
     });
   });

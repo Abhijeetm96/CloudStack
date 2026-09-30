@@ -49,17 +49,17 @@ export const Footer: React.FC = () => {
                   width: '32px',
                   height: '32px',
                   borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #f05033 0%, #326ce5 100%)',
+                  background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 50%, #6366f1 100%)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  boxShadow: '0 2px 10px rgba(240, 80, 51, 0.3)',
+                  boxShadow: '0 2px 10px rgba(14, 165, 233, 0.35)',
                 }}
               >
-                <Flame size={18} color="#fff" />
+                <Boxes size={18} color="#fff" />
               </div>
               <span style={{ fontWeight: 800, fontSize: '1.2rem', letterSpacing: '-0.02em', color: '#fff' }}>
-                Forge<span style={{ color: '#38bdf8' }}>Suite</span>
+                Cloud<span style={{ color: '#38bdf8' }}>Stack</span>
               </span>
             </div>
 
@@ -91,7 +91,7 @@ export const Footer: React.FC = () => {
                   boxShadow: '0 0 8px #22c55e',
                 }}
               />
-              <span>3 Simulation Engines Operational (Git • Docker • K8s)</span>
+              <span>4 Simulation Engines Operational (Git • Docker • K8s • Linux)</span>
             </div>
           </div>
 
@@ -120,30 +120,7 @@ export const Footer: React.FC = () => {
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
                 >
                   <GitBranch size={14} color="var(--git-orange)" />
-                  <span>CommitForge (Git &amp; Version Control)</span>
-                </button>
-              </li>
-
-              <li>
-                <button
-                  onClick={() => setMode('podforge')}
-                  style={{
-                    background: 'none',
-                    border: 'none',
-                    padding: 0,
-                    color: 'var(--text-secondary)',
-                    fontSize: '0.85rem',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.45rem',
-                    cursor: 'pointer',
-                    transition: 'color 0.15s ease',
-                  }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#38bdf8')}
-                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
-                >
-                  <Boxes size={14} color="#38bdf8" />
-                  <span>PodForge (Kubernetes Control Plane)</span>
+                  <span>Git Academy</span>
                 </button>
               </li>
 
@@ -162,24 +139,81 @@ export const Footer: React.FC = () => {
                     cursor: 'pointer',
                     transition: 'color 0.15s ease',
                   }}
-                  onMouseEnter={(e) => (e.currentTarget.style.color = '#0ea5e9')}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#38bdf8')}
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
                 >
-                  <Container size={14} color="#0ea5e9" />
-                  <span>DockForge (Docker &amp; Container Engine)</span>
+                  <Container size={14} color="#38bdf8" />
+                  <span>Docker Academy</span>
                 </button>
               </li>
 
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', color: '#64748b' }}>
-                <Cpu size={14} color="#ef4444" />
-                <span>Ansible (Configuration &amp; Automation)</span>
-                <span style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', borderRadius: '4px', background: 'rgba(239, 68, 68, 0.12)', color: '#ef4444', fontWeight: 700 }}>SOON</span>
+              <li>
+                <button
+                  onClick={() => setMode('podforge')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    cursor: 'pointer',
+                    transition: 'color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#60a5fa')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                >
+                  <Boxes size={14} color="#60a5fa" />
+                  <span>Kubernetes Academy</span>
+                </button>
               </li>
 
-              <li style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontSize: '0.85rem', color: '#64748b' }}>
-                <Cloud size={14} color="#a855f7" />
-                <span>Terraform &amp; OpenTofu</span>
-                <span style={{ fontSize: '0.68rem', padding: '0.1rem 0.4rem', borderRadius: '4px', background: 'rgba(168, 85, 247, 0.12)', color: '#a855f7', fontWeight: 700 }}>SOON</span>
+              <li>
+                <button
+                  onClick={() => setMode('linuxforge')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    cursor: 'pointer',
+                    transition: 'color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#06b6d4')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                >
+                  <Terminal size={14} color="#06b6d4" />
+                  <span>Linux Academy</span>
+                </button>
+              </li>
+
+              <li>
+                <button
+                  onClick={() => setMode('devops')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    padding: 0,
+                    color: 'var(--text-secondary)',
+                    fontSize: '0.85rem',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.45rem',
+                    cursor: 'pointer',
+                    transition: 'color 0.15s ease',
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = '#c084fc')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
+                >
+                  <Sparkles size={14} color="#c084fc" />
+                  <span>DevOps Academy (29 Chapters)</span>
+                </button>
               </li>
             </ul>
           </div>
@@ -301,7 +335,7 @@ export const Footer: React.FC = () => {
           }}
         >
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <span>&copy; {new Date().getFullYear()} Forge Suite. MIT License.</span>
+            <span>&copy; {new Date().getFullYear()} CloudStack. MIT License.</span>
             <span>&bull;</span>
             <span>Built for developers who learn by building, breaking, and fixing.</span>
           </div>

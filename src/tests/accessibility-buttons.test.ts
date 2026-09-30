@@ -33,9 +33,10 @@ describe('Accessibility: Accessible Names on Icon-Only Buttons (Issue #10)', () 
   it('ensures SuiteHeaderNav has aria-label on brand, navigation, and mobile menu toggle', () => {
     const filePath = path.resolve(__dirname, '../components/layout/SuiteHeaderNav.tsx');
     const content = fs.readFileSync(filePath, 'utf-8');
-    expect(content).toContain('aria-label="ForgeSuite Home"');
-    expect(content).toContain('aria-label="CommitForge Git Academy"');
-    expect(content).toContain('aria-label="DockForge Docker & Container Academy"');
-    expect(content).toContain('aria-label="PodForge Kubernetes Academy"');
+    expect(content).toContain('aria-label="CloudStack Home"');
+    expect(content).toContain('aria-label="Git Academy"');
+    expect(content).toContain('aria-label="Docker Academy"');
+    expect(content).toContain('aria-label="Kubernetes Academy"');
+    expect(content).toContain('aria-label="Linux Academy"');
   });
 });

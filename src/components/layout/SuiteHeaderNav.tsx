@@ -29,27 +29,27 @@ export const SuiteHeaderNav: React.FC = () => {
             setMobileMenuOpen(false);
           }}
           className="suite-brand-btn"
-          aria-label="ForgeSuite Home"
+          aria-label="CloudStack Home"
         >
           <div
             style={{
               width: '32px',
               height: '32px',
               borderRadius: '8px',
-              background: 'linear-gradient(135deg, #f05033 0%, #326ce5 100%)',
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #38bdf8 50%, #6366f1 100%)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              boxShadow: '0 2px 8px rgba(240, 80, 51, 0.3)',
+              boxShadow: '0 2px 8px rgba(14, 165, 233, 0.35)',
             }}
           >
-            <Flame size={18} color="#fff" />
+            <Boxes size={18} color="#fff" />
           </div>
           <span className="suite-brand-title" style={{ fontWeight: 800, fontSize: '1.05rem', letterSpacing: '-0.02em', color: 'var(--text-primary)' }}>
-            Forge<span style={{ color: '#38bdf8' }}>Suite</span>
+            Cloud<span style={{ color: '#38bdf8' }}>Stack</span>
           </span>
           <span className="suite-brand-badge">
-            DevOps Academies
+            Cloud &amp; DevOps Academies
           </span>
         </button>
       </div>
@@ -64,11 +64,11 @@ export const SuiteHeaderNav: React.FC = () => {
             border: '1px solid rgba(168, 85, 247, 0.35)',
             color: '#c084fc',
           }}
-          title="Open Master 29-Chapter DevOps & Cloud Engineering Academy"
-          aria-label="DevOps & Cloud Engineering Academy"
+          title="Open DevOps Academy (29 Chapters)"
+          aria-label="DevOps Academy"
         >
           <BookOpen size={15} />
-          <span className="suite-nav-text">DevOps Academy (29 Ch)</span>
+          <span className="suite-nav-text">DevOps</span>
         </button>
 
         <button
@@ -79,8 +79,8 @@ export const SuiteHeaderNav: React.FC = () => {
             border: '1px solid rgba(240, 80, 51, 0.3)',
             color: 'var(--git-orange)',
           }}
-          title="Open Git Academy (CommitForge)"
-          aria-label="CommitForge Git Academy"
+          title="Open Git Academy"
+          aria-label="Git Academy"
         >
           <GitBranch size={15} />
           <span className="suite-nav-text">Git</span>
@@ -94,8 +94,8 @@ export const SuiteHeaderNav: React.FC = () => {
             border: '1px solid rgba(14, 165, 233, 0.35)',
             color: '#38bdf8',
           }}
-          title="Open Docker Academy (DockForge)"
-          aria-label="DockForge Docker & Container Academy"
+          title="Open Docker Academy"
+          aria-label="Docker Academy"
         >
           <Container size={15} />
           <span className="suite-nav-text">Docker</span>
@@ -109,8 +109,8 @@ export const SuiteHeaderNav: React.FC = () => {
             border: '1px solid rgba(50, 108, 229, 0.3)',
             color: '#60a5fa',
           }}
-          title="Open Kubernetes Academy (PodForge)"
-          aria-label="PodForge Kubernetes Academy"
+          title="Open Kubernetes Academy"
+          aria-label="Kubernetes Academy"
         >
           <Boxes size={15} />
           <span className="suite-nav-text">Kubernetes</span>
@@ -124,8 +124,8 @@ export const SuiteHeaderNav: React.FC = () => {
             border: '1px solid rgba(6, 182, 212, 0.35)',
             color: '#06b6d4',
           }}
-          title="Open Linux Systems Academy (LinuxForge)"
-          aria-label="LinuxForge Linux Systems Academy"
+          title="Open Linux Academy"
+          aria-label="Linux Academy"
         >
           <Terminal size={15} />
           <span className="suite-nav-text">Linux</span>
@@ -140,8 +140,8 @@ export const SuiteHeaderNav: React.FC = () => {
             color: mode === 'roadmap' ? '#facc15' : 'var(--text-secondary)',
             boxShadow: mode === 'roadmap' ? '0 0 12px rgba(234, 179, 8, 0.2)' : 'none',
           }}
-          title="Explore DevOps & Cloud-Native Engineering Roadmap"
-          aria-label="DevOps & Cloud-Native Engineering Roadmap"
+          title="Explore Cloud & DevOps Engineering Roadmap"
+          aria-label="Cloud & DevOps Engineering Roadmap"
         >
           <Sparkles size={14} color={mode === 'roadmap' ? '#facc15' : '#eab308'} />
           <span className="suite-nav-text">Roadmap</span>
@@ -221,8 +221,8 @@ export const SuiteHeaderNav: React.FC = () => {
           >
             <GitBranch size={16} color="var(--git-orange)" />
             <div>
-              <div style={{ color: 'var(--git-orange)' }}>Git (CommitForge)</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Interactive Git Graph Academy</div>
+              <div style={{ color: 'var(--git-orange)' }}>Git Academy</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Interactive Git Graph &amp; CI/CD Academy</div>
             </div>
           </button>
 
@@ -236,7 +236,7 @@ export const SuiteHeaderNav: React.FC = () => {
           >
             <Container size={16} color="#38bdf8" />
             <div>
-              <div style={{ color: '#38bdf8' }}>Docker (DockForge)</div>
+              <div style={{ color: '#38bdf8' }}>Docker Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Docker &amp; Containerization Engine</div>
             </div>
           </button>
@@ -251,7 +251,7 @@ export const SuiteHeaderNav: React.FC = () => {
           >
             <Boxes size={16} color="#60a5fa" />
             <div>
-              <div style={{ color: '#60a5fa' }}>Kubernetes (PodForge)</div>
+              <div style={{ color: '#60a5fa' }}>Kubernetes Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Kubernetes Orchestration Academy</div>
             </div>
           </button>
@@ -266,7 +266,7 @@ export const SuiteHeaderNav: React.FC = () => {
           >
             <Terminal size={16} color="#06b6d4" />
             <div>
-              <div style={{ color: '#06b6d4' }}>Linux (LinuxForge)</div>
+              <div style={{ color: '#06b6d4' }}>Linux Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Linux Systems, Kernel &amp; SRE</div>
             </div>
           </button>
@@ -281,7 +281,7 @@ export const SuiteHeaderNav: React.FC = () => {
           >
             <Sparkles size={16} color="#facc15" />
             <div>
-              <div style={{ color: '#facc15' }}>DevOps Roadmap</div>
+              <div style={{ color: '#facc15' }}>Cloud &amp; DevOps Roadmap</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>9-Stage Engineering Curriculum</div>
             </div>
           </button>

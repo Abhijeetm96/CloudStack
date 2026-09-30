@@ -23,8 +23,9 @@ describe('Concepts Universe Independent Page Architecture', () => {
 
   it('ensures urlRouter maps universe to independent ViewMode and canonical segment', () => {
     expect(mapSegmentToMode('universe')).toBe('universe');
+    expect(mapSegmentToMode('cloudstack/universe')).toBe('universe');
     expect(mapSegmentToMode('concepts')).toBe('universe');
-    expect(mapModeToSegment('universe')).toBe('universe');
+    expect(mapModeToSegment('universe')).toBe('cloudstack/universe');
     expect(getTitleForMode('universe')).toContain('Concepts Universe');
   });
 

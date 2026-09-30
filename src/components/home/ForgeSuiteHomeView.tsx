@@ -166,7 +166,7 @@ export const ForgeSuiteHomeView: React.FC = () => {
             }}
           >
             <Sparkles size={14} className="text-sky-400" />
-            Forge Suite &bull; Interactive Engineering Academies
+            CloudStack &bull; Interactive Cloud &amp; DevOps Academies
           </div>
 
           <h1
