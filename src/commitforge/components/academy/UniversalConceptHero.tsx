@@ -1,5 +1,5 @@
 import React from 'react';
-import { UniversalConcept, ACADEMY_18_TOPICS } from '../../data/unifiedAcademyData';
+import { UniversalConcept, ACADEMY_18_TOPICS, COMMITFORGE_35_CHAPTERS } from '../../data/unifiedAcademyData';
 import {
   CheckCircle2,
   Bookmark,
@@ -30,8 +30,11 @@ export const UniversalConceptHero: React.FC<Props> = ({
   onSelectConcept,
 }) => {
   const { setMode } = useApp();
-  const topic = ACADEMY_18_TOPICS.find((t) => t.id === concept.topicId);
-  const isCiCd = concept.topicId === 'topic-15';
+  const topic =
+    COMMITFORGE_35_CHAPTERS.find((ch) => ch.id === concept.topicId || ch.concepts.some((c) => c.id === concept.id)) ||
+    ACADEMY_18_TOPICS.find((t) => t.id === concept.topicId);
+  const chNum = concept.topicId.startsWith('ch-') ? parseInt(concept.topicId.replace('ch-', ''), 10) : 0;
+  const isCiCd = concept.topicId === 'topic-15' || Boolean(concept.isCiCd) || (chNum >= 21 && chNum <= 34);
 
   return (
     <div
@@ -103,7 +106,7 @@ export const UniversalConceptHero: React.FC<Props> = ({
             type="button"
             onClick={() => {
               setMode('learn');
-              onSelectConcept?.('c-git-commit', 'Learn');
+              onSelectConcept?.('c-01-01', 'Learn');
             }}
             title="Return to Git Academy"
             style={{
