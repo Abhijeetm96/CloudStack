@@ -66,6 +66,8 @@ import {
   Compass,
 } from 'lucide-react';
 
+import { getCommitForgeConceptIcon } from '../../data/gitIcons';
+
 /**
  * Returns the matching Lucide icon for a given concept ID or command.
  */
@@ -76,6 +78,11 @@ export function getConceptIcon(
   color?: string
 ): React.ReactElement {
   const iconProps = { size, ...(color ? { color } : {}) };
+
+  // 1. Direct match for modern CommitForge 35-chapter curriculum (e.g. c-01-01 through c-35-12)
+  if (conceptId && /^c-\d{2}-\d{2}$/.test(conceptId)) {
+    return getCommitForgeConceptIcon({ id: conceptId, command }, size, color);
+  }
 
   if (conceptId) {
     switch (conceptId) {
@@ -180,6 +187,10 @@ export function getConceptIcon(
     if (cLower.includes('init')) return <Sparkles {...iconProps} />;
     if (cLower.includes('bisect')) return <Search {...iconProps} />;
     if (cLower.includes('log') || cLower.includes('reflog')) return <Clock {...iconProps} />;
+  }
+
+  if (conceptId || command) {
+    return getCommitForgeConceptIcon({ id: conceptId, command }, size, color);
   }
 
   return <BookOpen {...iconProps} />;
