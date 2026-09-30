@@ -180,7 +180,7 @@ export function getTitleForMode(mode: ViewMode, conceptTitle?: string | null): s
     case 'learn':
       return `${prefix}CommitForge | Interactive Git & Version Control Academy`;
     case 'universe':
-      return `${prefix}71 Concepts Universe | CommitForge Git Academy`;
+      return `${prefix}Concepts Universe | CommitForge Git Academy`;
     case 'roadmap':
       return `${prefix}DevOps & Cloud-Native Engineering Roadmap | Forge Suite`;
     case 'practice':
