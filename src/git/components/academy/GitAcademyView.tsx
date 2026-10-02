@@ -545,25 +545,25 @@ export const GitAcademyView: React.FC<Props> = ({ initialConceptId }) => {
                     </span>
                   )}
 
-                  {isProject && (
-                    <span
-                      style={{
-                        fontSize: '0.55rem',
-                        fontWeight: 800,
-                        padding: '0.08rem 0.35rem',
-                        borderRadius: '3px',
-                        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-                        color: '#ffffff',
-                        letterSpacing: '0.03em',
-                        textTransform: 'uppercase',
-                        marginLeft: 'auto',
-                        marginRight: '0.2rem',
-                        flexShrink: 0,
-                      }}
-                    >
-                      PROJECT
-                    </span>
-                  )}
+                    {isProject && (
+                      <span
+                        style={{
+                          fontSize: '0.55rem',
+                          fontWeight: 800,
+                          padding: '0.08rem 0.35rem',
+                          borderRadius: '3px',
+                          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
+                          color: '#ffffff',
+                          letterSpacing: '0.03em',
+                          textTransform: 'uppercase',
+                          marginLeft: 'auto',
+                          marginRight: '0.2rem',
+                          flexShrink: 0,
+                        }}
+                      >
+                        🏆 CAPSTONES
+                      </span>
+                    )}
                 </div>
 
                 <span

@@ -28,7 +28,11 @@ import {
   ArrowRight,
   AlertTriangle,
   Sparkles,
+  Award,
 } from 'lucide-react';
+import { GIT_CAPSTONES } from '../../../platform/capstones/data/gitCapstones';
+import { StandardCapstoneRunnerModal } from '../../../platform/capstones/StandardCapstoneRunnerModal';
+import { CapstoneProject } from '../../../platform/capstones/types';
 
 interface Props {
   concept: UniversalConcept;
@@ -55,6 +59,7 @@ export const UniversalConceptView: React.FC<Props> = ({
   const [exploreContentType, setExploreContentType] = useState<'all' | 'variations' | 'scenarios' | 'comparisons' | 'pitfalls'>('all');
   const [actionStageView, setActionStageView] = useState<'stage' | 'gitWorld' | 'cicdPipeline' | 'lifecycle'>('stage');
   const [syntaxTab, setSyntaxTab] = useState<'cli' | 'yaml'>('cli');
+  const [activeCapstone, setActiveCapstone] = useState<CapstoneProject | null>(null);
 
   React.useEffect(() => {
     if (isCiCd) {
@@ -105,6 +110,128 @@ export const UniversalConceptView: React.FC<Props> = ({
         onSelectTab={onSelectTab}
         onSelectConcept={onSelectConcept}
       />
+
+      {/* Chapter 35: Dedicated Real-World Capstone Projects Section */}
+      {(chNum === 35 || concept.topicId === 'ch-35' || concept.topicId === 'topic-35') && (
+        <div
+          style={{
+            background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.12) 100%)',
+            border: '1.5px solid rgba(245, 158, 11, 0.45)',
+            borderRadius: '14px',
+            padding: '1.35rem 1.6rem',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1.15rem',
+            boxShadow: '0 10px 30px rgba(245, 158, 11, 0.15)',
+          }}
+        >
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+              <div
+                style={{
+                  width: '42px',
+                  height: '42px',
+                  borderRadius: '12px',
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  boxShadow: '0 0 18px rgba(245, 158, 11, 0.4)',
+                }}
+              >
+                <Award size={24} color="#fff" />
+              </div>
+              <div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#f8fafc' }}>
+                    Git Academy Capstone Projects (Chapter 35)
+                  </h3>
+                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.2)', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
+                    4 REAL-WORLD LABS
+                  </span>
+                </div>
+                <p style={{ margin: '0.25rem 0 0', fontSize: '0.82rem', color: '#cbd5e1' }}>
+                  The culmination of Git mastery: Execute production branching workflows, resolve multi-developer merge conflicts, simulate open-source contribution PRs, and engineer hotfix release branches with automated tags.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '0.85rem' }}>
+            {GIT_CAPSTONES.map((cap) => (
+              <div
+                key={cap.id}
+                onClick={() => setActiveCapstone(cap)}
+                style={{
+                  background: 'rgba(15, 23, 42, 0.85)',
+                  border: '1px solid rgba(255, 255, 255, 0.1)',
+                  borderRadius: '10px',
+                  padding: '1rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  justifyContent: 'space-between',
+                  gap: '0.75rem',
+                  cursor: 'pointer',
+                  transition: 'all 0.15s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.6)';
+                  e.currentTarget.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                  e.currentTarget.style.transform = 'translateY(0)';
+                }}
+              >
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'monospace' }}>
+                      {cap.code}
+                    </span>
+                    <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: '#fde047' }}>
+                      {cap.difficulty}
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.3rem' }}>
+                    {cap.title}
+                  </div>
+                  <div style={{ fontSize: '0.76rem', color: '#94a3b8', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                    {cap.overview}
+                  </div>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.6rem' }}>
+                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                    {cap.tasks.length} Tasks · {cap.estimatedTime}
+                  </span>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setActiveCapstone(cap);
+                    }}
+                    style={{
+                      background: 'linear-gradient(135deg, #d97706, #b45309)',
+                      border: 'none',
+                      color: '#fff',
+                      padding: '0.35rem 0.75rem',
+                      borderRadius: '6px',
+                      fontSize: '0.76rem',
+                      fontWeight: 800,
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '0.35rem',
+                    }}
+                  >
+                    <Play size={12} fill="#fff" />
+                    <span>Launch Capstone</span>
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* ================================================================ */}
       {/* TAB 1: LEARN (Default Beginner-First Experience)                  */}
@@ -855,6 +982,15 @@ export const UniversalConceptView: React.FC<Props> = ({
       {/* ================================================================ */}
       {activeTab === 'Reference' && (
         <ConceptReferenceTab concept={concept} />
+      )}
+
+      {/* Capstone Runner Modal */}
+      {activeCapstone && (
+        <StandardCapstoneRunnerModal
+          project={activeCapstone}
+          isOpen={true}
+          onClose={() => setActiveCapstone(null)}
+        />
       )}
     </div>
   );
