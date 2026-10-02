@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useProgress } from '../../progress';
-import { Flame, Boxes, Sparkles, Search, GitBranch, Container, Database, Menu, X, Terminal, BookOpen, Layers } from 'lucide-react';
+import { Boxes, Sparkles, Search, Database, Menu, X } from 'lucide-react';
+import {
+  GitOfficialIcon,
+  DockerOfficialIcon,
+  KubernetesOfficialIcon,
+  LinuxOfficialIcon,
+  TerraformOfficialIcon,
+  DevOpsOfficialIcon,
+  RoadmapOfficialIcon,
+} from '../common/TechnologyIcons';
 import './suiteHeaderNav.css';
 
 export const SuiteHeaderNav: React.FC = () => {
@@ -60,14 +69,14 @@ export const SuiteHeaderNav: React.FC = () => {
           onClick={() => setMode('devops')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'devops' ? 'rgba(168, 85, 247, 0.24)' : 'rgba(168, 85, 247, 0.12)',
-            border: '1px solid rgba(168, 85, 247, 0.35)',
-            color: '#c084fc',
+            background: mode === 'devops' ? 'rgba(168, 85, 247, 0.28)' : 'rgba(168, 85, 247, 0.1)',
+            border: mode === 'devops' ? '1px solid rgba(168, 85, 247, 0.65)' : '1px solid rgba(168, 85, 247, 0.25)',
+            boxShadow: mode === 'devops' ? '0 0 14px rgba(168, 85, 247, 0.35)' : 'none',
           }}
-          title="Open DevOps Academy (29 Chapters)"
+          title="DevOps Academy (29 Chapters)"
           aria-label="DevOps Academy"
         >
-          <BookOpen size={15} />
+          <DevOpsOfficialIcon size={22} />
           <span className="suite-nav-text">DevOps</span>
         </button>
 
@@ -75,14 +84,14 @@ export const SuiteHeaderNav: React.FC = () => {
           onClick={() => setMode('learn')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'learn' ? 'rgba(240, 80, 51, 0.22)' : 'rgba(240, 80, 51, 0.1)',
-            border: '1px solid rgba(240, 80, 51, 0.3)',
-            color: 'var(--git-orange)',
+            background: mode === 'learn' ? 'rgba(240, 80, 51, 0.28)' : 'rgba(240, 80, 51, 0.1)',
+            border: mode === 'learn' ? '1px solid rgba(240, 80, 51, 0.65)' : '1px solid rgba(240, 80, 51, 0.25)',
+            boxShadow: mode === 'learn' ? '0 0 14px rgba(240, 80, 51, 0.35)' : 'none',
           }}
-          title="Open Git Academy"
+          title="Git Academy"
           aria-label="Git Academy"
         >
-          <GitBranch size={15} />
+          <GitOfficialIcon size={22} />
           <span className="suite-nav-text">Git</span>
         </button>
 
@@ -90,14 +99,14 @@ export const SuiteHeaderNav: React.FC = () => {
           onClick={() => setMode('docker')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'docker' ? 'rgba(14, 165, 233, 0.24)' : 'rgba(14, 165, 233, 0.12)',
-            border: '1px solid rgba(14, 165, 233, 0.35)',
-            color: '#38bdf8',
+            background: mode === 'docker' ? 'rgba(36, 150, 237, 0.28)' : 'rgba(36, 150, 237, 0.1)',
+            border: mode === 'docker' ? '1px solid rgba(36, 150, 237, 0.65)' : '1px solid rgba(36, 150, 237, 0.25)',
+            boxShadow: mode === 'docker' ? '0 0 14px rgba(36, 150, 237, 0.35)' : 'none',
           }}
-          title="Open Docker Academy"
+          title="Docker Academy"
           aria-label="Docker Academy"
         >
-          <Container size={15} />
+          <DockerOfficialIcon size={22} />
           <span className="suite-nav-text">Docker</span>
         </button>
 
@@ -105,14 +114,14 @@ export const SuiteHeaderNav: React.FC = () => {
           onClick={() => setMode('kubernetes')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'kubernetes' ? 'rgba(50, 108, 229, 0.22)' : 'rgba(50, 108, 229, 0.1)',
-            border: '1px solid rgba(50, 108, 229, 0.3)',
-            color: '#60a5fa',
+            background: mode === 'kubernetes' ? 'rgba(50, 108, 229, 0.28)' : 'rgba(50, 108, 229, 0.1)',
+            border: mode === 'kubernetes' ? '1px solid rgba(50, 108, 229, 0.65)' : '1px solid rgba(50, 108, 229, 0.25)',
+            boxShadow: mode === 'kubernetes' ? '0 0 14px rgba(50, 108, 229, 0.35)' : 'none',
           }}
-          title="Open Kubernetes Academy"
+          title="Kubernetes Academy"
           aria-label="Kubernetes Academy"
         >
-          <Boxes size={15} />
+          <KubernetesOfficialIcon size={22} />
           <span className="suite-nav-text">Kubernetes</span>
         </button>
 
@@ -120,14 +129,14 @@ export const SuiteHeaderNav: React.FC = () => {
           onClick={() => setMode('linuxforge')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'linuxforge' ? 'rgba(6, 182, 212, 0.24)' : 'rgba(6, 182, 212, 0.12)',
-            border: '1px solid rgba(6, 182, 212, 0.35)',
-            color: '#06b6d4',
+            background: mode === 'linuxforge' ? 'rgba(252, 198, 36, 0.24)' : 'rgba(252, 198, 36, 0.08)',
+            border: mode === 'linuxforge' ? '1px solid rgba(252, 198, 36, 0.6)' : '1px solid rgba(252, 198, 36, 0.22)',
+            boxShadow: mode === 'linuxforge' ? '0 0 14px rgba(252, 198, 36, 0.3)' : 'none',
           }}
-          title="Open Linux Academy"
+          title="Linux Academy"
           aria-label="Linux Academy"
         >
-          <Terminal size={15} />
+          <LinuxOfficialIcon size={22} />
           <span className="suite-nav-text">Linux</span>
         </button>
 
@@ -135,14 +144,14 @@ export const SuiteHeaderNav: React.FC = () => {
           onClick={() => setMode('terraform')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'terraform' ? 'rgba(132, 79, 186, 0.26)' : 'rgba(132, 79, 186, 0.12)',
-            border: '1px solid rgba(132, 79, 186, 0.35)',
-            color: '#c084fc',
+            background: mode === 'terraform' ? 'rgba(132, 79, 186, 0.3)' : 'rgba(132, 79, 186, 0.1)',
+            border: mode === 'terraform' ? '1px solid rgba(132, 79, 186, 0.65)' : '1px solid rgba(132, 79, 186, 0.25)',
+            boxShadow: mode === 'terraform' ? '0 0 14px rgba(132, 79, 186, 0.35)' : 'none',
           }}
-          title="Open Terraform Academy (50 Chapters)"
+          title="Terraform Academy (50 Chapters)"
           aria-label="Terraform Academy"
         >
-          <Layers size={15} />
+          <TerraformOfficialIcon size={22} />
           <span className="suite-nav-text">Terraform</span>
         </button>
 
@@ -150,15 +159,14 @@ export const SuiteHeaderNav: React.FC = () => {
           onClick={() => setMode('roadmap')}
           className="suite-nav-btn"
           style={{
-            background: mode === 'roadmap' ? 'rgba(234, 179, 8, 0.16)' : 'transparent',
-            border: mode === 'roadmap' ? '1px solid rgba(234, 179, 8, 0.45)' : '1px solid var(--border-color)',
-            color: mode === 'roadmap' ? '#facc15' : 'var(--text-secondary)',
-            boxShadow: mode === 'roadmap' ? '0 0 12px rgba(234, 179, 8, 0.2)' : 'none',
+            background: mode === 'roadmap' ? 'rgba(234, 179, 8, 0.22)' : 'transparent',
+            border: mode === 'roadmap' ? '1px solid rgba(234, 179, 8, 0.6)' : '1px solid var(--border-color)',
+            boxShadow: mode === 'roadmap' ? '0 0 14px rgba(234, 179, 8, 0.3)' : 'none',
           }}
-          title="Explore Cloud & DevOps Engineering Roadmap"
+          title="Cloud & DevOps Engineering Roadmap"
           aria-label="Cloud & DevOps Engineering Roadmap"
         >
-          <Sparkles size={14} color={mode === 'roadmap' ? '#facc15' : '#eab308'} />
+          <RoadmapOfficialIcon size={22} />
           <span className="suite-nav-text">Roadmap</span>
         </button>
       </div>
@@ -219,9 +227,9 @@ export const SuiteHeaderNav: React.FC = () => {
             className="suite-mobile-item"
             style={{ borderLeft: '3px solid #c084fc' }}
           >
-            <BookOpen size={16} color="#c084fc" />
+            <DevOpsOfficialIcon size={20} />
             <div>
-              <div style={{ color: '#c084fc' }}>DevOps Academy (29 Ch)</div>
+              <div style={{ color: '#c084fc', fontWeight: 700 }}>DevOps Academy (29 Ch)</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Master DevOps &amp; Cloud Curriculum</div>
             </div>
           </button>
@@ -234,9 +242,9 @@ export const SuiteHeaderNav: React.FC = () => {
             className="suite-mobile-item"
             style={{ borderLeft: '3px solid var(--git-orange)' }}
           >
-            <GitBranch size={16} color="var(--git-orange)" />
+            <GitOfficialIcon size={20} />
             <div>
-              <div style={{ color: 'var(--git-orange)' }}>Git Academy</div>
+              <div style={{ color: 'var(--git-orange)', fontWeight: 700 }}>Git Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Interactive Git Graph &amp; CI/CD Academy</div>
             </div>
           </button>
@@ -249,9 +257,9 @@ export const SuiteHeaderNav: React.FC = () => {
             className="suite-mobile-item"
             style={{ borderLeft: '3px solid #38bdf8' }}
           >
-            <Container size={16} color="#38bdf8" />
+            <DockerOfficialIcon size={20} />
             <div>
-              <div style={{ color: '#38bdf8' }}>Docker Academy</div>
+              <div style={{ color: '#38bdf8', fontWeight: 700 }}>Docker Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Docker &amp; Containerization Engine</div>
             </div>
           </button>
@@ -264,9 +272,9 @@ export const SuiteHeaderNav: React.FC = () => {
             className="suite-mobile-item"
             style={{ borderLeft: '3px solid #60a5fa' }}
           >
-            <Boxes size={16} color="#60a5fa" />
+            <KubernetesOfficialIcon size={20} />
             <div>
-              <div style={{ color: '#60a5fa' }}>Kubernetes Academy</div>
+              <div style={{ color: '#60a5fa', fontWeight: 700 }}>Kubernetes Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Kubernetes Orchestration Academy</div>
             </div>
           </button>
@@ -279,9 +287,9 @@ export const SuiteHeaderNav: React.FC = () => {
             className="suite-mobile-item"
             style={{ borderLeft: '3px solid #06b6d4' }}
           >
-            <Terminal size={16} color="#06b6d4" />
+            <LinuxOfficialIcon size={20} />
             <div>
-              <div style={{ color: '#06b6d4' }}>Linux Academy</div>
+              <div style={{ color: '#06b6d4', fontWeight: 700 }}>Linux Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Linux Systems, Kernel &amp; SRE</div>
             </div>
           </button>
@@ -294,9 +302,9 @@ export const SuiteHeaderNav: React.FC = () => {
             className="suite-mobile-item"
             style={{ borderLeft: '3px solid #c084fc' }}
           >
-            <Layers size={16} color="#c084fc" />
+            <TerraformOfficialIcon size={20} />
             <div>
-              <div style={{ color: '#c084fc' }}>Terraform Academy</div>
+              <div style={{ color: '#c084fc', fontWeight: 700 }}>Terraform Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Infrastructure as Code (50 Chapters)</div>
             </div>
           </button>
@@ -309,9 +317,9 @@ export const SuiteHeaderNav: React.FC = () => {
             className="suite-mobile-item"
             style={{ borderLeft: '3px solid #facc15' }}
           >
-            <Sparkles size={16} color="#facc15" />
+            <RoadmapOfficialIcon size={20} />
             <div>
-              <div style={{ color: '#facc15' }}>Cloud &amp; DevOps Roadmap</div>
+              <div style={{ color: '#facc15', fontWeight: 700 }}>Cloud &amp; DevOps Roadmap</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>9-Stage Engineering Curriculum</div>
             </div>
           </button>
