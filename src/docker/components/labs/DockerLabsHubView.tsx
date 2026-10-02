@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { DOCKER_LAB_SCENARIOS, DockerLabScenario } from '../../data/dockerLabs';
 import { useDocker } from '../../context/DockerContext';
 import { DockerTerminal } from '../terminal/DockerTerminal';
-import { ShieldAlert, CheckCircle2, ArrowRight, RefreshCw, Terminal, AlertTriangle, Lightbulb } from 'lucide-react';
+import { ShieldAlert, CheckCircle2, ArrowRight, RefreshCw, Terminal, AlertTriangle, Lightbulb, Rocket } from 'lucide-react';
+import { StandardCapstoneHubView } from '../../../platform/capstones/StandardCapstoneHubView';
 
 export const DockerLabsHubView: React.FC = () => {
   const { executeCommand } = useDocker();
+  const [activeTab, setActiveTab] = useState<'capstones' | 'incidents'>('capstones');
   const [activeScenarioId, setActiveScenarioId] = useState<string>(DOCKER_LAB_SCENARIOS[0].id);
   const [completedScenarios, setCompletedScenarios] = useState<string[]>([]);
 
@@ -19,6 +21,54 @@ export const DockerLabsHubView: React.FC = () => {
       }
     }
   };
+
+  if (activeTab === 'capstones') {
+    return (
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1.5rem', background: '#0a101d', borderBottom: '1px solid rgba(56, 189, 248, 0.2)' }}>
+          <button
+            onClick={() => setActiveTab('capstones')}
+            style={{
+              background: 'rgba(56, 189, 248, 0.2)',
+              border: '1px solid #38bdf8',
+              color: '#38bdf8',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '6px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <Rocket size={15} /> 5 Docker Capstone Projects (DOCKER-01 to DOCKER-05)
+          </button>
+          <button
+            onClick={() => setActiveTab('incidents')}
+            style={{
+              background: 'none',
+              border: '1px solid rgba(71, 85, 105, 0.5)',
+              color: '#94a3b8',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <ShieldAlert size={15} /> Incident Triage &amp; SRE Labs
+          </button>
+        </div>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          <StandardCapstoneHubView initialAcademy="docker" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div style={{ flex: 1, display: 'flex', height: '100%', width: '100%', overflow: 'hidden' }}>
