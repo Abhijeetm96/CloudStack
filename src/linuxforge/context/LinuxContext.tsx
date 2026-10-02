@@ -9,7 +9,7 @@ import {
 import { defaultLinuxSimulator, LinuxExecutionResult } from '../data/linuxSimulatorEngine';
 import { parseCurrentRoute, syncUrlWithMode } from '../../platform/routing/urlRouter';
 
-export type LinuxMode = 'academy' | 'universe' | 'practice' | 'reference';
+export type LinuxMode = 'academy' | 'universe' | 'practice' | 'reference' | 'capstones';
 
 export interface TerminalEntry {
   command?: string;
@@ -46,7 +46,7 @@ export const LinuxProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [mode, setMode] = useState<LinuxMode>(() => {
     try {
       const saved = localStorage.getItem('linuxforge_initial_mode') as LinuxMode;
-      if (saved && ['academy', 'universe', 'practice', 'reference'].includes(saved)) {
+      if (saved && ['academy', 'universe', 'practice', 'reference', 'capstones'].includes(saved)) {
         localStorage.removeItem('linuxforge_initial_mode');
         return saved;
       }
