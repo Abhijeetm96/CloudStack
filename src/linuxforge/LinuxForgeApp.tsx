@@ -5,6 +5,7 @@ import { LinuxAcademyView } from './components/academy/LinuxAcademyView';
 import { LinuxConceptsUniverseView } from './components/universe/LinuxConceptsUniverseView';
 import { LinuxPracticeView } from './components/practice/LinuxPracticeView';
 import { LinuxReferenceView } from './components/reference/LinuxReferenceView';
+import { StandardCapstoneHubView } from '../platform/capstones/StandardCapstoneHubView';
 import { ViewMode } from '../context/AppContext';
 
 interface LinuxForgeAppProps {
@@ -53,10 +54,11 @@ const LinuxForgeContent: React.FC<LinuxForgeAppProps> = ({ onSwitchToSuite, init
           overflow: 'hidden',
         }}
       >
+        {mode === 'capstones' && <StandardCapstoneHubView initialAcademy="linux" />}
         {mode === 'universe' && <LinuxConceptsUniverseView />}
         {mode === 'practice' && <LinuxPracticeView />}
         {mode === 'reference' && <LinuxReferenceView />}
-        {(mode === 'academy' || (mode !== 'universe' && mode !== 'practice' && mode !== 'reference')) && (
+        {(mode === 'academy' || (mode !== 'capstones' && mode !== 'universe' && mode !== 'practice' && mode !== 'reference')) && (
           <LinuxAcademyView onSwitchToSuite={onSwitchToSuite} />
         )}
       </main>
