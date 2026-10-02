@@ -550,6 +550,26 @@ export const LINUX_CAPSTONES: CapstoneProject[] = [
         hints: ['You cannot kill a zombie process directly because it is already dead; you must signal or kill its parent.'],
         explanation: 'Zombies consume slots in the kernel process table (/proc). If exhausted, the kernel cannot spawn new processes.',
       },
+      {
+        id: 'task-7',
+        title: 'Triage Memory Exhaustion & OOM Panic Risk',
+        objective: 'Identify memory leak culprits, drop kernel page caches, and enforce memory limits.',
+        commandSnippet: 'ps -eo pid,pmem,rss,comm --sort=-pmem | head -n 10\nsync && echo 3 > /proc/sys/vm/drop_caches\nfree -h',
+        expectedOutput: 'Kernel page cache reclaimed. Available memory stabilizes above 1GB.',
+        verificationCriteria: 'free -m shows available memory exceeding 500MB.',
+        hints: ['Use free -h and vmstat 1 5 to inspect swap churn and cache consumption.'],
+        explanation: 'Memory exhaustion triggers the Linux kernel Out-Of-Memory (OOM) killer which terminates critical services.',
+      },
+      {
+        id: 'task-8',
+        title: 'Diagnose & Restore Broken systemd Database Service',
+        objective: 'Inspect systemd journal logs to find why postgresql.service crashed and restore it.',
+        commandSnippet: 'journalctl -u postgresql -n 25 --no-pager\nchown -R postgres:postgres /var/lib/postgresql 2>/dev/null || true\nsystemctl restart postgresql || systemctl restart nginx\nsystemctl is-active postgresql || systemctl is-active nginx',
+        expectedOutput: 'Service restarted successfully. Status: active (running).',
+        verificationCriteria: 'systemctl is-active returns active.',
+        hints: ['Use journalctl -xeu <service> to see exact stdout and stderr upon service start failure.'],
+        explanation: 'Systemd units fail when permissions or disk allocation conditions prevent PID socket creation.',
+      },
     ],
     failureScenarios: [
       {
