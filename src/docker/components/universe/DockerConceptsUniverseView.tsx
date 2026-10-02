@@ -1,76 +1,96 @@
 import React, { useMemo } from 'react';
 import { useDocker } from '../../context/DockerContext';
-import { DOCKER_14_TOPICS, DOCKER_UNIVERSAL_CONCEPTS } from '../../data/unifiedDockerData';
-import { ensureFullConceptData } from '../../data/conceptDataEnricher';
+import { ALL_DOCKER_CHAPTERS, ALL_DOCKER_LESSONS } from '../../data';
 import {
   StandardConceptsUniverse,
   UniverseConceptItem,
   UniverseTopicFilter,
+  CurriculumPackFilter,
 } from '../../../platform/layout/StandardConceptsUniverse';
 import { Container } from 'lucide-react';
 
 export const DockerConceptsUniverseView: React.FC = () => {
   const { setMode, setActiveConceptId, setActiveTopicId } = useDocker();
 
-  // Convert topics to universe filters
+  // Convert all 68 chapters to universe filters
   const topics: UniverseTopicFilter[] = useMemo(() => {
-    return DOCKER_14_TOPICS.map((t) => ({
-      id: t.id,
-      number: t.number,
-      title: t.title,
+    return ALL_DOCKER_CHAPTERS.map((ch) => ({
+      id: ch.id,
+      number: String(ch.number).padStart(2, '0'),
+      title: ch.title,
     }));
   }, []);
 
-  // Convert all 42 concepts to standard universe items
-  const concepts: UniverseConceptItem[] = useMemo(() => {
-    return DOCKER_14_TOPICS.flatMap((t) =>
-      t.concepts.map((cRef) => {
-        const raw = DOCKER_UNIVERSAL_CONCEPTS[cRef.id] || {
-          id: cRef.id,
-          topicId: t.id,
-          topicNumber: t.number,
-          topicTitle: t.title,
-          title: cRef.title,
-          command: cRef.command,
-          difficulty: cRef.difficulty,
-          shortDesc: cRef.shortDesc,
-        };
-        const full = ensureFullConceptData(raw as any);
+  // Standard 6-Pack Curriculum groupings for 68 chapters
+  const curriculumPacks: CurriculumPackFilter[] = useMemo(
+    () => [
+      { id: 'all', title: 'All Chapters (1-68)', range: [1, 68] },
+      { id: 'pack-1', title: 'Pack 1: Foundations (1-10)', range: [1, 10] },
+      { id: 'pack-2', title: 'Pack 2: Images & Storage (11-20)', range: [11, 20] },
+      { id: 'pack-3', title: 'Pack 3: Networking & CLI (21-30)', range: [21, 30] },
+      { id: 'pack-4', title: 'Pack 4: Linux Internals (31-40)', range: [31, 40] },
+      { id: 'pack-5', title: 'Pack 5: Operations & Security (41-55)', range: [41, 55] },
+      { id: 'pack-6', title: 'Pack 6: Cloud Native & Mastery (56-68)', range: [56, 68] },
+    ],
+    []
+  );
 
-        return {
-          id: full.id,
-          command: full.command,
-          title: full.title,
-          subtitle: full.subtitle || cRef.shortDesc,
-          topicId: t.id,
-          topicNumber: t.number,
-          topicTitle: t.title,
-          difficulty: full.difficulty,
-          whatIsIt: full.whatIsIt,
-          whyDoWeNeedIt: full.whyDoYouNeedIt,
-          variations: full.variations,
-          scenarios: full.scenarios?.map((s) => ({
-            id: s.id,
-            title: s.title,
-            context: s.context,
-            question: s.question,
-            options: s.options,
-          })),
-          mistakes: full.commonMistakes?.map((m) => ({
-            mistake: m.mistake,
-            whyWrong: m.whyWrong,
-            correctWay: m.correctWay,
-          })),
-        };
-      })
-    );
+  // Convert all 1,038 Docker lessons into standard universe concept items
+  const concepts: UniverseConceptItem[] = useMemo(() => {
+    return ALL_DOCKER_LESSONS.map((lesson) => ({
+      id: lesson.id,
+      command: lesson.syntax.split('\n')[0] || `docker ${lesson.subchapterTitle.toLowerCase()}`,
+      title: lesson.subchapterTitle,
+      subtitle: lesson.definition,
+      subChapterNumber: lesson.subchapterNumber,
+      badges: [lesson.trackGroup, lesson.difficulty, `Ch ${lesson.chapterNumber}`],
+      topicId: `ch-${String(lesson.chapterNumber).padStart(2, '0')}`,
+      topicNumber: String(lesson.chapterNumber).padStart(2, '0'),
+      topicTitle: lesson.chapterTitle,
+      difficulty: lesson.difficulty,
+      whatIsIt: lesson.definition,
+      whyDoWeNeedIt: lesson.whyItExists,
+      variations: lesson.variations?.map((v) => ({
+        title: v,
+        syntax: v,
+        whatItDoes: v,
+        whenToUse: 'When configuring container runtime parameters',
+      })),
+      scenarios: [
+        {
+          id: `${lesson.id}-scenario`,
+          title: `${lesson.subchapterTitle} Challenge`,
+          context: lesson.challenge?.scenario || lesson.problemSolved,
+          question: lesson.challenge?.goal || 'How do you execute this container task?',
+          options: [
+            {
+              label: lesson.challenge?.testVerification || lesson.syntax.split('\n')[0] || 'docker run',
+              command: lesson.challenge?.testVerification || lesson.syntax.split('\n')[0] || 'docker run',
+              isCorrect: true,
+              explanation: lesson.technicalExplanation,
+            },
+            {
+              label: lesson.dangerousExample || 'docker run --privileged ...',
+              command: lesson.dangerousExample || 'docker run --privileged ...',
+              isCorrect: false,
+              explanation: lesson.commonMistakes?.[0] || 'This can introduce stability or isolation issues.',
+            },
+          ],
+        },
+      ],
+      mistakes: lesson.commonMistakes?.map((m) => ({
+        mistake: m,
+        whyWrong: lesson.commonMisconceptions?.[0] || 'Violates Docker container isolation principles.',
+        correctWay: lesson.safeExample || lesson.syntax.split('\n')[0] || 'Follow standard declarative Docker patterns',
+      })) || [],
+    }));
   }, []);
 
   const handleLaunchLesson = (conceptId: string) => {
     setActiveConceptId(conceptId);
-    const parentTopic = DOCKER_14_TOPICS.find((t) => t.concepts.some((c) => c.id === conceptId));
-    if (parentTopic) {
-      setActiveTopicId(parentTopic.id);
+    const parentCh = ALL_DOCKER_CHAPTERS.find((ch) => ch.lessons.some((l) => l.id === conceptId));
+    if (parentCh) {
+      setActiveTopicId(parentCh.id);
     }
     setMode('academy');
   };
@@ -78,9 +98,10 @@ export const DockerConceptsUniverseView: React.FC = () => {
   return (
     <StandardConceptsUniverse
       academyName="Docker"
-      totalConceptCount={42}
+      totalConceptCount={ALL_DOCKER_LESSONS.length}
       topics={topics}
       concepts={concepts}
+      curriculumPacks={curriculumPacks}
       accentColor="#38bdf8"
       accentGradient="linear-gradient(135deg, #0ea5e9 0%, #0284c7 100%)"
       brandIcon={Container}
@@ -88,3 +109,5 @@ export const DockerConceptsUniverseView: React.FC = () => {
     />
   );
 };
+
+export default DockerConceptsUniverseView;
