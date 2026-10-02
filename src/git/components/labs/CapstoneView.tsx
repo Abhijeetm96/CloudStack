@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { CAPSTONE_MISSION, calculateGitProfile, SkillScore } from '../../data/capstone';
 import { useApp } from '../../context/AppContext';
-import { Award, CheckCircle2, AlertTriangle, ArrowRight, ShieldCheck, UserCheck, Star, FileText } from 'lucide-react';
+import { Award, CheckCircle2, AlertTriangle, ArrowRight, ShieldCheck, UserCheck, Star, FileText, Layers, Rocket } from 'lucide-react';
+import { StandardCapstoneHubView } from '../../../platform/capstones/StandardCapstoneHubView';
 
 export const CapstoneView: React.FC = () => {
   const { repo, executeCommand, setProjectKey } = useApp();
+  const [activeSubMode, setActiveSubMode] = useState<'capstones' | 'assessment'>('capstones');
   const [currentStepIdx, setCurrentStepIdx] = useState<number>(0);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [showReport, setShowReport] = useState<boolean>(false);
@@ -28,19 +30,63 @@ export const CapstoneView: React.FC = () => {
 
   return (
     <div style={{ padding: '1.5rem', width: '100%', maxWidth: '100%', boxSizing: 'border-box', margin: '0 auto', display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-      <div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--git-orange)', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>
-          <Award size={16} /> Final Capstone Developer Assessment
-        </div>
-        <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: '0.2rem' }}>
-          Your First Day as a Developer 🏢
-        </h1>
-        <p style={{ color: 'var(--text-secondary)', marginTop: '0.3rem' }}>
-          No tutorials. No given commands. Step into the shoes of a newly hired engineer on an active software development team and ship a production bug fix independently.
-        </p>
+      {/* Mode Switcher */}
+      <div style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border-color)', paddingBottom: '0.75rem' }}>
+        <button
+          onClick={() => setActiveSubMode('capstones')}
+          style={{
+            background: activeSubMode === 'capstones' ? 'rgba(240, 80, 51, 0.2)' : 'var(--bg-surface)',
+            border: activeSubMode === 'capstones' ? '1px solid var(--git-orange)' : '1px solid var(--border-color)',
+            color: activeSubMode === 'capstones' ? 'var(--git-orange)' : 'var(--text-secondary)',
+            padding: '0.5rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            fontWeight: 700,
+            fontSize: '0.88rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+          }}
+        >
+          <Rocket size={16} /> 4 Git Capstone Projects (GIT-01 to GIT-04)
+        </button>
+        <button
+          onClick={() => setActiveSubMode('assessment')}
+          style={{
+            background: activeSubMode === 'assessment' ? 'rgba(240, 80, 51, 0.2)' : 'var(--bg-surface)',
+            border: activeSubMode === 'assessment' ? '1px solid var(--git-orange)' : '1px solid var(--border-color)',
+            color: activeSubMode === 'assessment' ? 'var(--git-orange)' : 'var(--text-secondary)',
+            padding: '0.5rem 1rem',
+            borderRadius: 'var(--radius-sm)',
+            fontWeight: 700,
+            fontSize: '0.88rem',
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.4rem',
+          }}
+        >
+          <Award size={16} /> Day 1 Assessment Mission
+        </button>
       </div>
 
-      {/* Ticket Briefing Header */}
+      {activeSubMode === 'capstones' ? (
+        <StandardCapstoneHubView initialAcademy="git" />
+      ) : (
+        <>
+          <div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--git-orange)', fontWeight: 700, fontSize: '0.85rem', textTransform: 'uppercase' }}>
+              <Award size={16} /> Final Capstone Developer Assessment
+            </div>
+            <h1 style={{ fontSize: '1.8rem', fontWeight: 800, marginTop: '0.2rem' }}>
+              Your First Day as a Developer 🏢
+            </h1>
+            <p style={{ color: 'var(--text-secondary)', marginTop: '0.3rem' }}>
+              No tutorials. No given commands. Step into the shoes of a newly hired engineer on an active software development team and ship a production bug fix independently.
+            </p>
+          </div>
+
+          {/* Ticket Briefing Header */}
       <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-color)', borderRadius: 'var(--radius-lg)', padding: '1.5rem' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
           <div>
@@ -185,6 +231,8 @@ export const CapstoneView: React.FC = () => {
           </div>
         </div>
       )}
-    </div>
-  );
+    </>
+    )}
+  </div>
+);
 };
