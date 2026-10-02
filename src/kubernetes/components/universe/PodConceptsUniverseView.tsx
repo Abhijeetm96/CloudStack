@@ -5,8 +5,18 @@ import {
   StandardConceptsUniverse,
   UniverseConceptItem,
   UniverseTopicFilter,
+  CurriculumPackFilter,
 } from '../../../platform/layout/StandardConceptsUniverse';
 import { Compass } from 'lucide-react';
+
+const KUBE_CURRICULUM_PACKS: CurriculumPackFilter[] = [
+  { id: 'all', title: 'All Chapters (1–15)', range: [1, 15] },
+  { id: 'pack-1', title: 'Pack 1: Foundations & Architecture (Ch 1–3)', range: [1, 3] },
+  { id: 'pack-2', title: 'Pack 2: Workloads & Config (Ch 4–6)', range: [4, 6] },
+  { id: 'pack-3', title: 'Pack 3: Governance & Observability (Ch 7–9)', range: [7, 9] },
+  { id: 'pack-4', title: 'Pack 4: Autoscaling & Storage (Ch 10–12)', range: [10, 12] },
+  { id: 'pack-5', title: 'Pack 5: Deployments & Operations (Ch 13–15)', range: [13, 15] },
+];
 
 export const PodConceptsUniverseView: React.FC = () => {
   const { setMode, setActiveConceptId } = useApp();
@@ -20,7 +30,7 @@ export const PodConceptsUniverseView: React.FC = () => {
     }));
   }, []);
 
-  // Convert all 50 concepts to standard universe items
+  // Convert all 71 concepts across 15 chapters to standard universe items
   const concepts: UniverseConceptItem[] = useMemo(() => {
     return KUBE_CHAPTERS.flatMap((ch) =>
       ch.concepts.map((c) => {
@@ -29,17 +39,41 @@ export const PodConceptsUniverseView: React.FC = () => {
           command: c.commandPill || `kubectl get ${c.id.replace('c-k8s-', '')}`,
           title: c.title,
           subtitle: c.description,
+          subChapterNumber: c.number,
+          badges: [ch.category, c.difficulty, c.badge || `Ch ${ch.number}`],
           topicId: ch.id,
           topicNumber: String(ch.number).padStart(2, '0'),
           topicTitle: ch.title,
           difficulty: c.difficulty,
           whatIsIt: c.whatIsIt || c.description,
-          whyDoWeNeedIt: c.explanation,
-          variations: c.kubectlCommands?.map((cmd) => ({
-            title: cmd,
-            syntax: cmd,
-            whatItDoes: `Execute ${cmd} against Kubernetes API`,
-          })),
+          whyDoWeNeedIt: c.inSimpleWords || c.explanation,
+          variations: [
+            ...(c.kubectlCommands?.map((cmd) => ({
+              title: cmd,
+              syntax: cmd,
+              whatItDoes: `Execute ${cmd} against Kubernetes API`,
+              example: cmd,
+            })) || []),
+            ...(c.yamlSnippet
+              ? [
+                  {
+                    title: `${c.title} Manifest`,
+                    syntax: c.yamlSnippet,
+                    whatItDoes: `Declarative YAML definition for ${c.title}`,
+                    example: `kubectl apply -f manifest.yaml`,
+                  },
+                ]
+              : []),
+          ],
+          comparisons: c.dockerBridge
+            ? [
+                {
+                  itemA: `Docker: ${c.dockerBridge.dockerEquivalent}`,
+                  itemB: `K8s: ${c.dockerBridge.k8sEquivalent}`,
+                  difference: `${c.dockerBridge.keyDifference} ${c.dockerBridge.whyK8sApproach}`,
+                },
+              ]
+            : undefined,
           scenarios: c.quizQuestion
             ? [
                 {
@@ -78,6 +112,7 @@ export const PodConceptsUniverseView: React.FC = () => {
       accentColor="#60a5fa"
       accentGradient="linear-gradient(135deg, #326ce5 0%, #1e40af 100%)"
       brandIcon={Compass}
+      curriculumPacks={KUBE_CURRICULUM_PACKS}
       onLaunchLesson={handleLaunchLesson}
     />
   );
