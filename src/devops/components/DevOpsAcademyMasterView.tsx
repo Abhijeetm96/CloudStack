@@ -112,6 +112,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
     else if (action.route === '/git') setMode('learn');
     else if (action.route === '/docker') setMode('docker');
     else if (action.route === '/kubernetes') setMode('kubernetes');
+    else if (action.route === '/terraform') setMode('terraform');
     else if (action.route === '/solver') setMode('hospital');
     else setMode('home');
   };

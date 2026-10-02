@@ -20,6 +20,10 @@ import {
   Activity,
   ShieldCheck,
   Clock,
+  Play,
+  CheckCircle2,
+  AlertTriangle,
+  Database,
 } from 'lucide-react';
 
 interface UpcomingTool {
@@ -59,18 +63,6 @@ const UPCOMING_TOOLS: UpcomingTool[] = [
     icon: Cpu,
     description: 'Automate infrastructure provisioning, server fleet drift prevention, SSH configuration playbooks, and enterprise role hierarchies.',
     coreConcepts: ['YAML Playbooks & Tasks', 'Inventory & Dynamic Groups', 'Idempotency & Handlers', 'Ansible Vault Secret Management', 'Molecule Automated Testing'],
-  },
-  {
-    id: 'terraform',
-    name: 'Terraform',
-    domain: 'Infrastructure as Code (IaC)',
-    techStack: 'Terraform & OpenTofu',
-    quarter: 'Q1 2027',
-    color: '#a855f7',
-    bgGlow: 'rgba(168, 85, 247, 0.15)',
-    icon: Cloud,
-    description: 'Declare, provision, and audit multi-cloud infrastructure with Terraform and OpenTofu. Master state drift forensics and modular blueprints.',
-    coreConcepts: ['Remote State & Lock Strategies', 'Multi-Cloud Architecture', 'State Drift Forensics', 'Reusable Enterprise Modules', 'Policy-as-Code (OPA/Sentinel)'],
   },
   {
     id: 'observability',
@@ -1490,6 +1482,212 @@ export const CloudStackHomeView: React.FC = () => {
                   Terminal
                 </button>
               </div>
+            </div>
+          </div>
+
+          {/* ========================================================================= */}
+          {/* CARD 5: TERRAFORM (INFRASTRUCTURE AS CODE ACADEMY) */}
+          {/* ========================================================================= */}
+          <div
+            style={{
+              background: 'linear-gradient(170deg, rgba(20, 27, 45, 0.72) 0%, rgba(10, 15, 28, 0.88) 100%)',
+              backdropFilter: 'blur(16px)',
+              WebkitBackdropFilter: 'blur(16px)',
+              border: '1px solid rgba(132, 79, 186, 0.3)',
+              borderRadius: '20px',
+              padding: '2rem',
+              display: 'flex',
+              flexDirection: 'column',
+              position: 'relative',
+              overflow: 'hidden',
+              boxShadow: '0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(132, 79, 186, 0.1)',
+              transition: 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)',
+            }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-4px)';
+              e.currentTarget.style.borderColor = 'rgba(192, 132, 252, 0.6)';
+              e.currentTarget.style.boxShadow = '0 24px 50px -12px rgba(132, 79, 186, 0.25), 0 0 20px rgba(132, 79, 186, 0.2)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'none';
+              e.currentTarget.style.borderColor = 'rgba(132, 79, 186, 0.3)';
+              e.currentTarget.style.boxShadow = '0 20px 40px -15px rgba(0, 0, 0, 0.5), 0 0 30px -10px rgba(132, 79, 186, 0.1)';
+            }}
+          >
+            {/* Top Laser Accent Line */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: '3px',
+                background: 'linear-gradient(90deg, #844fba 0%, #c084fc 50%, #6366f1 100%)',
+              }}
+            />
+
+            {/* Corner Ambient Glow */}
+            <div
+              style={{
+                position: 'absolute',
+                top: '-30px',
+                right: '-30px',
+                width: '160px',
+                height: '160px',
+                background: 'radial-gradient(circle, rgba(132, 79, 186, 0.25) 0%, transparent 70%)',
+                pointerEvents: 'none',
+              }}
+            />
+
+            {/* Brand Header */}
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '1.25rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.85rem' }}>
+                <div
+                  style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '12px',
+                    background: 'linear-gradient(135deg, #844fba 0%, #6366f1 100%)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    color: '#fff',
+                    boxShadow: '0 6px 18px rgba(132, 79, 186, 0.45)',
+                  }}
+                >
+                  <Layers size={24} />
+                </div>
+                <div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <h2 style={{ fontSize: '1.45rem', fontWeight: 800, margin: 0, color: '#fff', letterSpacing: '-0.02em' }}>
+                      Terraform
+                    </h2>
+                    <span style={{ fontSize: '0.7rem', fontWeight: 700, padding: '0.12rem 0.45rem', borderRadius: '4px', background: 'rgba(132, 79, 186, 0.15)', border: '1px solid rgba(132, 79, 186, 0.35)', color: '#d8b4fe' }}>
+                      Terraform Academy
+                    </span>
+                  </div>
+                  <div style={{ fontSize: '0.78rem', color: '#c084fc', fontWeight: 600, letterSpacing: '0.01em', marginTop: '0.15rem' }}>
+                    Infrastructure as Code (IaC) Academy
+                  </div>
+                </div>
+              </div>
+
+              {/* Engine Status Badge */}
+              <div
+                style={{
+                  display: 'inline-flex',
+                  alignItems: 'center',
+                  gap: '0.4rem',
+                  padding: '0.25rem 0.65rem',
+                  borderRadius: '999px',
+                  background: 'rgba(34, 197, 94, 0.12)',
+                  border: '1px solid rgba(34, 197, 94, 0.3)',
+                  fontSize: '0.72rem',
+                  fontWeight: 700,
+                  color: '#4ade80',
+                }}
+              >
+                <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e', boxShadow: '0 0 6px #22c55e' }} />
+                <span>Engine Ready</span>
+              </div>
+            </div>
+
+            {/* Summary */}
+            <p style={{ fontSize: '0.9rem', color: '#94a3b8', lineHeight: 1.55, margin: '0 0 1.25rem', minHeight: '44px' }}>
+              Master declarative cloud engineering from first principles. 50 chapters, 694 subchapters, state diff visualizers, DAG dependency graphs, safe failure arena, and enterprise platforms.
+            </p>
+
+            {/* LIVE SIMULATION TEASER RIG (PLAN & STATE RECONCILER) */}
+            <div
+              style={{
+                background: 'rgba(5, 8, 17, 0.8)',
+                border: '1px solid rgba(132, 79, 186, 0.2)',
+                borderRadius: '12px',
+                padding: '0.85rem 1rem',
+                marginBottom: '1.25rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '0.5rem',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', fontSize: '0.72rem', color: '#64748b' }}>
+                <span style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', color: '#c084fc', fontWeight: 600 }}>
+                  <Play size={12} />
+                  <span>Execution &amp; State Reconciler</span>
+                </span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: '#94a3b8' }}>v1.8.0</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', overflowX: 'auto', padding: '0.2rem 0' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', color: '#cbd5e1' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#844fba' }} />
+                  <span>HCL Code</span>
+                </div>
+                <span style={{ color: '#475569' }}>──►</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'rgba(255,255,255,0.06)', color: '#cbd5e1' }}>
+                  <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#38bdf8' }} />
+                  <span>DAG:Graph</span>
+                </div>
+                <span style={{ color: '#475569' }}>──►</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', padding: '0.2rem 0.5rem', borderRadius: '6px', background: 'rgba(16, 185, 129, 0.2)', border: '1px solid rgba(16, 185, 129, 0.4)', color: '#a7f3d0' }}>
+                  <CheckCircle2 size={11} color="#34d399" />
+                  <span>Plan (+5, ~0, -0)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Core Metrics Matrix */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', padding: '0.45rem 0.65rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                <BookOpen size={14} color="#c084fc" />
+                <span><strong>50</strong> Chapters</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', padding: '0.45rem 0.65rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                <Code2 size={14} color="#38bdf8" />
+                <span><strong>694</strong> Lessons</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', padding: '0.45rem 0.65rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                <AlertTriangle size={14} color="#ef4444" />
+                <span><strong>16</strong> Failure Labs</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', padding: '0.45rem 0.65rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.8rem', color: '#cbd5e1' }}>
+                <Database size={14} color="#10b981" />
+                <span>State Visualizer</span>
+              </div>
+            </div>
+
+            {/* Launchers */}
+            <div style={{ marginTop: 'auto', display: 'flex', flexDirection: 'column', gap: '0.65rem' }}>
+              <button
+                onClick={() => setMode('terraform')}
+                style={{
+                  width: '100%',
+                  padding: '0.75rem 1rem',
+                  borderRadius: '10px',
+                  background: 'linear-gradient(135deg, #844fba 0%, #6366f1 100%)',
+                  border: 'none',
+                  color: '#fff',
+                  fontSize: '0.88rem',
+                  fontWeight: 800,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '0.5rem',
+                  cursor: 'pointer',
+                  boxShadow: '0 4px 14px rgba(132, 79, 186, 0.35)',
+                  transition: 'all 0.2s ease',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.transform = 'scale(1.02)';
+                  e.currentTarget.style.boxShadow = '0 6px 20px rgba(132, 79, 186, 0.5)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'none';
+                  e.currentTarget.style.boxShadow = '0 4px 14px rgba(132, 79, 186, 0.35)';
+                }}
+              >
+                <span>Launch Terraform Academy</span>
+                <ArrowRight size={16} />
+              </button>
             </div>
           </div>
         </div>

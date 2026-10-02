@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useProgress } from '../../progress';
-import { Flame, Boxes, Sparkles, Search, GitBranch, Container, Database, Menu, X, Terminal, BookOpen } from 'lucide-react';
+import { Flame, Boxes, Sparkles, Search, GitBranch, Container, Database, Menu, X, Terminal, BookOpen, Layers } from 'lucide-react';
 import './suiteHeaderNav.css';
 
 export const SuiteHeaderNav: React.FC = () => {
@@ -129,6 +129,21 @@ export const SuiteHeaderNav: React.FC = () => {
         >
           <Terminal size={15} />
           <span className="suite-nav-text">Linux</span>
+        </button>
+
+        <button
+          onClick={() => setMode('terraform')}
+          className="suite-nav-btn"
+          style={{
+            background: mode === 'terraform' ? 'rgba(132, 79, 186, 0.26)' : 'rgba(132, 79, 186, 0.12)',
+            border: '1px solid rgba(132, 79, 186, 0.35)',
+            color: '#c084fc',
+          }}
+          title="Open Terraform Academy (50 Chapters)"
+          aria-label="Terraform Academy"
+        >
+          <Layers size={15} />
+          <span className="suite-nav-text">Terraform</span>
         </button>
 
         <button
@@ -268,6 +283,21 @@ export const SuiteHeaderNav: React.FC = () => {
             <div>
               <div style={{ color: '#06b6d4' }}>Linux Academy</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Linux Systems, Kernel &amp; SRE</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
+              setMode('terraform');
+              setMobileMenuOpen(false);
+            }}
+            className="suite-mobile-item"
+            style={{ borderLeft: '3px solid #c084fc' }}
+          >
+            <Layers size={16} color="#c084fc" />
+            <div>
+              <div style={{ color: '#c084fc' }}>Terraform Academy</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>Infrastructure as Code (50 Chapters)</div>
             </div>
           </button>
 
