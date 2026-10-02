@@ -88,6 +88,11 @@ export function mapSegmentToMode(segment: string): ViewMode {
     case 'kernel':
       return 'linuxforge';
 
+    case 'terraform':
+    case 'tf':
+    case 'iac':
+      return 'terraform';
+
     case 'git':
     case 'learn':
     case 'academy':
@@ -142,6 +147,8 @@ export function mapModeToSegment(mode: ViewMode): string {
       return 'cloudstack/docker';
     case 'linuxforge':
       return 'cloudstack/linux';
+    case 'terraform':
+      return 'cloudstack/terraform';
     case 'learn':
       return 'cloudstack/git';
     case 'devops':
@@ -181,6 +188,8 @@ export function getTitleForMode(mode: ViewMode, conceptTitle?: string | null): s
   switch (mode) {
     case 'devops':
       return `${prefix}DevOps Academy (29 Chapters) | CloudStack`;
+    case 'terraform':
+      return `${prefix}Terraform Academy (50 Chapters) | CloudStack`;
     case 'kubernetes':
       return `${prefix}Kubernetes Academy | CloudStack`;
     case 'docker':
