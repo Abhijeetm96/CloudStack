@@ -1139,9 +1139,9 @@ export const TERRAFORM_CURRICULUM_SPEC: ChapterDef[] = [
   {
     number: 50,
     id: 'ch-50',
-    title: 'EXPERT TERRAFORM',
-    trackGroup: 'Deep Internals',
-    description: 'Mastery & Platform Engineering: Enterprise state design, multi-account topology, self-service platforms, and zero downtime.',
+    title: 'EXPERT TERRAFORM & CAPSTONE PROJECTS',
+    trackGroup: 'Real-World Capstones',
+    description: 'Real-World Production Capstones: Infrastructure from scratch, modular reusable design, multi-environment state, disaster state recovery, and automated GitOps CI/CD pipelines.',
     subchapters: [
       { number: '01', title: 'Terraform Architecture Patterns', commandOrConcept: 'Layered Architecture, Micro-Stacks, and Blast Radius Control' },
       { number: '02', title: 'Large-Scale State Design', commandOrConcept: 'Decoupling Monolithic State into Independent Fault Domains' },
