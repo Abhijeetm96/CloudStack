@@ -35,6 +35,9 @@ const DevOpsAcademyMasterView = lazyWithRetry(() =>
 const UniversalProblemSolver = lazyWithRetry(() =>
   import('./platform/search/UniversalProblemSolver').then((m) => ({ default: m.UniversalProblemSolver }))
 );
+const StandardCapstoneHubView = lazyWithRetry(() =>
+  import('./platform/capstones/StandardCapstoneHubView').then((m) => ({ default: m.StandardCapstoneHubView }))
+);
 
 const ViewLoadingFallback: React.FC<{ label?: string }> = ({ label = 'Loading Academy Engine...' }) => (
   <div
@@ -129,6 +132,30 @@ const AppContent: React.FC = () => {
           >
             <Suspense fallback={<ViewLoadingFallback label="Loading DevOps Roadmap..." />}>
               <DevOpsRoadmapView />
+            </Suspense>
+          </main>
+        </>
+      );
+    }
+
+    if (mode === 'capstone') {
+      return (
+        <>
+          <SuiteHeaderNav />
+          <main
+            className="main-content"
+            style={{
+              flex: '1 1 0%',
+              display: 'flex',
+              flexDirection: 'column',
+              minHeight: 0,
+              height: 'calc(100vh - 60px)',
+              maxHeight: 'calc(100vh - 60px)',
+              overflow: 'hidden',
+            }}
+          >
+            <Suspense fallback={<ViewLoadingFallback label="Loading Capstone Project System..." />}>
+              <StandardCapstoneHubView onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)} />
             </Suspense>
           </main>
         </>
