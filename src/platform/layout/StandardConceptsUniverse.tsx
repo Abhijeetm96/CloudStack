@@ -279,13 +279,13 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
     }
 
     return list;
-  }, [concepts, topics.length, selectedPackId, selectedTopicId, selectedDifficulty, searchQuery]);
+  }, [concepts, topics.length, selectedPackId, selectedTopicId, selectedDifficulty, searchQuery, curriculumPacks]);
 
   // Compute live dynamic counts for difficulties based on current topic & pack filters
   const difficultyCounts = useMemo(() => {
     let base = concepts;
     if (topics.length >= 15 && selectedPackId !== 'all') {
-      const pack = CURRICULUM_PACKS.find((p) => p.id === selectedPackId);
+      const pack = curriculumPacks.find((p) => p.id === selectedPackId);
       if (pack) {
         base = base.filter((c) => {
           const num = parseInt(c.topicNumber, 10);
@@ -303,7 +303,7 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
       advanced: base.filter((c) => (c.difficulty || '').toLowerCase() === 'advanced').length,
       expert: base.filter((c) => (c.difficulty || '').toLowerCase() === 'expert').length,
     };
-  }, [concepts, topics.length, selectedPackId, selectedTopicId]);
+  }, [concepts, topics.length, selectedPackId, selectedTopicId, curriculumPacks]);
 
   // Pagination calculations
   const totalPages = pageSize === 'all' ? 1 : Math.max(1, Math.ceil(filteredConcepts.length / Number(pageSize)));
@@ -1030,6 +1030,26 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                       <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                         Chapter {concept.topicNumber}: {concept.topicTitle}
                       </div>
+                      {concept.badges && concept.badges.length > 0 && (
+                        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginTop: '0.35rem' }}>
+                          {concept.badges.map((b, bIdx) => (
+                            <span
+                              key={bIdx}
+                              style={{
+                                fontSize: '0.64rem',
+                                fontWeight: 600,
+                                padding: '0.1rem 0.38rem',
+                                borderRadius: '4px',
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                color: '#94a3b8',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                              }}
+                            >
+                              {b}
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
 
                     {concept.subtitle && (
@@ -1303,6 +1323,35 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                             </div>
                           </div>
                         )}
+
+                        {/* Comparisons / Bridge Section */}
+                        {concept.comparisons && concept.comparisons.length > 0 && (
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                            <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                              Architectural Comparison
+                            </div>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                              {concept.comparisons.map((cmp, cIdx) => (
+                                <div
+                                  key={cIdx}
+                                  style={{
+                                    background: 'rgba(56, 189, 248, 0.06)',
+                                    borderLeft: '3px solid #38bdf8',
+                                    padding: '0.55rem 0.75rem',
+                                    borderRadius: '0 6px 6px 0',
+                                    fontSize: '0.74rem',
+                                    lineHeight: 1.4,
+                                  }}
+                                >
+                                  <div style={{ fontWeight: 700, color: '#bae6fd' }}>
+                                    {cmp.itemA} ➔ {cmp.itemB}
+                                  </div>
+                                  <div style={{ color: '#cbd5e1', marginTop: '0.15rem' }}>{cmp.difference}</div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>
@@ -1465,6 +1514,26 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                           Chapter {concept.topicNumber}: {concept.topicTitle}
                           {concept.subtitle && ` — ${concept.subtitle}`}
                         </div>
+                        {concept.badges && concept.badges.length > 0 && (
+                          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.3rem', marginTop: '0.35rem' }}>
+                            {concept.badges.map((b, bIdx) => (
+                              <span
+                                key={bIdx}
+                                style={{
+                                  fontSize: '0.64rem',
+                                  fontWeight: 600,
+                                  padding: '0.1rem 0.38rem',
+                                  borderRadius: '4px',
+                                  background: 'rgba(255, 255, 255, 0.05)',
+                                  color: '#94a3b8',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                }}
+                              >
+                                {b}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
                     </div>
 
@@ -1721,6 +1790,35 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                                 <div style={{ fontWeight: 700, color: '#fde047' }}>❌ {m.mistake}</div>
                                 <div style={{ color: '#cbd5e1', marginTop: '0.15rem' }}>{m.whyWrong}</div>
                                 <div style={{ color: '#86efac', marginTop: '0.15rem', fontWeight: 600 }}>✅ Correct: {m.correctWay}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Comparisons / Bridge Section */}
+                      {concept.comparisons && concept.comparisons.length > 0 && (
+                        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.45rem' }}>
+                          <div style={{ fontSize: '0.76rem', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                            Architectural Comparison
+                          </div>
+                          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
+                            {concept.comparisons.map((cmp, cIdx) => (
+                              <div
+                                key={cIdx}
+                                style={{
+                                  background: 'rgba(56, 189, 248, 0.06)',
+                                  borderLeft: '3px solid #38bdf8',
+                                  padding: '0.55rem 0.75rem',
+                                  borderRadius: '0 6px 6px 0',
+                                  fontSize: '0.74rem',
+                                  lineHeight: 1.4,
+                                }}
+                              >
+                                <div style={{ fontWeight: 700, color: '#bae6fd' }}>
+                                  {cmp.itemA} ➔ {cmp.itemB}
+                                </div>
+                                <div style={{ color: '#cbd5e1', marginTop: '0.15rem' }}>{cmp.difference}</div>
                               </div>
                             ))}
                           </div>
@@ -2004,6 +2102,26 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                     Chapter {modalConcept.topicNumber}: {modalConcept.topicTitle}
                     {modalConcept.subtitle && ` — ${modalConcept.subtitle}`}
                   </div>
+                  {modalConcept.badges && modalConcept.badges.length > 0 && (
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.35rem', marginTop: '0.35rem' }}>
+                      {modalConcept.badges.map((b, bIdx) => (
+                        <span
+                          key={bIdx}
+                          style={{
+                            fontSize: '0.68rem',
+                            fontWeight: 600,
+                            padding: '0.12rem 0.45rem',
+                            borderRadius: '4px',
+                            background: 'rgba(255, 255, 255, 0.06)',
+                            color: '#94a3b8',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                          }}
+                        >
+                          {b}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -2279,6 +2397,34 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                         <div style={{ fontWeight: 700, color: '#fde047' }}>❌ {m.mistake}</div>
                         <div style={{ color: '#cbd5e1', marginTop: '0.2rem' }}>{m.whyWrong}</div>
                         <div style={{ color: '#86efac', marginTop: '0.2rem', fontWeight: 600 }}>✅ Correct: {m.correctWay}</div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {modalConcept.comparisons && modalConcept.comparisons.length > 0 && (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.6rem' }}>
+                  <div style={{ fontSize: '0.82rem', fontWeight: 800, color: '#38bdf8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                    Architectural Comparison
+                  </div>
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                    {modalConcept.comparisons.map((cmp, cIdx) => (
+                      <div
+                        key={cIdx}
+                        style={{
+                          background: 'rgba(56, 189, 248, 0.06)',
+                          borderLeft: '4px solid #38bdf8',
+                          padding: '0.65rem 0.85rem',
+                          borderRadius: '0 8px 8px 0',
+                          fontSize: '0.78rem',
+                          lineHeight: 1.45,
+                        }}
+                      >
+                        <div style={{ fontWeight: 700, color: '#bae6fd' }}>
+                          {cmp.itemA} ➔ {cmp.itemB}
+                        </div>
+                        <div style={{ color: '#cbd5e1', marginTop: '0.2rem' }}>{cmp.difference}</div>
                       </div>
                     ))}
                   </div>
