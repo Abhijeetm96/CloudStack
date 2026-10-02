@@ -80,20 +80,23 @@ export const DockerAcademyView: React.FC = () => {
 
   // Convert 68 chapters to StandardTopicItem for StandardAcademySidebar
   const sidebarTopics: StandardTopicItem[] = useMemo(() => {
-    return ALL_DOCKER_CHAPTERS.map((ch) => ({
-      id: ch.id,
-      number: String(ch.number).padStart(2, '0'),
-      title: ch.title,
-      icon: Container,
-      concepts: ch.lessons.map((lesson) => ({
-        id: lesson.id,
-        command: lesson.syntax.split('\n')[0] || `docker ${lesson.subchapterTitle.toLowerCase()}`,
-        title: lesson.subchapterTitle,
-        shortDesc: lesson.definition,
-        subChapterNumber: lesson.subchapterNumber,
+    return ALL_DOCKER_CHAPTERS.map((ch) => {
+      const isCapstoneChapter = ch.number === 68;
+      return {
+        id: ch.id,
+        number: String(ch.number).padStart(2, '0'),
+        title: isCapstoneChapter ? `${ch.title} 🏆 CAPSTONES` : ch.title,
         icon: Container,
-      })),
-    }));
+        concepts: ch.lessons.map((lesson) => ({
+          id: lesson.id,
+          command: lesson.syntax.split('\n')[0] || `docker ${lesson.subchapterTitle.toLowerCase()}`,
+          title: lesson.subchapterTitle,
+          shortDesc: lesson.definition,
+          subChapterNumber: lesson.subchapterNumber,
+          icon: Container,
+        })),
+      };
+    });
   }, []);
 
   // Linear previous / next navigation across 1,038 lessons
