@@ -23,6 +23,9 @@ const DockerAcademyApp = lazyWithRetry(() =>
 const LinuxForgeApp = lazyWithRetry(() =>
   import('./linuxforge/LinuxForgeApp').then((m) => ({ default: m.LinuxForgeApp }))
 );
+const TerraformAcademyApp = lazyWithRetry(() =>
+  import('./terraform/TerraformAcademyApp').then((m) => ({ default: m.TerraformAcademyApp }))
+);
 const DevOpsRoadmapView = lazyWithRetry(() =>
   import('./components/roadmap/DevOpsRoadmapView').then((m) => ({ default: m.DevOpsRoadmapView }))
 );
@@ -188,6 +191,19 @@ const AppContent: React.FC = () => {
           <Suspense fallback={<ViewLoadingFallback label="Booting Linux Kernel 6.8..." />}>
             <LinuxForgeApp
               initialConceptId={activeLessonConcept || undefined}
+              onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)}
+            />
+          </Suspense>
+        </SuiteErrorBoundary>
+      );
+    }
+
+    if (mode === 'terraform') {
+      return (
+        <SuiteErrorBoundary fallbackTitle="Terraform Academy Error">
+          <Suspense fallback={<ViewLoadingFallback label="Booting Terraform Engine & DAG..." />}>
+            <TerraformAcademyApp
+              initialLessonId={activeLessonConcept || undefined}
               onSwitchToSuite={(newMode: ViewMode) => setMode(newMode)}
             />
           </Suspense>
