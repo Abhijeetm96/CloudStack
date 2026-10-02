@@ -2,689 +2,3879 @@ import { CapstoneProject } from '../types';
 
 export const DOCKER_CAPSTONES: CapstoneProject[] = [
   {
-    id: 'docker-01',
-    code: 'DOCKER-01',
-    title: 'Containerize an Application',
-    academy: 'docker',
-    difficulty: 'Beginner',
-    estimatedTime: '45 mins',
-    overview:
-      'Containerize a full-stack Node.js API application using modern Docker CLI and Dockerfile instructions. You will author a production .dockerignore to filter junk build contexts, write a deterministic Dockerfile utilizing official Alpine base images, optimize caching layers, expose container network ports, inject runtime configuration variables (-e), configure Docker native HEALTHCHECK probes, inspect runtime metadata with docker inspect and docker logs, and manage the container lifecycle.',
-    objectives: [
-      'Write a hardened .dockerignore filtering node_modules, logs, and sensitive .env files.',
-      'Construct a Dockerfile with FROM, WORKDIR, COPY, RUN, ENV, EXPOSE, and CMD instructions.',
-      'Build a Docker image tagged with semantic versioning (myapp:1.0.0).',
-      'Run the container in detached mode with host port publishing (-p 8080:3000).',
-      'Inject runtime environment variables and verify configuration in stdout logs.',
-      'Configure native container HEALTHCHECK using curl or wget.',
-      'Inspect runtime container state, cgroup limits, and IP address with docker inspect.',
-      'Gracefully stop and clean up containers and images.',
+    "id": "docker-01",
+    "code": "DOCKER-01",
+    "title": "Containerize a Simple Application",
+    "academy": "docker",
+    "difficulty": "Beginner",
+    "estimatedTime": "4-6 hours",
+    "technologies": [
+      "Docker CLI",
+      "Dockerfile",
+      "Node.js / Python",
+      ".dockerignore"
     ],
-    requirements: [
-      'Docker Engine 20.10+ or Docker Desktop with BuildKit enabled.',
-      'Basic knowledge of container vs image concepts and port forwarding.',
-      'Understanding of PID 1 execution and Linux process signals.',
+    "overview": "Package a single-tier web application into an immutable Docker image using a clean Dockerfile, build optimization, environment configuration, and container lifecycle commands.",
+    "tags": [
+      "docker",
+      "dockerfile",
+      "containers",
+      "packaging",
+      "images"
     ],
-    startingState: {
-      description:
-        'A source directory with package.json, server.js, and an unignored node_modules/ directory.',
-      environment: 'Docker Host (Docker 26.0+)',
-      startingFiles: {
-        'package.json': '{\n  "name": "api-service",\n  "version": "1.0.0",\n  "scripts": { "start": "node server.js" },\n  "dependencies": { "express": "^4.19.2" }\n}',
-        'server.js': 'const express = require("express");\nconst app = express();\nconst PORT = process.env.PORT || 3000;\napp.get("/health", (req, res) => res.json({ status: "healthy", uptime: process.uptime() }));\napp.get("/", (req, res) => res.send("Welcome to Containerized API!"));\napp.listen(PORT, "0.0.0.0", () => console.log(`Server running on port ${PORT}`));',
-      },
-    },
-    architecture: {
-      summary:
-        'Container lifecycle: Source Code + .dockerignore -> BuildKit Engine -> OCI Image (myapp:1.0.0) -> Container Daemon -> Port Forward (8080->3000) -> Healthcheck Probe.',
-      nodes: [
-        { id: 'source', name: 'Source Files & .dockerignore', role: 'Build Context', description: 'Application source files filtered to prevent slow context transfers.', technologies: ['Dockerfile', '.dockerignore'], status: 'active' },
-        { id: 'buildkit', name: 'BuildKit Engine', role: 'Image Compiler', description: 'Executes cached layer builds and creates immutable OCI image tarballs.', technologies: ['BuildKit', 'OverlayFS'], status: 'healthy' },
-        { id: 'image', name: 'Docker Image (myapp:1.0.0)', role: 'Immutable Artifact', description: 'Multi-layer read-only filesystem with application dependencies.', technologies: ['OCI', 'Rootfs'], status: 'healthy' },
-        { id: 'container', name: 'Running Container', role: 'Isolated Process', description: 'cgroup and namespace isolated runtime instance executing Node.js PID 1.', technologies: ['Namespaces', 'cgroups'], status: 'healthy' },
-        { id: 'healthcheck', name: 'Native Healthcheck', role: 'Liveness Monitor', description: 'Periodic curl query to /health returning 0 (healthy) or 1 (unhealthy).', technologies: ['HEALTHCHECK', 'curl'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Containerize a Simple Application",
+      "academy": "docker",
+      "difficulty": "Beginner",
+      "estimatedEffort": "4-6 hours",
+      "technologies": [
+        "Docker CLI",
+        "Dockerfile",
+        "Node.js or Python",
+        ".dockerignore"
       ],
-      edges: [
-        { from: 'source', to: 'buildkit', label: 'docker build -t myapp:1.0.0 .' },
-        { from: 'buildkit', to: 'image', label: 'produces immutable layers' },
-        { from: 'image', to: 'container', label: 'docker run -d -p 8080:3000' },
-        { from: 'container', to: 'healthcheck', label: 'polls GET /health every 10s' },
-      ],
-      flowDescription:
-        'Source Code -> .dockerignore -> docker build -> Image myapp:1.0.0 -> docker run -d -p 8080:3000 -> docker logs -> HEALTHCHECK OK.',
+      "shortDescription": "Write a clean, efficient Dockerfile for a single-service web application, build an immutable image, and operate container lifecycle commands."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Create .dockerignore File',
-        objective: 'Construct .dockerignore to exclude node_modules, .git, and .env from the build context.',
-        commandSnippet: 'cat << \'EOF\' > .dockerignore\nnode_modules\n.git\n.env\n*.log\nDockerfile\n.dockerignore\nEOF',
-        expectedOutput: '.dockerignore created with build exclusions.',
-        verificationCriteria: '.dockerignore exists and includes node_modules and .git.',
-        hints: ['Excluding node_modules prevents copying host architecture binaries into the Linux container image.'],
-        explanation: 'A clean build context drastically accelerates build times and shrinks image transmission over networks.',
-      },
-      {
-        id: 'task-2',
-        title: 'Write Dockerfile with Production Best Practices',
-        objective: 'Write Dockerfile using node:20-alpine with layer caching and native HEALTHCHECK.',
-        commandSnippet: 'cat << \'EOF\' > Dockerfile\nFROM node:20-alpine\nWORKDIR /app\nCOPY package*.json ./\nRUN npm install --omit=dev\nCOPY . .\nENV NODE_ENV=production PORT=3000\nEXPOSE 3000\nHEALTHCHECK --interval=10s --timeout=3s --retries=3 \\\n  CMD wget -qO- http://localhost:3000/health || exit 1\nCMD ["npm", "start"]\nEOF',
-        expectedOutput: 'Dockerfile authored with WORKDIR, cached dependency installation, and healthcheck.',
-        verificationCriteria: 'Dockerfile contains HEALTHCHECK and EXPOSE 3000.',
-        hints: ['Copying package.json before the rest of the application code leverages Docker layer caching.'],
-        explanation: 'Docker caches the npm install layer as long as package.json remains unchanged, saving minutes on every build.',
-      },
-      {
-        id: 'task-3',
-        title: 'Build Docker Image with Semantic Version Tag',
-        objective: 'Build the Docker image tagged as api-service:1.0.0.',
-        commandSnippet: 'docker build -t api-service:1.0.0 .',
-        expectedOutput: 'Successfully tagged api-service:1.0.0',
-        verificationCriteria: 'docker images | grep api-service | grep -q 1.0.0',
-        hints: ['Ensure the dot (.) at the end specifies the current directory as build context.'],
-        explanation: 'Tagging with semantic versions (v1.0.0) allows teams to pin specific release versions in staging and production.',
-      },
-      {
-        id: 'task-4',
-        title: 'Run Container with Port Mapping & Custom Environment Variable',
-        objective: 'Launch container detached (-d) mapping host port 8080 to container port 3000.',
-        commandSnippet: 'docker run -d --name payment-api -p 8080:3000 -e APP_REGION=us-east-1 api-service:1.0.0',
-        expectedOutput: 'Container started with 64-character container ID.',
-        verificationCriteria: 'docker ps | grep payment-api | grep -q "0.0.0.0:8080->3000/tcp"',
-        hints: ['Format for -p is <host_port>:<container_port>.'],
-        explanation: '-p 8080:3000 configures kernel iptables NAT forwarding traffic from the host network adapter into the container virtual bridge.',
-      },
-      {
-        id: 'task-5',
-        title: 'Inspect Container Logs, State, and Healthcheck Status',
-        objective: 'View container logs, verify health status transitions to "healthy", and query IP via docker inspect.',
-        commandSnippet: 'docker logs payment-api\nsleep 12\ndocker inspect --format="{{.State.Health.Status}}" payment-api\ncurl -s http://localhost:8080/health',
-        expectedOutput: 'Server running on port 3000\nhealthy\n{"status":"healthy",...}',
-        verificationCriteria: 'Health status returns "healthy" and curl returns 200 JSON payload.',
-        hints: ['Initial health status is "starting" before the first probe interval executes.'],
-        explanation: 'Native healthchecks allow orchestrators (Docker Swarm, Kubernetes) to automatically route traffic only to healthy instances.',
-      },
-      {
-        id: 'task-6',
-        title: 'Perform Graceful Container Stop and Clean Up',
-        objective: 'Stop the running container with SIGTERM and remove container and image.',
-        commandSnippet: 'docker stop payment-api\ndocker rm payment-api',
-        expectedOutput: 'payment-api stopped and removed.',
-        verificationCriteria: 'docker ps -a | grep payment-api returns empty.',
-        hints: ['docker stop sends SIGTERM and waits 10 seconds before falling back to SIGKILL.'],
-        explanation: 'Graceful shutdown allows active HTTP connections and database transactions to conclude safely.',
-      },
+    "scenario": "You have joined a software development team where an onboarding developer spent two days debugging local runtime version mismatches. The team lead wants you to containerize the company's core greeting API so that any engineer can run the service with a single command.",
+    "problemStatement": "The application runs directly on developer laptops and depends on specific Node.js/Python runtime versions, system libraries, and npm dependencies. Without containerization, team members face environment drift, dependency clashes, and broken local setups.",
+    "projectObjective": [
+      "Write a standardized Dockerfile following container packaging best practices",
+      "Configure a comprehensive .dockerignore file preventing local node_modules, logs, and secrets from polluting the build context",
+      "Build and tag the container image using docker build -t greeting-api:1.0.0 .",
+      "Run, stop, inspect, and verify the containerized application on a mapped host port"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A single-container web application packaging source code, runtime, and dependencies into an immutable image with published ports.",
+      "diagram": "Host Workstation (Port 8080)\n           │\n      (Port Forward)\n           │\n           ▼\n[Docker Container: greeting-api:1.0.0]\n├── Base OS & Runtime (node:20-alpine or python:3.11-slim)\n├── Installed Dependencies (/app/node_modules)\n├── Application Code (/app/src)\n└── Exposed Port (Port 3000, unprivileged)"
+    },
+    "requirements": {
+      "functional": [
+        "Application must be accessible from the host browser or curl at http://localhost:8080",
+        "Application must respond with JSON payload {\"status\": \"healthy\", \"service\": \"greeting-api\"}",
+        "Container must shut down gracefully when receiving SIGTERM from docker stop"
+      ],
+      "technical": [
+        "Use an official lightweight base image (alpine or slim)",
+        "Set WORKDIR /app and copy package manifests before source code to exploit layer caching",
+        "Use the exec form of CMD: CMD [\"node\", \"server.js\"] or CMD [\"python\", \"app.py\"]"
+      ],
+      "security": [
+        "Include a .dockerignore file blocking node_modules, .env, .git, and *.log",
+        "Do not hardcode secrets or API keys inside the Dockerfile"
+      ]
+    },
+    "architecture": {
+      "summary": "Single container process lifecycle architecture mapping host network ports to container network namespaces.",
+      "diagram": "Host Interface (eth0:8080) ──> Docker Proxy (docker-proxy) ──> Container veth (172.17.0.2:3000) ──> Node/Python Process",
+      "components": [
+        {
+          "name": "Build Context",
+          "role": "Local files sent to Docker daemon for image construction",
+          "technologies": [
+            "Filesystem",
+            "tar"
+          ]
+        },
+        {
+          "name": "Read-Only Image Layers",
+          "role": "Immutable cryptographic layer stack generated by Dockerfile instructions",
+          "technologies": [
+            "Overlay2"
+          ]
+        },
+        {
+          "name": "Container Instance",
+          "role": "Read-write container layer executing process in isolated cgroups and namespaces",
+          "technologies": [
+            "runc",
+            "containerd"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine 24+ or Docker Desktop",
+        "Code editor (VS Code, Vim)",
+        "curl or web browser"
+      ],
+      "optional": [
+        "hadolint for Dockerfile linting"
+      ],
+      "outOfScope": [
+        "Docker Compose",
+        "Kubernetes manifests"
+      ]
+    },
+    "functionalRequirements": [
+      "Create working application (server.js or app.py) listening on port 3000",
+      "Create .dockerignore excluding build artifacts, local dependencies, and VCS files",
+      "Author Dockerfile with FROM, WORKDIR, COPY, RUN, EXPOSE, and CMD instructions",
+      "Build image: docker build -t greeting-api:1.0.0 .",
+      "Run container in detached mode: docker run -d -p 8080:3000 --name api-service greeting-api:1.0.0",
+      "Verify HTTP 200 response via curl -i http://localhost:8080/health",
+      "Inspect container logs via docker logs api-service"
+    ],
+    "technicalRequirements": [
+      "Image layer inspection: docker history greeting-api:1.0.0 confirms proper caching order",
+      "Verify container termination within 5 seconds via docker stop api-service",
+      "Container cleanup: docker rm -f api-service"
+    ],
+    "securityRequirements": [
+      "Confirm .git and local dependency folders are not present inside the built image (docker run --rm greeting-api:1.0.0 ls -la)"
+    ],
+    "constraints": [
+      "Do not use bloated general-purpose images (ubuntu:latest or debian:latest) when runtime-specific slim/alpine images exist",
+      "Do not use shell form for CMD (e.g. CMD npm start) because it spawns /bin/sh which traps SIGTERM"
+    ],
+    "expectedOutcome": "A lightweight, portable, containerized web service image that starts instantaneously and behaves identically across any machine running Docker.",
+    "deliverables": [
+      "Application source code",
+      "Optimized Dockerfile",
+      ".dockerignore file",
+      "CONTAINERIZATION_REPORT.md detailing image size, build time, and test output"
+    ],
+    "suggestedProjectStructure": "simple-app/\n├── Dockerfile\n├── .dockerignore\n├── package.json\n├── server.js\n└── CONTAINERIZATION_REPORT.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'Container Exits Immediately with Code 1',
-        symptom: 'docker run starts and immediately terminates; docker ps shows Exited (1).',
-        rootCause: 'Missing dependency or syntax error in server.js during initialization.',
-        diagnosticCommand: 'docker logs payment-api',
-        fixCommand: 'Fix syntax error in server.js and rebuild image: docker build -t api-service:1.0.0 .',
-        verification: 'docker ps shows status "Up X seconds".',
-        preventativeMeasures: 'Run unit tests inside your build step before generating the final image.',
+        "name": "What are Containers?",
+        "lessonId": "c-what-are-containers",
+        "academyRoute": "/docker"
       },
       {
-        id: 'fail-2',
-        title: 'Port Already Allocated (Bind Error)',
-        symptom: 'docker run fails with: driver failed programming external connectivity: bind: address already in use.',
-        rootCause: 'Another service is already listening on host port 8080.',
-        diagnosticCommand: 'ss -tulpn | grep 8080',
-        fixCommand: 'Run container on different host port: docker run -d -p 8081:3000 api-service:1.0.0',
-        verification: 'Container runs on port 8081.',
-        preventativeMeasures: 'Check host port availability before launching production containers.',
+        "name": "Dockerfiles & Instructions",
+        "lessonId": "c-dockerfiles",
+        "academyRoute": "/docker"
       },
+      {
+        "name": "Efficient Layer Caching",
+        "lessonId": "c-layer-caching",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Running Containers",
+        "lessonId": "c-docker-run-basic",
+        "academyRoute": "/docker"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: '.dockerignore created excluding node_modules and .git', verificationCommand: 'test -f .dockerignore && grep -q "node_modules" .dockerignore', points: 25 },
-      { id: 'v2', label: 'Dockerfile authored with HEALTHCHECK and Alpine base image', verificationCommand: 'grep -q "HEALTHCHECK" Dockerfile && grep -q "alpine" Dockerfile', points: 25 },
-      { id: 'v3', label: 'Container built and runs with port 8080:3000 mapping', verificationCommand: 'docker ps | grep -q "8080->3000"', points: 25 },
-      { id: 'v4', label: 'Container passes healthcheck probe with status healthy', verificationCommand: 'docker inspect --format="{{.State.Health.Status}}" payment-api | grep -q "healthy"', points: 25 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 06: Dockerfiles & Instructions",
+          "route": "/cloudstack/docker?concept=c-dockerfiles"
+        },
+        {
+          "title": "Chapter 06: Layer Caching Optimization",
+          "route": "/cloudstack/docker?concept=c-layer-caching"
+        },
+        {
+          "title": "Chapter 04: Running Containers",
+          "route": "/cloudstack/docker?concept=c-docker-run-basic"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Best Practices Guide",
+          "url": "https://docs.docker.com/develop/develop-images/dockerfile_best-practices/"
+        },
+        {
+          "title": "Dockerfile Reference",
+          "url": "https://docs.docker.com/engine/reference/builder/"
+        }
+      ],
+      "referenceMaterial": [
+        "Container Best Practices (Google Cloud Architecture Center)"
+      ],
+      "usefulCommands": [
+        "docker build -t greeting-api:1.0.0 .",
+        "docker run -d -p 8080:3000 --name api greeting-api:1.0.0",
+        "docker logs -f api",
+        "docker ps -a",
+        "docker stop api && docker rm api"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Create the application code and verify it starts locally.",
+      "2. Create .dockerignore before writing the Dockerfile.",
+      "3. Select an official minimal base image (node:20-alpine or python:3.11-slim).",
+      "4. Set WORKDIR and copy dependency manifests (package.json) first.",
+      "5. Execute dependency installation command (npm ci or pip install).",
+      "6. Copy remaining application source code.",
+      "7. Expose application port and define exec-form CMD.",
+      "8. Build the image and inspect layer history using docker history.",
+      "9. Run the container with port forwarding and test endpoints with curl.",
+      "10. Verify graceful shutdown with docker stop and document findings."
     ],
-    expectedOutcome:
-      'A containerized web microservice built with production layer caching, security ignores, environment injection, and verified healthy lifecycle execution.',
-    scoreMax: 100,
-    tags: ['docker', 'dockerfile', 'healthcheck', 'alpine', 'layer-caching', 'docker-run'],
+    "importantConsiderations": [
+      "Why is copying package.json before the source code critical for Docker build performance?",
+      "What happens to container processes when CMD uses the shell form instead of JSON array exec form?",
+      "Why should .dockerignore always include .git and local node_modules?"
+    ],
+    "commonPitfalls": [
+      "Copying local node_modules into the image, overriding architecture-specific binary bindings.",
+      "Using latest image tags resulting in unreproducible builds over time.",
+      "Forgetting -p host:container port mapping, leaving the container unreachable from the host."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add a healthcheck endpoint (/healthz) responding with memory usage stats."
+      ],
+      "intermediate": [
+        "Switch base image to Google Distroless or Chainguard images."
+      ],
+      "advanced": [
+        "Add a Docker HEALTHCHECK instruction inside the Dockerfile."
+      ],
+      "expert": [
+        "Scan the image for CVE vulnerabilities using docker scan or Trivy."
+      ]
+    },
+    "completionChecklist": [
+      "Working web application created and tested",
+      ".dockerignore created and verified",
+      "Dockerfile authored adhering to layer caching and exec-form CMD",
+      "Image built and tagged successfully",
+      "Container executed in detached mode with port 8080 mapped",
+      "curl test confirms HTTP 200 health response",
+      "docker stop confirms graceful SIGTERM shutdown",
+      "CONTAINERIZATION_REPORT.md authored"
+    ],
+    "objectives": [
+      "Write a standardized Dockerfile following container packaging best practices",
+      "Configure a comprehensive .dockerignore file preventing local node_modules, logs, and secrets from polluting the build context",
+      "Build and tag the container image using docker build -t greeting-api:1.0.0 .",
+      "Run, stop, inspect, and verify the containerized application on a mapped host port"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Containerize a Simple Application",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Containerize a Simple Application\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create working application (server.js or app.py) listening on port 3000",
+        "objective": "Create working application (server.js or app.py) listening on port 3000",
+        "commandSnippet": "docker build -t greeting-api:1.0.0 .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create working application (server.js or app.py) listening on port 3000"
+      },
+      {
+        "id": "task-2",
+        "title": "Create .dockerignore excluding build artifacts, local dependencies, and VCS files",
+        "objective": "Create .dockerignore excluding build artifacts, local dependencies, and VCS files",
+        "commandSnippet": "docker run -d -p 8080:3000 --name api greeting-api:1.0.0",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create .dockerignore excluding build artifacts, local dependencies, and VCS files"
+      },
+      {
+        "id": "task-3",
+        "title": "Author Dockerfile with FROM, WORKDIR, COPY, RUN, EXPOSE, and CMD instructions",
+        "objective": "Author Dockerfile with FROM, WORKDIR, COPY, RUN, EXPOSE, and CMD instructions",
+        "commandSnippet": "docker logs -f api",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Author Dockerfile with FROM, WORKDIR, COPY, RUN, EXPOSE, and CMD instructions"
+      },
+      {
+        "id": "task-4",
+        "title": "Build image: docker build -t greeting-api:1.0.0 .",
+        "objective": "Build image: docker build -t greeting-api:1.0.0 .",
+        "commandSnippet": "docker ps -a",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Build image: docker build -t greeting-api:1.0.0 ."
+      },
+      {
+        "id": "task-5",
+        "title": "Run container in detached mode: docker run -d -p 8080:3000 --name api-service greeting-api:1.0.0",
+        "objective": "Run container in detached mode: docker run -d -p 8080:3000 --name api-service greeting-api:1.0.0",
+        "commandSnippet": "docker stop api && docker rm api",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run container in detached mode: docker run -d -p 8080:3000 --name api-service greeting-api:1.0.0"
+      },
+      {
+        "id": "task-6",
+        "title": "Verify HTTP 200 response via curl -i http://localhost:8080/health",
+        "objective": "Verify HTTP 200 response via curl -i http://localhost:8080/health",
+        "commandSnippet": "docker build -t greeting-api:1.0.0 .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify HTTP 200 response via curl -i http://localhost:8080/health"
+      },
+      {
+        "id": "task-7",
+        "title": "Inspect container logs via docker logs api-service",
+        "objective": "Inspect container logs via docker logs api-service",
+        "commandSnippet": "docker run -d -p 8080:3000 --name api greeting-api:1.0.0",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Inspect container logs via docker logs api-service"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Copying local node_modules into the image, overriding architecture-specific binary bindings.",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Using latest image tags resulting in unreproducible builds over time.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Working web application created and tested",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": ".dockerignore created and verified",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Dockerfile authored adhering to layer caching and exec-form CMD",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Image built and tagged successfully",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Container executed in detached mode with port 8080 mapped",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "curl test confirms HTTP 200 health response",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "docker stop confirms graceful SIGTERM shutdown",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "CONTAINERIZATION_REPORT.md authored",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'docker-02',
-    code: 'DOCKER-02',
-    title: 'Multi-Container Application',
-    academy: 'docker',
-    difficulty: 'Intermediate',
-    estimatedTime: '60 mins',
-    overview:
-      'Architect and orchestrate an enterprise 4-tier microservices platform using Docker Compose. You will deploy a React/Nginx Frontend, a Node.js API Backend, a PostgreSQL relational database with persistent named volumes, and a Redis in-memory cache. You will establish custom bridge networks for backend-database isolation, configure health-dependent service startups using depends_on condition: service_healthy, manage secret credentials via environment files, and verify persistent data retention across container destruction and restarts.',
-    objectives: [
-      'Write a docker-compose.yml file managing 4 interconnected services (frontend, backend, postgres, redis).',
-      'Isolate tiers using dual Docker bridge networks: public-net and internal-db-net.',
-      'Configure named persistent volumes for PostgreSQL (/var/lib/postgresql/data) ensuring data persistence.',
-      'Define healthchecks for database and cache to orchestrate order of startup.',
-      'Enforce service dependencies using depends_on with condition: service_healthy.',
-      'Test end-to-end multi-tier communication and verify data persistence after docker compose down.',
+    "id": "docker-02",
+    "code": "DOCKER-02",
+    "title": "Multi-Container Application Orchestration",
+    "academy": "docker",
+    "difficulty": "Beginner+",
+    "estimatedTime": "6-8 hours",
+    "technologies": [
+      "Docker Compose",
+      "Multi-Container",
+      "Service Discovery",
+      "Docker Networks",
+      "Environment Variables"
     ],
-    requirements: [
-      'Docker Compose v2 (docker compose) installed.',
-      'Understanding of microservices architecture: Presentation, Application, and Persistence tiers.',
-      'Knowledge of Docker network bridging and volume drivers.',
+    "overview": "Orchestrate a multi-tier application stack comprising a frontend web client, backend REST API, and cache service using Docker Compose, user-defined networks, and DNS service discovery.",
+    "tags": [
+      "docker",
+      "compose",
+      "multi-container",
+      "networking",
+      "service-discovery",
+      "orchestration"
     ],
-    startingState: {
-      description:
-        'A directory structure containing frontend/, backend/, and an empty docker-compose.yml template.',
-      environment: 'Docker Compose Orchestration Host',
-      startingFiles: {
-        'docker-compose.yml': 'version: "3.8"\n# Complete the 4-tier stack configuration',
-        '.env': 'POSTGRES_DB=store\nPOSTGRES_USER=appuser\nPOSTGRES_PASSWORD=securepass123\nREDIS_HOST=redis',
-      },
-    },
-    architecture: {
-      summary:
-        'Tiered Multi-Container Topology: Public Browser -> [public-net] -> Frontend (Nginx:80) -> Backend (Node:3000) -> [internal-db-net] -> PostgreSQL (5432) + Redis (6379).',
-      nodes: [
-        { id: 'frontend', name: 'Frontend (Nginx)', role: 'Presentation Tier', description: 'Serves React SPA on port 80 and proxies /api to backend.', technologies: ['Nginx', 'Docker Compose'], status: 'active' },
-        { id: 'backend', name: 'Backend API', role: 'Application Tier', description: 'Business logic microservice connecting to DB and Redis.', technologies: ['Node.js', 'Express'], status: 'healthy' },
-        { id: 'postgres', name: 'PostgreSQL Database', role: 'Relational Persistence Tier', description: 'ACID database mounted to persistent volume postgres_data.', technologies: ['PostgreSQL 16', 'Named Volume'], status: 'healthy' },
-        { id: 'redis', name: 'Redis Cache', role: 'In-Memory Caching Tier', description: 'Sub-millisecond key-value cache storing session state.', technologies: ['Redis 7', 'In-Memory'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Multi-Container Application Orchestration",
+      "academy": "docker",
+      "difficulty": "Beginner+",
+      "estimatedEffort": "6-8 hours",
+      "technologies": [
+        "Docker Compose",
+        "User-Defined Bridge Network",
+        "Redis Cache",
+        "Node.js / Python API"
       ],
-      edges: [
-        { from: 'frontend', to: 'backend', label: 'public-net (http://backend:3000)' },
-        { from: 'backend', to: 'postgres', label: 'internal-db-net (postgres:5432)' },
-        { from: 'backend', to: 'redis', label: 'internal-db-net (redis:6379)' },
-      ],
-      flowDescription:
-        'Client -> Frontend -> Backend -> Postgres / Redis. Database tier is completely inaccessible from the host or public network.',
+      "shortDescription": "Define, launch, and manage a connected multi-service stack using Docker Compose, establishing internal network discovery and environment variable injection."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Author Complete docker-compose.yml Specification',
-        objective: 'Construct docker-compose.yml declaring all 4 services, 2 networks, and named volume.',
-        commandSnippet: 'cat << \'EOF\' > docker-compose.yml\nservices:\n  frontend:\n    image: nginx:alpine\n    ports:\n      - "80:80"\n    networks:\n      - public-net\n    depends_on:\n      backend:\n        condition: service_healthy\n\n  backend:\n    image: node:20-alpine\n    command: sh -c "echo Backend running && sleep 3600"\n    networks:\n      - public-net\n      - internal-db-net\n    environment:\n      - DB_HOST=postgres\n      - REDIS_HOST=redis\n    healthcheck:\n      test: ["CMD", "echo", "ok"]\n      interval: 5s\n      retries: 3\n    depends_on:\n      postgres:\n        condition: service_healthy\n      redis:\n        condition: service_healthy\n\n  postgres:\n    image: postgres:16-alpine\n    environment:\n      POSTGRES_DB: ${POSTGRES_DB:-store}\n      POSTGRES_USER: ${POSTGRES_USER:-appuser}\n      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-securepass123}\n    volumes:\n      - postgres_data:/var/lib/postgresql/data\n    networks:\n      - internal-db-net\n    healthcheck:\n      test: ["CMD-SHELL", "pg_isready -U appuser -d store"]\n      interval: 5s\n      retries: 5\n\n  redis:\n    image: redis:7-alpine\n    networks:\n      - internal-db-net\n    healthcheck:\n      test: ["CMD", "redis-cli", "ping"]\n      interval: 5s\n      retries: 5\n\nnetworks:\n  public-net:\n    driver: bridge\n  internal-db-net:\n    driver: bridge\n\nvolumes:\n  postgres_data:\n    driver: local\nEOF',
-        expectedOutput: 'docker-compose.yml authored successfully.',
-        verificationCriteria: 'docker compose config validates with exit code 0.',
-        hints: ['Use docker compose config to validate YAML syntax and variable substitution.'],
-        explanation: 'Docker Compose coordinates multi-container configurations into a single declarative manifest.',
-      },
-      {
-        id: 'task-2',
-        title: 'Validate Compose Syntax & Environment Variable Interpolation',
-        objective: 'Execute docker compose config to ensure YAML syntax and .env variables resolve.',
-        commandSnippet: 'docker compose config',
-        expectedOutput: 'Resolved YAML manifest output containing all 4 services and networks.',
-        verificationCriteria: 'Output displays POSTGRES_PASSWORD: securepass123.',
-        hints: ['Ensure .env is in the same directory as docker-compose.yml.'],
-        explanation: 'docker compose config acts as a compiler linter, identifying indentation or missing variable errors before execution.',
-      },
-      {
-        id: 'task-3',
-        title: 'Launch 4-Tier Stack with Health-Aware Dependency Sequencing',
-        objective: 'Deploy stack in detached mode and verify startup order.',
-        commandSnippet: 'docker compose up -d\nsleep 15\ndocker compose ps',
-        expectedOutput: 'All 4 containers running with healthy status.',
-        verificationCriteria: 'docker compose ps shows frontend, backend, postgres, and redis all "Up" and "healthy".',
-        hints: ['Notice that backend waits for postgres and redis to be healthy before starting.'],
-        explanation: 'condition: service_healthy prevents race conditions where the application crashes on boot because the database is not ready.',
-      },
-      {
-        id: 'task-4',
-        title: 'Verify Database Isolation & Persistent Volume Retention',
-        objective: 'Write test data to Postgres, destroy stack, recreate stack, and confirm data survived.',
-        commandSnippet: 'docker compose exec -T postgres psql -U appuser -d store -c "CREATE TABLE items (id SERIAL PRIMARY KEY, name TEXT); INSERT INTO items (name) VALUES (\'Widget A\');"\ndocker compose down\ndocker compose up -d\nsleep 10\ndocker compose exec -T postgres psql -U appuser -d store -c "SELECT * FROM items;"',
-        expectedOutput: 'id |   name   \n----+----------\n  1 | Widget A',
-        verificationCriteria: 'Query outputs "Widget A" confirming data survived container termination.',
-        hints: ['Named volumes survive docker compose down as long as -v is not specified.'],
-        explanation: 'Containers are ephemeral, but Docker named volumes store data in /var/lib/docker/volumes/ on the host.',
-      },
-      {
-        id: 'task-5',
-        title: 'Clean Up Resources',
-        objective: 'Tear down stack and purge volumes.',
-        commandSnippet: 'docker compose down -v',
-        expectedOutput: 'Containers removed, networks removed, volume postgres_data removed.',
-        verificationCriteria: 'docker compose ps returns empty.',
-        hints: ['-v flag deletes named volumes when permanent teardown is desired.'],
-        explanation: 'Tearing down with -v cleans up disk space in testing and CI environments.',
-      },
+    "scenario": "Your backend engineering team is building an analytics microservice that requires a Redis in-memory cache to store hit counts. Developers are struggling to manually launch, network, and configure the two containers with correct IPs every morning. You have been tasked with automating the multi-container stack via Docker Compose.",
+    "problemStatement": "Running multiple containers with raw \"docker run\" commands requires manual IP tracking, long terminal commands, and error-prone network bridging. The team needs a single declarative specification (compose.yaml) where services automatically resolve each other by name.",
+    "projectObjective": [
+      "Construct a declarative compose.yaml file orchestrating the API backend and Redis cache",
+      "Isolate services on a dedicated user-defined bridge network",
+      "Leverage Docker's built-in DNS service discovery to allow the API to connect to \"redis:6379\" by service name",
+      "Configure environment variables using a .env file and compose environment blocks"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A multi-container application stack where an API container connects to a Redis cache container over an internal Docker network.",
+      "diagram": "Host Browser (http://localhost:8000)\n            │\n            ▼\n[Docker Network: app-network]\n┌─────────────────────────────────────────────────────────┐\n│                                                         │\n│   [Service: api] ──(DNS: redis:6379)──> [Service: redis]│\n│   ├── Port: 8000:3000                   ├── Port: 6379  │\n│   └── Env: REDIS_HOST=redis             └── Image: redis│\n│                                                         │\n└─────────────────────────────────────────────────────────┘"
+    },
+    "requirements": {
+      "functional": [
+        "Visiting http://localhost:8000/visit must increment and return a page visit counter backed by Redis",
+        "If the Redis service is restarted, the count must continue from where it left off",
+        "Stack must start cleanly using docker compose up -d and stop cleanly with docker compose down"
+      ],
+      "technical": [
+        "Use modern compose file syntax (compose.yaml or docker-compose.yml)",
+        "Configure user-defined bridge network in compose networks section",
+        "Pass configuration via environment variables or .env file"
+      ],
+      "security": [
+        "Do not expose Redis port 6379 to the host machine (omit ports mapping for Redis so it is only reachable internally)",
+        "Ensure .env.example is committed, but .env is excluded from Git"
+      ]
+    },
+    "architecture": {
+      "summary": "Docker Compose service graph architecture with embedded 127.0.0.11 DNS resolver and internal bridge isolation.",
+      "diagram": "docker compose engine ──> Creates app-network ──> Launches Redis container ──> Launches API container (resolves 'redis')",
+      "components": [
+        {
+          "name": "compose.yaml Specification",
+          "role": "Declarative blueprint defining services, networks, and build targets",
+          "technologies": [
+            "YAML"
+          ]
+        },
+        {
+          "name": "API Service",
+          "role": "Custom web application querying Redis on every HTTP request",
+          "technologies": [
+            "Node.js / Python"
+          ]
+        },
+        {
+          "name": "Redis Cache Service",
+          "role": "Official in-memory key-value data store",
+          "technologies": [
+            "redis:7-alpine"
+          ]
+        },
+        {
+          "name": "Docker Embedded DNS (127.0.0.11)",
+          "role": "Internal name server translating service names to container IP addresses",
+          "technologies": [
+            "Docker DNS"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine with Compose v2 plugin (docker compose)",
+        "Redis image (redis:alpine)"
+      ],
+      "optional": [
+        "Redis Commander web UI for visual cache inspection"
+      ],
+      "outOfScope": [
+        "Multi-node Swarm clustering",
+        "Kubernetes Helm charts"
+      ]
+    },
+    "functionalRequirements": [
+      "Write API code connecting to process.env.REDIS_HOST || \"redis\" on port 6379",
+      "Create Dockerfile for API service",
+      "Create compose.yaml defining services: api and redis",
+      "Launch stack: docker compose up -d --build",
+      "Test endpoint: curl http://localhost:8000/visit multiple times and observe incrementing hits",
+      "Verify internal DNS resolution: docker compose exec api ping -c 2 redis"
+    ],
+    "technicalRequirements": [
+      "Inspect running compose services: docker compose ps",
+      "Inspect container logs: docker compose logs api",
+      "Teardown stack: docker compose down"
+    ],
+    "securityRequirements": [
+      "Confirm Redis port 6379 is NOT accessible from host: nc -zv localhost 6379 should fail"
+    ],
+    "constraints": [
+      "Do not hardcode container IP addresses (e.g. 172.18.0.3); always use the DNS service name redis",
+      "Do not publish Redis to host 0.0.0.0:6379"
+    ],
+    "expectedOutcome": "A fully coordinated, reproducible multi-container development environment launched with a single compose command with private inter-container networking.",
+    "deliverables": [
+      "API source code and Dockerfile",
+      "Declarative compose.yaml file",
+      ".env.example template",
+      "COMPOSE_ORCHESTRATION_MANUAL.md documenting startup, inspection, and shutdown commands"
+    ],
+    "suggestedProjectStructure": "multi-container/\n├── compose.yaml\n├── .env.example\n├── .gitignore\n├── api/\n│   ├── Dockerfile\n│   ├── package.json\n│   └── index.js\n└── COMPOSE_ORCHESTRATION_MANUAL.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'Backend Crashes: Connection Refused to Postgres',
-        symptom: 'Backend logs show ECONNREFUSED postgres:5432.',
-        rootCause: 'Backend started before PostgreSQL finished initializing shared memory and TCP sockets.',
-        diagnosticCommand: 'docker compose logs postgres',
-        fixCommand: 'Configure depends_on with condition: service_healthy and valid pg_isready healthcheck.',
-        verification: 'Backend starts only after postgres reports healthy.',
-        preventativeMeasures: 'Always combine service dependencies with active healthchecks.',
+        "name": "docker compose Orchestration",
+        "lessonId": "c-docker-compose",
+        "academyRoute": "/docker"
       },
       {
-        id: 'fail-2',
-        title: 'Database Exposed on Public Host Port',
-        symptom: 'Security audit warns that Postgres 5432 is accessible from the internet.',
-        rootCause: 'Accidental ports: - "5432:5432" mapping in docker-compose.yml.',
-        diagnosticCommand: 'ss -tulpn | grep 5432',
-        fixCommand: 'Remove ports mapping from postgres service; internal-db-net allows backend access without host publishing.',
-        verification: 'ss -tulpn | grep 5432 returns empty.',
-        preventativeMeasures: 'Never expose databases on host interfaces unless explicitly required for external DBAs.',
+        "name": "Docker CLI: Networks & DNS",
+        "lessonId": "c-cli-networks",
+        "academyRoute": "/docker"
       },
+      {
+        "name": "Database & Cache Containers",
+        "lessonId": "c-running-databases",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Environment Variables",
+        "lessonId": "c-docker-run-flags",
+        "academyRoute": "/docker"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'docker-compose.yml configures 4 services and dual isolated networks', verificationCommand: 'docker compose config --services | wc -l | grep -q "4"', points: 25 },
-      { id: 'v2', label: 'All 4 containers running simultaneously with healthy status', verificationCommand: 'docker compose ps --filter "status=running" | wc -l | grep -E "[4-5]"', points: 25 },
-      { id: 'v3', label: 'PostgreSQL data persists across container destroy and recreate', verificationCommand: 'docker volume ls | grep -q "postgres_data"', points: 25 },
-      { id: 'v4', label: 'Database network isolated from frontend network', verificationCommand: 'docker network inspect $(docker compose ps -q backend | head -n 1) 2>/dev/null || docker compose config', points: 25 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 08: docker compose Orchestration",
+          "route": "/cloudstack/docker?concept=c-docker-compose"
+        },
+        {
+          "title": "Chapter 10: Docker CLI Networks",
+          "route": "/cloudstack/docker?concept=c-cli-networks"
+        },
+        {
+          "title": "Chapter 05: Database Containers",
+          "route": "/cloudstack/docker?concept=c-running-databases"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Compose Specification",
+          "url": "https://docs.docker.com/compose/compose-file/"
+        },
+        {
+          "title": "Networking in Compose",
+          "url": "https://docs.docker.com/compose/networking/"
+        }
+      ],
+      "referenceMaterial": [
+        "12-Factor App: Config & Backing Services"
+      ],
+      "usefulCommands": [
+        "docker compose up -d",
+        "docker compose ps",
+        "docker compose logs -f api",
+        "docker compose exec api env",
+        "docker compose down"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Develop the API service logic with configurable REDIS_HOST environment variable.",
+      "2. Author Dockerfile for the API service.",
+      "3. Draft compose.yaml defining services api and redis.",
+      "4. Connect both services to a shared custom network app-network.",
+      "5. Map port 8000 on host to API port 3000 in compose.yaml.",
+      "6. Create .env.example specifying REDIS_HOST=redis and PORT=3000.",
+      "7. Execute docker compose up -d --build.",
+      "8. Test curl http://localhost:8000/visit and observe hit increments.",
+      "9. Inspect network isolation and verify redis port is blocked from host.",
+      "10. Document management workflow in COMPOSE_ORCHESTRATION_MANUAL.md."
     ],
-    expectedOutcome:
-      'A resilient 4-tier microservices platform running under Docker Compose with network tiering, healthcheck synchronization, and volume data persistence.',
-    scoreMax: 100,
-    tags: ['docker', 'docker-compose', 'postgres', 'redis', 'networking', 'volumes', 'microservices'],
+    "importantConsiderations": [
+      "How does Docker Compose automatically assign network aliases based on service names?",
+      "Why is omitting the host ports mapping for internal databases a fundamental security practice?",
+      "What happens to container logs when running docker compose down vs docker compose stop?"
+    ],
+    "commonPitfalls": [
+      "Hardcoding localhost as the Redis host in the API code (localhost inside a container points to itself, not Redis).",
+      "Publishing database ports to 0.0.0.0 in production environments.",
+      "Forgetting --build flag when source code in the api directory has been modified."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add a custom banner in docker compose logs."
+      ],
+      "intermediate": [
+        "Add depends_on with condition: service_healthy to ensure Redis is ready before API starts."
+      ],
+      "advanced": [
+        "Add a third service (nginx reverse proxy) fronting the API."
+      ],
+      "expert": [
+        "Configure resource limits (deploy.resources.limits) inside compose.yaml."
+      ]
+    },
+    "completionChecklist": [
+      "API source code and Dockerfile created",
+      "compose.yaml orchestrates api and redis services",
+      "Services connected via user-defined bridge network",
+      "API connects to Redis using service name \"redis\"",
+      "Redis port 6379 verified unexposed to external host",
+      "curl visits confirm hit counters increment correctly",
+      "Stack starts and stops cleanly via compose CLI",
+      "COMPOSE_ORCHESTRATION_MANUAL.md completed"
+    ],
+    "objectives": [
+      "Construct a declarative compose.yaml file orchestrating the API backend and Redis cache",
+      "Isolate services on a dedicated user-defined bridge network",
+      "Leverage Docker's built-in DNS service discovery to allow the API to connect to \"redis:6379\" by service name",
+      "Configure environment variables using a .env file and compose environment blocks"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Multi-Container Application Orchestration",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Multi-Container Application Orchestration\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Write API code connecting to process.env.REDIS_HOST || \"redis\" on port 6379",
+        "objective": "Write API code connecting to process.env.REDIS_HOST || \"redis\" on port 6379",
+        "commandSnippet": "docker compose up -d",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Write API code connecting to process.env.REDIS_HOST || \"redis\" on port 6379"
+      },
+      {
+        "id": "task-2",
+        "title": "Create Dockerfile for API service",
+        "objective": "Create Dockerfile for API service",
+        "commandSnippet": "docker compose ps",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create Dockerfile for API service"
+      },
+      {
+        "id": "task-3",
+        "title": "Create compose.yaml defining services: api and redis",
+        "objective": "Create compose.yaml defining services: api and redis",
+        "commandSnippet": "docker compose logs -f api",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create compose.yaml defining services: api and redis"
+      },
+      {
+        "id": "task-4",
+        "title": "Launch stack: docker compose up -d --build",
+        "objective": "Launch stack: docker compose up -d --build",
+        "commandSnippet": "docker compose exec api env",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Launch stack: docker compose up -d --build"
+      },
+      {
+        "id": "task-5",
+        "title": "Test endpoint: curl http://localhost:8000/visit multiple times and observe incrementing hits",
+        "objective": "Test endpoint: curl http://localhost:8000/visit multiple times and observe incrementing hits",
+        "commandSnippet": "docker compose down",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Test endpoint: curl http://localhost:8000/visit multiple times and observe incrementing hits"
+      },
+      {
+        "id": "task-6",
+        "title": "Verify internal DNS resolution: docker compose exec api ping -c 2 redis",
+        "objective": "Verify internal DNS resolution: docker compose exec api ping -c 2 redis",
+        "commandSnippet": "docker compose up -d",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify internal DNS resolution: docker compose exec api ping -c 2 redis"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Hardcoding localhost as the Redis host in the API code (localhost inside a container points to itself, not Redis).",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Publishing database ports to 0.0.0.0 in production environments.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "API source code and Dockerfile created",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "compose.yaml orchestrates api and redis services",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Services connected via user-defined bridge network",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "API connects to Redis using service name \"redis\"",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Redis port 6379 verified unexposed to external host",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "curl visits confirm hit counters increment correctly",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Stack starts and stops cleanly via compose CLI",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "COMPOSE_ORCHESTRATION_MANUAL.md completed",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'docker-03',
-    code: 'DOCKER-03',
-    title: 'Production Docker Image',
-    academy: 'docker',
-    difficulty: 'Advanced',
-    estimatedTime: '75 mins',
-    overview:
-      'Engineer a hardened, minimal, enterprise-ready Docker image adhering to modern DevSecOps standards. You will implement a multi-stage Dockerfile that builds a Go or TypeScript binary in a heavy SDK compiler container and copies the compiled binary into a scratch or distroless minimal runtime container. You will enforce an unprivileged non-root user (UID 10001), minimize attack surface, optimize BuildKit cache mounts (--mount=type=cache), implement graceful POSIX signal forwarding (dumb-init / tini) to handle SIGTERM, configure an automated vulnerability scan using Trivy, and shrink final image size to under 30MB.',
-    objectives: [
-      'Implement multi-stage build separating builder SDK environment from the final runtime image.',
-      'Adopt Google Distroless or Alpine as the minimal runtime base to reduce attack surface.',
-      'Configure non-root user (USER 10001:10001) preventing container root privilege escalation.',
-      'Accelerate builds using BuildKit cache mounts for package dependencies.',
-      'Implement proper PID 1 signal forwarding for SIGTERM and SIGINT using dumb-init.',
-      'Scan generated image for CVEs using Trivy or Docker Scout and verify zero critical vulnerabilities.',
-      'Achieve target image size below 30MB.',
+    "id": "docker-03",
+    "code": "DOCKER-03",
+    "title": "Persistent Database Storage & Volume Lifecycle",
+    "academy": "docker",
+    "difficulty": "Lower Intermediate",
+    "estimatedTime": "8-10 hours",
+    "technologies": [
+      "Docker Named Volumes",
+      "Bind Mounts",
+      "PostgreSQL Container",
+      "Data Persistence",
+      "Volume Backup & Restore"
     ],
-    requirements: [
-      'Docker BuildKit enabled (DOCKER_BUILDKIT=1).',
-      'Knowledge of multi-stage Dockerfile mechanics (COPY --from=builder).',
-      'Understanding of Linux user namespaces and CVE vulnerability scanners.',
+    "overview": "Implement enterprise data persistence for containerized stateful workloads using Docker Named Volumes, verifying survival across container destruction, backup pipelines, and bind mount development workflows.",
+    "tags": [
+      "docker",
+      "volumes",
+      "persistence",
+      "postgresql",
+      "backup-restore",
+      "storage"
     ],
-    startingState: {
-      description:
-        'A bloated single-stage Dockerfile using node:20 (1.1GB in size), running as root, and riddled with CVE vulnerabilities.',
-      environment: 'Hardened Image Engineering Workstation',
-      startingFiles: {
-        'main.go': 'package main\nimport (\n  "fmt"\n  "net/http"\n  "os"\n)\nfunc main() {\n  http.HandleFunc("/health", func(w http.ResponseWriter, r *http.Request) {\n    fmt.Fprintf(w, "OK")\n  })\n  http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {\n    fmt.Fprintf(w, "Production Secure Go Microservice v1.0")\n  })\n  port := os.Getenv("PORT")\n  if port == "" { port = "8080" }\n  fmt.Printf("Listening on port %s\\n", port)\n  http.ListenAndServe(":"+port, nil)\n}',
-        'go.mod': 'module secure-service\ngo 1.22',
-      },
-    },
-    architecture: {
-      summary:
-        'Multi-Stage Build Pipeline: Stage 1 (golang:1.22-alpine Builder with SDK & Compilers) -> Compiles static binary -> Stage 2 (scratch / distroless Runtime) -> Copies only 15MB binary + non-root user.',
-      nodes: [
-        { id: 'builder-stage', name: 'Stage 1: Builder (golang:alpine)', role: 'Compilation Environment', description: 'Contains Go SDK, gcc, git, and build tools. 350MB temporary layer.', technologies: ['Go 1.22', 'BuildKit Cache'], status: 'active' },
-        { id: 'binary', name: 'CGO_ENABLED=0 Static Binary', role: 'Compiled Artifact', description: 'Statically linked ELF binary with zero external dynamic library dependencies.', technologies: ['ELF Binary', 'Static Linking'], status: 'healthy' },
-        { id: 'runtime-stage', name: 'Stage 2: Distroless Runtime', role: 'Production Image', description: 'Contains no shell, no package manager, no root user. Size < 20MB.', technologies: ['gcr.io/distroless/static', 'Non-root UID 10001'], status: 'healthy' },
-        { id: 'trivy-scan', name: 'Trivy CVE Scanner', role: 'Security Verification', description: 'Scans image layers for OS and dependency vulnerabilities.', technologies: ['Trivy', 'CVE Scanner'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Persistent Database Storage & Volume Lifecycle",
+      "academy": "docker",
+      "difficulty": "Lower Intermediate",
+      "estimatedEffort": "8-10 hours",
+      "technologies": [
+        "Docker Named Volumes",
+        "PostgreSQL 16",
+        "Bind Mounts",
+        "tar backup"
       ],
-      edges: [
-        { from: 'builder-stage', to: 'binary', label: 'go build -ldflags="-s -w"' },
-        { from: 'binary', to: 'runtime-stage', label: 'COPY --from=builder /app/server' },
-        { from: 'runtime-stage', to: 'trivy-scan', label: 'trivy image --severity HIGH,CRITICAL' },
-      ],
-      flowDescription:
-        'Source Go Code -> Stage 1 Builder -> Static Link Compilation -> Stage 2 Minimal Distroless Copy -> Non-root User Declaration -> Trivy Scan PASS -> Deployable Secure Image.',
+      "shortDescription": "Configure production-grade persistent storage for a containerized PostgreSQL database using Docker Named Volumes, verifying zero data loss during container recreation."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Author Multi-Stage Dockerfile with Static Linking & Non-Root User',
-        objective: 'Write a multi-stage Dockerfile that builds static Go binary and deploys to alpine minimal runtime under unprivileged user appuser.',
-        commandSnippet: 'cat << \'EOF\' > Dockerfile\n# Stage 1: Build\nFROM golang:1.22-alpine AS builder\nWORKDIR /build\nCOPY go.mod main.go ./\nRUN CGO_ENABLED=0 GOOS=linux go build -ldflags="-s -w" -o secure-server .\n\n# Stage 2: Runtime\nFROM alpine:3.19\nRUN addgroup -g 10001 -S appgroup && \\\n    adduser -u 10001 -S appuser -G appgroup\nWORKDIR /app\nCOPY --from=builder --chown=appuser:appgroup /build/secure-server .\nUSER 10001:10001\nEXPOSE 8080\nENV PORT=8080\nENTRYPOINT ["/app/secure-server"]\nEOF',
-        expectedOutput: 'Multi-stage Dockerfile created with builder stage and non-root runtime.',
-        verificationCriteria: 'Dockerfile includes "AS builder" and "USER 10001:10001".',
-        hints: ['-ldflags="-s -w" strips debugging symbols and DWARF tables, reducing binary size by ~30%.'],
-        explanation: 'Multi-stage builds prevent compiler toolchains and build secrets from leaking into the shipped container.',
-      },
-      {
-        id: 'task-2',
-        title: 'Build Hardened Image & Verify Size Under 30MB',
-        objective: 'Build secure-service:1.0.0 and inspect image size.',
-        commandSnippet: 'docker build -t secure-service:1.0.0 .\ndocker images secure-service:1.0.0',
-        expectedOutput: 'secure-service 1.0.0 ... < 25MB',
-        verificationCriteria: 'docker images secure-service:1.0.0 outputs size under 30MB.',
-        hints: ['Compare this with standard node or golang base images which are over 800MB.'],
-        explanation: 'Smaller images download faster across cloud registries, start in milliseconds, and contain far fewer potential vulnerabilities.',
-      },
-      {
-        id: 'task-3',
-        title: 'Verify Non-Root Execution Inside Running Container',
-        objective: 'Run container and verify whoami / UID returns 10001.',
-        commandSnippet: 'docker run -d --name secure-app -p 8080:8080 secure-service:1.0.0\nsleep 2\ndocker top secure-app',
-        expectedOutput: 'UID of running process is 10001 (appuser), not root.',
-        verificationCriteria: 'docker top secure-app displays UID 10001 or non-root user.',
-        hints: ['Running as non-root prevents container breakout attacks from compromising the host kernel.'],
-        explanation: 'If an attacker executes arbitrary code inside a root-run container, they have root privileges against host kernel syscalls.',
-      },
-      {
-        id: 'task-4',
-        title: 'Verify Graceful Signal Handling on SIGTERM',
-        objective: 'Stop container and verify clean termination within 1 second.',
-        commandSnippet: 'time docker stop secure-app\ndocker rm secure-app',
-        expectedOutput: 'secure-app stopped in under 2 seconds.',
-        verificationCriteria: 'docker stop execution finishes in under 5 seconds (not hitting the 10s SIGKILL timeout).',
-        hints: ['If a process does not handle SIGTERM, docker stop hangs for 10 seconds before forcibly killing it.'],
-        explanation: 'Proper signal handling allows Kubernetes to perform zero-downtime rolling updates without cutting off active user requests.',
-      },
+    "scenario": "A junior engineer deployed a PostgreSQL container on the staging server without mounting a volume. When the container was updated and recreated, the entire staging database was erased. You have been tasked with designing a persistent storage architecture using Docker Named Volumes, verifying data survival across destructive updates, and creating an automated backup routine.",
+    "problemStatement": "By default, the container writable layer is ephemeral: all data written inside a container dies when the container is removed (docker rm). Production databases require persistent storage decoupled from container lifecycle, backed by automated backup and restore workflows.",
+    "projectObjective": [
+      "Provision and configure Docker Named Volumes managed by the Docker storage engine",
+      "Deploy a containerized PostgreSQL database mounting the named volume to /var/lib/postgresql/data",
+      "Populate test tables and records into the database",
+      "Destroy and recreate the container to prove 100% data persistence",
+      "Execute a volume backup and restore procedure using a disposable helper container"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A persistent PostgreSQL database instance backed by an isolated Docker Named Volume with automated snapshot backup tooling.",
+      "diagram": "[PostgreSQL Container (postgres:16-alpine)]\n          │\n     (Volume Mount: /var/lib/postgresql/data)\n          │\n          ▼\n[Docker Named Volume: pg_data_volume] (Stored in /var/lib/docker/volumes/)\n          │\n          ├── Container destroyed (docker rm -f pg-db) ──> Volume remains INTACT!\n          ├── New Container launched (docker run -v pg_data_volume:...) ──> Data Restored!\n          │\n          ▼ (Backup via disposable container)\n[Backup Archive: pg_data_backup_2026-10-03.tar.gz]"
+    },
+    "requirements": {
+      "functional": [
+        "Database must persist all tables and rows when container is completely deleted and recreated",
+        "Database credentials must be supplied via environment variables without hardcoding in the image",
+        "An automated backup script must dump the volume content into a compressed tarball on the host"
+      ],
+      "technical": [
+        "Use docker volume create pg_data_volume",
+        "Mount using --mount type=volume,source=pg_data_volume,target=/var/lib/postgresql/data or -v",
+        "Implement backup using docker run --rm -v pg_data_volume:/data -v $(pwd):/backup alpine tar czvf ..."
+      ],
+      "security": [
+        "Do not store database passwords in plaintext in public version control",
+        "Ensure volume storage permissions prevent unauthorized non-root host access"
+      ]
+    },
+    "architecture": {
+      "summary": "Decoupled container storage architecture separating ephemeral execution layer from host-managed persistent block volume storage.",
+      "diagram": "Container Runtime Layer (Ephemeral Overlay2) <── Mount Point ──> Docker Named Volume (/var/lib/docker/volumes/pg_data/_data)",
+      "components": [
+        {
+          "name": "PostgreSQL Container",
+          "role": "Database server process executing queries and managing transactions",
+          "technologies": [
+            "PostgreSQL 16"
+          ]
+        },
+        {
+          "name": "Named Volume (pg_data_volume)",
+          "role": "Docker-managed directory on host filesystem unaffected by container lifecycle",
+          "technologies": [
+            "Docker Volume Engine"
+          ]
+        },
+        {
+          "name": "Disposable Backup Container",
+          "role": "Ephemeral Alpine container mounting volume to extract tarball archives",
+          "technologies": [
+            "Alpine Linux",
+            "tar"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine 24+",
+        "PostgreSQL client (psql) or docker exec psql",
+        "Bash shell"
+      ],
+      "optional": [
+        "pgAdmin container for visual database administration"
+      ],
+      "outOfScope": [
+        "Distributed Ceph / NFS storage clusters"
+      ]
+    },
+    "functionalRequirements": [
+      "Create named volume: docker volume create pg_data_volume",
+      "Run postgres container mounting pg_data_volume to /var/lib/postgresql/data",
+      "Execute SQL commands creating users table and inserting 3 records",
+      "Stop and delete the container: docker rm -f pg-database",
+      "Launch brand new container mounting the same pg_data_volume",
+      "Query the database and verify all 3 records are intact",
+      "Execute backup script archiving pg_data_volume to backup.tar.gz",
+      "Simulate disaster: delete volume, create new volume, restore backup, and verify records"
+    ],
+    "technicalRequirements": [
+      "Inspect volume metadata with docker volume inspect pg_data_volume",
+      "Demonstrate difference between Named Volume and Bind Mount",
+      "Verify clean volume cleanup with docker volume prune"
+    ],
+    "securityRequirements": [
+      "Ensure POSTGRES_PASSWORD is passed via .env file, not CLI history"
+    ],
+    "constraints": [
+      "Never store production database files in the container writable layer",
+      "Do not use bind mounts with relative paths on Windows/WSL without testing permission translation"
+    ],
+    "expectedOutcome": "Complete data persistence guarantees for containerized databases, verified disaster recovery via volume backups, and decoupled storage lifecycle management.",
+    "deliverables": [
+      "SQL schema and seed script (init.sql)",
+      "compose.yaml or docker run startup scripts",
+      "backup-volume.sh and restore-volume.sh automation scripts",
+      "VOLUME_PERSISTENCE_REPORT.md documenting container destruction, data verification, and restore drill"
+    ],
+    "suggestedProjectStructure": "persistent-db/\n├── compose.yaml\n├── .env.example\n├── scripts/\n│   ├── init.sql\n│   ├── backup-volume.sh\n│   └── restore-volume.sh\n└── VOLUME_PERSISTENCE_REPORT.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'Container Breakout Warning: Image Runs as Root',
-        symptom: 'Security scanner fails build: container runs as UID 0 (root).',
-        rootCause: 'Omission of USER instruction in Dockerfile.',
-        diagnosticCommand: 'docker inspect --format="{{.Config.User}}" secure-service:1.0.0',
-        fixCommand: 'Add USER 10001:10001 to Dockerfile before ENTRYPOINT.',
-        verification: 'docker inspect returns 10001:10001.',
-        preventativeMeasures: 'Add CI linter rule (Hadolint) enforcing non-root USER instruction.',
+        "name": "Volume Mounts & Named Volumes",
+        "lessonId": "c-volume-mounts",
+        "academyRoute": "/docker"
       },
       {
-        id: 'fail-2',
-        title: 'Dynamic Library Missing in Scratch Container',
-        symptom: 'Container fails on start with: standard_init_linux.go: exec user process caused: no such file or directory.',
-        rootCause: 'Binary was compiled with dynamic C library linking (CGO_ENABLED=1) but deployed into scratch/alpine.',
-        diagnosticCommand: 'file /build/secure-server',
-        fixCommand: 'Recompile with CGO_ENABLED=0 GOOS=linux.',
-        verification: 'Binary reports "statically linked" and executes cleanly in scratch.',
-        preventativeMeasures: 'Always enforce CGO_ENABLED=0 when building for scratch or distroless images.',
+        "name": "Ephemeral Container Filesystem",
+        "lessonId": "c-ephemeral-filesystem",
+        "academyRoute": "/docker"
       },
+      {
+        "name": "Database Containers",
+        "lessonId": "c-running-databases",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Docker CLI: Volumes",
+        "lessonId": "c-cli-volumes",
+        "academyRoute": "/docker"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'Multi-stage Dockerfile utilizes separate builder and minimal runtime', verificationCommand: 'grep -q "AS builder" Dockerfile && grep -q "COPY --from=builder" Dockerfile', points: 25 },
-      { id: 'v2', label: 'Container runs as non-root user (UID 10001)', verificationCommand: 'grep -q "USER 10001" Dockerfile', points: 25 },
-      { id: 'v3', label: 'Generated production image size is strictly below 30MB', verificationCommand: 'docker images secure-service:1.0.0 --format "{{.Size}}" | grep -E "(M|MB)"', points: 25 },
-      { id: 'v4', label: 'Container terminates gracefully upon SIGTERM within 3 seconds', verificationCommand: 'docker build -t secure-service:1.0.0 .', points: 25 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 05: Volume Mounts & Persistence",
+          "route": "/cloudstack/docker?concept=c-volume-mounts"
+        },
+        {
+          "title": "Chapter 05: Ephemeral Filesystem Traps",
+          "route": "/cloudstack/docker?concept=c-ephemeral-filesystem"
+        },
+        {
+          "title": "Chapter 10: Docker CLI Volumes",
+          "route": "/cloudstack/docker?concept=c-cli-volumes"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Documentation - Manage data in Docker",
+          "url": "https://docs.docker.com/storage/volumes/"
+        },
+        {
+          "title": "Docker Official Image - PostgreSQL",
+          "url": "https://hub.docker.com/_/postgres"
+        }
+      ],
+      "referenceMaterial": [
+        "Designing Data-Intensive Applications: Storage Engines"
+      ],
+      "usefulCommands": [
+        "docker volume create pg_data",
+        "docker volume inspect pg_data",
+        "docker run -d --name db -v pg_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:alpine",
+        "docker exec -it db psql -U postgres",
+        "docker run --rm -v pg_data:/volume -v $(pwd):/backup alpine tar -czvf /backup/db.tar.gz -C /volume .",
+        "docker volume rm pg_data"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Review Docker storage drivers and the location of volume data on the host.",
+      "2. Create a named volume pg_data_volume using docker volume create.",
+      "3. Inspect the created volume using docker volume inspect.",
+      "4. Launch PostgreSQL container mounting the named volume.",
+      "5. Connect to PostgreSQL using docker exec -it and create a table with test records.",
+      "6. Destroy the container using docker rm -f pg-database.",
+      "7. Confirm the volume still exists using docker volume ls.",
+      "8. Launch a new PostgreSQL container with the same volume and verify data integrity.",
+      "9. Author backup-volume.sh to create a tarball archive of the volume.",
+      "10. Perform a test restore onto a clean volume and compile VOLUME_PERSISTENCE_REPORT.md."
     ],
-    expectedOutcome:
-      'A battle-tested production Docker image under 30MB, featuring multi-stage compilation, non-root security boundaries, and graceful signal handling.',
-    scoreMax: 100,
-    tags: ['docker', 'multi-stage', 'security', 'non-root', 'distroless', 'alpine', 'buildkit'],
+    "importantConsiderations": [
+      "Why are Named Volumes superior to host Bind Mounts for database write performance on macOS and Windows?",
+      "What happens when a container mounting a volume is deleted using docker rm versus docker rm -v?",
+      "Why is pg_dump often preferred over raw filesystem tarballs for live database backups?"
+    ],
+    "commonPitfalls": [
+      "Mounting a volume to the wrong container path (e.g. /var/lib/postgresql instead of /var/lib/postgresql/data).",
+      "Accidentally running docker volume prune on a host where an unattached volume holds production data.",
+      "File permission mismatches when mounting host directories via bind mounts into database containers."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Configure Docker volume labels for tracking environment and owner."
+      ],
+      "intermediate": [
+        "Add automated pg_dump logical backups running on a cron schedule inside a sidecar container."
+      ],
+      "advanced": [
+        "Implement volume encryption at rest using host-level LUKS or cloud volume encryption."
+      ],
+      "expert": [
+        "Benchmark I/O throughput differences between Named Volumes, Bind Mounts, and tmpfs mounts."
+      ]
+    },
+    "completionChecklist": [
+      "Docker Named Volume created and inspected",
+      "PostgreSQL container deployed and mounted to named volume",
+      "Test tables created and verified populated",
+      "Container completely destroyed via docker rm -f",
+      "New container launched and verified data intact",
+      "Automated backup script authored and tested",
+      "Disaster restore drill verified on a clean volume",
+      "VOLUME_PERSISTENCE_REPORT.md completed"
+    ],
+    "objectives": [
+      "Provision and configure Docker Named Volumes managed by the Docker storage engine",
+      "Deploy a containerized PostgreSQL database mounting the named volume to /var/lib/postgresql/data",
+      "Populate test tables and records into the database",
+      "Destroy and recreate the container to prove 100% data persistence",
+      "Execute a volume backup and restore procedure using a disposable helper container"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Persistent Database Storage & Volume Lifecycle",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Persistent Database Storage & Volume Lifecycle\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create named volume: docker volume create pg_data_volume",
+        "objective": "Create named volume: docker volume create pg_data_volume",
+        "commandSnippet": "docker volume create pg_data",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create named volume: docker volume create pg_data_volume"
+      },
+      {
+        "id": "task-2",
+        "title": "Run postgres container mounting pg_data_volume to /var/lib/postgresql/data",
+        "objective": "Run postgres container mounting pg_data_volume to /var/lib/postgresql/data",
+        "commandSnippet": "docker volume inspect pg_data",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run postgres container mounting pg_data_volume to /var/lib/postgresql/data"
+      },
+      {
+        "id": "task-3",
+        "title": "Execute SQL commands creating users table and inserting 3 records",
+        "objective": "Execute SQL commands creating users table and inserting 3 records",
+        "commandSnippet": "docker run -d --name db -v pg_data:/var/lib/postgresql/data -e POSTGRES_PASSWORD=secret postgres:alpine",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Execute SQL commands creating users table and inserting 3 records"
+      },
+      {
+        "id": "task-4",
+        "title": "Stop and delete the container: docker rm -f pg-database",
+        "objective": "Stop and delete the container: docker rm -f pg-database",
+        "commandSnippet": "docker exec -it db psql -U postgres",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Stop and delete the container: docker rm -f pg-database"
+      },
+      {
+        "id": "task-5",
+        "title": "Launch brand new container mounting the same pg_data_volume",
+        "objective": "Launch brand new container mounting the same pg_data_volume",
+        "commandSnippet": "docker run --rm -v pg_data:/volume -v $(pwd):/backup alpine tar -czvf /backup/db.tar.gz -C /volume .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Launch brand new container mounting the same pg_data_volume"
+      },
+      {
+        "id": "task-6",
+        "title": "Query the database and verify all 3 records are intact",
+        "objective": "Query the database and verify all 3 records are intact",
+        "commandSnippet": "docker volume rm pg_data",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Query the database and verify all 3 records are intact"
+      },
+      {
+        "id": "task-7",
+        "title": "Execute backup script archiving pg_data_volume to backup.tar.gz",
+        "objective": "Execute backup script archiving pg_data_volume to backup.tar.gz",
+        "commandSnippet": "docker volume create pg_data",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Execute backup script archiving pg_data_volume to backup.tar.gz"
+      },
+      {
+        "id": "task-8",
+        "title": "Simulate disaster: delete volume, create new volume, restore backup, and verify records",
+        "objective": "Simulate disaster: delete volume, create new volume, restore backup, and verify records",
+        "commandSnippet": "docker volume inspect pg_data",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Simulate disaster: delete volume, create new volume, restore backup, and verify records"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Mounting a volume to the wrong container path (e.g. /var/lib/postgresql instead of /var/lib/postgresql/data).",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Accidentally running docker volume prune on a host where an unattached volume holds production data.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Docker Named Volume created and inspected",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "PostgreSQL container deployed and mounted to named volume",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Test tables created and verified populated",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Container completely destroyed via docker rm -f",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "New container launched and verified data intact",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Automated backup script authored and tested",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Disaster restore drill verified on a clean volume",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "VOLUME_PERSISTENCE_REPORT.md completed",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'docker-04',
-    code: 'DOCKER-04',
-    title: 'Docker Debugging Challenge',
-    academy: 'docker',
-    difficulty: 'Production',
-    estimatedTime: '90 mins',
-    overview:
-      'Triage and resurrect a severely broken production microservice cluster. You are dropped into an environment where 7 concurrent failures have caused total service collapse: 1) Wrong port forwarding mapping, 2) Missing critical environment variable causing immediate startup panic, 3) Misconfigured volume mount overwriting application code, 4) Network isolation failure where frontend cannot resolve backend, 5) Intermittent container crash loop, 6) Failing healthcheck due to wrong probe path, and 7) Permission failure preventing a non-root process from writing to /var/log/app. You must use the complete Docker diagnostic toolkit (docker ps, logs, inspect, exec, stats, network, volume) to restore full operational capability.',
-    objectives: [
-      'Diagnose container boot panics using docker logs --tail and docker logs --follow.',
-      'Inspect container networking, IP assignments, and DNS alias bindings with docker network inspect.',
-      'Fix port forwarding mismatch where host 8080 was routed to wrong internal port 5000.',
-      'Debug healthcheck probe failures using docker inspect --format="{{json .State.Health}}".',
-      'Resolve volume bind mount bug where an empty host directory shadowed the container /app directory.',
-      'Correct directory ownership and permissions inside container volumes with docker exec.',
-      'Verify complete cluster health recovery with docker stats showing stable memory and CPU.',
+    "id": "docker-04",
+    "code": "DOCKER-04",
+    "title": "Advanced Application Networking & Service Discovery",
+    "academy": "docker",
+    "difficulty": "Intermediate",
+    "estimatedTime": "8-12 hours",
+    "technologies": [
+      "Bridge Networks",
+      "Host Network Mode",
+      "Overlay Networks",
+      "DNS Resolution",
+      "Network Aliases",
+      "iptables"
     ],
-    requirements: [
-      'Proficiency with Docker CLI diagnostic commands: logs, inspect, exec, network, volume, stats.',
-      'Understanding of Linux permissions inside container volumes.',
-      'Methodical debugging methodology: Observe -> Hypothesize -> Inspect -> Fix -> Verify.',
+    "overview": "Design, configure, and isolate complex microservice topologies using Docker user-defined networks, multi-network container multi-homing, network aliases, and traffic segmentation.",
+    "tags": [
+      "docker",
+      "networking",
+      "bridge-network",
+      "dns",
+      "multi-homed",
+      "security-isolation"
     ],
-    startingState: {
-      description:
-        'A crippled multi-container deployment where frontend, api, and database containers are either exited, restarting, or reporting unhealthy.',
-      environment: 'Crippled Docker Cluster Debugging Arena',
-      startingFiles: {
-        'docker-compose.broken.yml': 'services:\n  api:\n    image: node:20-alpine\n    ports:\n      - "8080:5000" # BUG: App listens on 3000\n    volumes:\n      - ./empty_dir:/app # BUG: Shadows /app\n    environment:\n      - NODE_ENV=production\n      # BUG: Missing DB_PASSWORD\n    healthcheck:\n      test: ["CMD", "curl", "http://localhost:3000/wrong-path"] # BUG: Should be /health\n',
-      },
-    },
-    architecture: {
-      summary:
-        'Diagnostic Workflow: Triaging broken container cluster using docker logs, inspect, exec, network inspect, and repairing compose manifest.',
-      nodes: [
-        { id: 'broken-api', name: 'API Service (Failing)', role: 'Core API Server', description: 'Crashing due to missing DB_PASSWORD and wrong port 5000 mapping.', technologies: ['docker logs', 'docker inspect'], status: 'degraded' },
-        { id: 'broken-vol', name: 'Shadowed Bind Mount', role: 'Storage Collision', description: './empty_dir mounted over /app wiping out application files.', technologies: ['docker volume'], status: 'degraded' },
-        { id: 'broken-probe', name: 'Unhealthy Healthcheck', role: 'Health Monitor', description: 'Probing non-existent endpoint /wrong-path.', technologies: ['HEALTHCHECK'], status: 'degraded' },
-        { id: 'fixed-cluster', name: 'Restored Cluster', role: 'Operational Platform', description: 'All containers running, ports mapped 8080:3000, healthy probes.', technologies: ['Docker Compose'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Advanced Application Networking & Service Discovery",
+      "academy": "docker",
+      "difficulty": "Intermediate",
+      "estimatedEffort": "8-12 hours",
+      "technologies": [
+        "Docker Networks",
+        "Bridge Driver",
+        "DNS Aliases",
+        "Multi-Network Multi-Homing"
       ],
-      edges: [
-        { from: 'broken-api', to: 'broken-vol', label: 'shadows code' },
-        { from: 'broken-api', to: 'broken-probe', label: 'fails probe' },
-        { from: 'broken-api', to: 'fixed-cluster', label: 'diagnose & fix' },
-      ],
-      flowDescription:
-        'Detect crash -> docker logs -> identify missing env var -> fix port mapping -> fix volume mount -> fix healthcheck probe -> verify with docker ps & curl.',
+      "shortDescription": "Construct a segmented network topology isolating frontend, backend, and database tiers, allowing only authorized inter-service communication."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Survey Cluster Status with docker ps',
-        objective: 'Enumerate all active, restarting, and exited containers to gauge cluster health.',
-        commandSnippet: 'docker ps -a --format "table {{.ID}}\\t{{.Names}}\\t{{.Status}}\\t{{.Ports}}"',
-        expectedOutput: 'api-broken (Restarting), db (Up), frontend (Exited)',
-        verificationCriteria: 'Command returns listing of all containers including exited and unhealthy ones.',
-        hints: ['docker ps -a shows both stopped and crashing containers.'],
-        explanation: 'Always start cluster incident triage with a bird\'s eye view of running and exited containers.',
-      },
-      {
-        id: 'task-2',
-        title: 'Diagnose Crash Cause with docker logs',
-        objective: 'Inspect logs of crashing api container to identify missing configuration variables.',
-        commandSnippet: 'docker logs api-broken 2>&1 | tail -n 10',
-        expectedOutput: 'FATAL ERROR: DB_PASSWORD environment variable is required.',
-        verificationCriteria: 'Logs identify missing DB_PASSWORD.',
-        hints: ['docker logs reveals uncaught exceptions and startup panic messages.'],
-        explanation: 'Modern microservices fail fast if critical environment variables are absent from the runtime environment.',
-      },
-      {
-        id: 'task-3',
-        title: 'Inspect Port Mapping Misconfiguration with docker inspect',
-        objective: 'Query container port bindings using docker inspect.',
-        commandSnippet: 'docker inspect --format="{{json .NetworkSettings.Ports}}" api-broken',
-        expectedOutput: '{"5000/tcp":[{"HostIp":"0.0.0.0","HostPort":"8080"}]}',
-        verificationCriteria: 'Inspector reveals mapping is to port 5000 instead of port 3000.',
-        hints: ['The backend server listens on port 3000; mapping 8080 to 5000 means requests to 8080 are dropped.'],
-        explanation: 'Port mapping must match the exact listening port bound by the containerized server.',
-      },
-      {
-        id: 'task-4',
-        title: 'Live Container Debugging with docker exec',
-        objective: 'Execute diagnostic shell inside container to inspect internal files and connectivity.',
-        commandSnippet: 'docker exec api-broken env\ndocker exec api-broken netstat -tlpn 2>/dev/null || true',
-        expectedOutput: 'Environment variables listed and internal listening ports verified.',
-        verificationCriteria: 'docker exec executes command inside the container successfully.',
-        hints: ['docker exec allows live non-destructive inspection of container internal states.'],
-        explanation: 'Exec provides instant validation of file existence, permissions, and network bindings from inside the container namespace.',
-      },
-      {
-        id: 'task-5',
-        title: 'Profile Resource Utilization with docker stats',
-        objective: 'Monitor live CPU and Memory consumption to detect memory leaks or CPU spin-locks.',
-        commandSnippet: 'docker stats --no-stream --format "table {{.Container}}\\t{{.CPUPerc}}\\t{{.MemUsage}}"',
-        expectedOutput: 'CPU % and memory utilization table displayed with stable limits.',
-        verificationCriteria: 'docker stats returns CPU and memory statistics.',
-        hints: ['Use --no-stream for non-interactive scripting output.'],
-        explanation: 'High CPU percentage indicates a runaway process; high memory indicates an impending OOMKill.',
-      },
-      {
-        id: 'task-6',
-        title: 'Triage Cross-Container DNS with docker network',
-        objective: 'Inspect custom bridge network topology, connected containers, and subnet IP assignments.',
-        commandSnippet: 'docker network inspect bridge\ndocker network ls',
-        expectedOutput: 'Containers listed under network configuration with assigned IPv4 addresses.',
-        verificationCriteria: 'docker network inspect displays connected containers.',
-        hints: ['Default bridge network does not support DNS name resolution; custom bridge networks do.'],
-        explanation: 'Containers must share a user-defined network to resolve each other by container name.',
-      },
-      {
-        id: 'task-7',
-        title: 'Inspect Storage Bindings with docker volume',
-        objective: 'Inspect persistent volumes, identify shadowed bind mounts, and fix permissions.',
-        commandSnippet: 'docker volume ls\ndocker volume inspect app_data 2>/dev/null || true',
-        expectedOutput: 'Volume metadata including Mountpoint and Driver displayed.',
-        verificationCriteria: 'docker volume command executes and displays volume metadata.',
-        hints: ['Named volumes persist independently of container lifecycles.'],
-        explanation: 'Inspect volume mounts to ensure data persistence and prevent local directory shadowing bugs.',
-      },
+    "scenario": "Your security team discovered that the public-facing web container on your staging server could directly query the internal database port because all containers were attached to the default bridge network. You must re-architect the Docker network topology into segmented tiers (public-net and private-net) so the database is completely unreachable from the public frontend.",
+    "problemStatement": "The default Docker bridge network (bridge) allows all containers to talk to each other without isolation and lacks automatic DNS service discovery (requiring legacy --link). Production multi-tier architectures require segmented user-defined networks with strict boundary enforcement.",
+    "projectObjective": [
+      "Create two distinct user-defined bridge networks: public-tier and internal-tier",
+      "Deploy an Nginx reverse proxy attached exclusively to public-tier",
+      "Deploy a PostgreSQL database attached exclusively to internal-tier",
+      "Deploy a multi-homed Backend API container attached to BOTH public-tier and internal-tier",
+      "Verify that Nginx cannot reach the database, while the Backend API can reach both"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A three-tier network architecture enforcing strict network isolation between public ingress and internal data storage.",
+      "diagram": "[Network: public-tier (172.20.0.0/16)]      [Network: internal-tier (172.21.0.0/16)]\n┌──────────────────────────────────────┐     ┌──────────────────────────────────────┐\n│                                      │     │                                      │\n│  [Nginx (Reverse Proxy)]             │     │                                      │\n│  └── IP: 172.20.0.2                  │     │                                      │\n│         │                            │     │                                      │\n│         ▼ (proxy_pass)               │     │                                      │\n│  [Backend API (Multi-Homed)] ────────┼─────┼──> [Backend API]                    │\n│  └── Interface eth0: 172.20.0.3      │     │    └── Interface eth1: 172.21.0.3    │\n│                                      │     │           │                          │\n│  [PostgreSQL (BLOCKED!)] <─X─────────┼─────┼───────────▼                          │\n│  (Cannot connect to DB from Nginx)   │     │    [PostgreSQL Database]             │\n│                                      │     │    └── IP: 172.21.0.2                │\n│                                      │     │                                      │\n└──────────────────────────────────────┘     └──────────────────────────────────────┘"
+    },
+    "requirements": {
+      "functional": [
+        "Nginx can communicate with Backend API over public-tier",
+        "Backend API can communicate with Database over internal-tier",
+        "Nginx CANNOT ping or communicate with Database (network isolation verified)",
+        "Database has zero route to public-tier"
+      ],
+      "technical": [
+        "Create networks: docker network create public-tier and docker network create internal-tier",
+        "Connect backend to both networks via docker network connect",
+        "Demonstrate DNS service discovery by container name and network alias"
+      ],
+      "security": [
+        "Prevent any container on public-tier from resolving or routing packets to internal-tier",
+        "Verify database has no public port mappings (-p) on host interfaces"
+      ]
+    },
+    "architecture": {
+      "summary": "Segmented Linux bridge namespace topology with isolated veth pairs, iptables forwarding rules, and embedded DNS scoping.",
+      "diagram": "Host Interface ──> public-tier Bridge (br-pub) ──> Backend API (Dual NIC) <── internal-tier Bridge (br-priv) ──> Database",
+      "components": [
+        {
+          "name": "public-tier Bridge",
+          "role": "Virtual Ethernet switch for public-facing reverse proxy and ingress API",
+          "technologies": [
+            "Linux Bridge"
+          ]
+        },
+        {
+          "name": "internal-tier Bridge",
+          "role": "Isolated virtual switch for internal database and cache storage",
+          "technologies": [
+            "Linux Bridge"
+          ]
+        },
+        {
+          "name": "Multi-Homed API Container",
+          "role": "Gateway service with two network interfaces mediating application traffic",
+          "technologies": [
+            "veth Interfaces"
+          ]
+        },
+        {
+          "name": "Docker DNS Daemon",
+          "role": "Scoped name resolution returning IPs only for containers on the same network",
+          "technologies": [
+            "127.0.0.11"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine 24+",
+        "Nginx image",
+        "PostgreSQL image",
+        "Alpine or curl image for testing"
+      ],
+      "optional": [
+        "tcpdump or wireshark for packet capture on bridge interfaces"
+      ],
+      "outOfScope": [
+        "BGP dynamic routing"
+      ]
+    },
+    "functionalRequirements": [
+      "Create public-tier and internal-tier networks with custom subnets",
+      "Run postgres on internal-tier with alias db-server",
+      "Run api on public-tier, then connect to internal-tier using docker network connect",
+      "Run nginx on public-tier proxying requests to api:3000",
+      "Test successful connectivity: api can reach db-server:5432 and nginx can reach api:3000",
+      "Test isolation: nginx cannot reach db-server:5432 (timeout / unresolvable)"
+    ],
+    "technicalRequirements": [
+      "Inspect network details using docker network inspect public-tier and docker network inspect internal-tier",
+      "Inspect network interfaces inside backend container: docker exec api ip addr show",
+      "Verify DNS scoping: docker exec nginx nslookup db-server must fail"
+    ],
+    "securityRequirements": [
+      "Audit host iptables rules generated by Docker: sudo iptables -L DOCKER-USER -v"
+    ],
+    "constraints": [
+      "Do not use --net=host (which disables network namespace isolation entirely)",
+      "Do not connect the database to public-tier"
+    ],
+    "expectedOutcome": "An enterprise-grade, segmented container network architecture with mathematical verification of isolation between public web ingress and private database storage.",
+    "deliverables": [
+      "compose.yaml or shell provisioning script defining network segmentation",
+      "Nginx reverse proxy configuration",
+      "NETWORK_SECURITY_AUDIT.md documenting IP allocations, routing tables, and isolation tests"
+    ],
+    "suggestedProjectStructure": "network-lab/\n├── compose.yaml\n├── nginx/\n│   └── default.conf\n├── api/\n│   └── server.js\n└── NETWORK_SECURITY_AUDIT.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'Volume Mount Overwrites Code with Empty Directory',
-        symptom: 'Container logs error: Cannot find module /app/server.js.',
-        rootCause: 'Host directory in -v ./local:/app was empty, masking container contents.',
-        diagnosticCommand: 'docker exec api ls -la /app',
-        fixCommand: 'Remove the bind mount or populate the local directory before mounting.',
-        verification: 'ls /app shows application files present.',
-        preventativeMeasures: 'Use named volumes or anonymous volumes for runtime caching, not empty bind mounts.',
+        "name": "Docker CLI: Networks",
+        "lessonId": "c-cli-networks",
+        "academyRoute": "/docker"
       },
       {
-        id: 'fail-2',
-        title: 'Docker DNS Resolution Failure Across Containers',
-        symptom: 'curl http://backend:3000 returns Could not resolve host: backend.',
-        rootCause: 'Containers were launched on the default "bridge" network which does not support automatic DNS resolution.',
-        diagnosticCommand: 'docker network inspect bridge',
-        fixCommand: 'Create a custom user-defined bridge network: docker network create app-net and join both containers.',
-        verification: 'docker exec frontend ping -c 1 backend succeeds.',
-        preventativeMeasures: 'Always deploy containers on user-defined bridge networks where Docker embedded DNS (127.0.0.11) is active.',
+        "name": "Linux Namespaces",
+        "lessonId": "c-linux-namespaces",
+        "academyRoute": "/docker"
       },
+      {
+        "name": "docker run Configuration Options",
+        "lessonId": "c-docker-run-flags",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Multi-Container Orchestration",
+        "lessonId": "c-docker-compose",
+        "academyRoute": "/docker"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'Port forward correctly maps host 8080 to container 3000', verificationCommand: 'docker compose -f docker-compose.fixed.yml ps | grep -q "8080->3000"', points: 25 },
-      { id: 'v2', label: 'Missing DB_PASSWORD injected into container environment', verificationCommand: 'grep -q "DB_PASSWORD=secretpassword123" docker-compose.fixed.yml', points: 25 },
-      { id: 'v3', label: 'Container passes healthcheck probe with status healthy', verificationCommand: 'docker compose -f docker-compose.fixed.yml ps | grep -q "healthy"', points: 25 },
-      { id: 'v4', label: 'All 7 diagnostic challenges investigated and resolved', verificationCommand: 'test -f docker-compose.fixed.yml', points: 25 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 10: Docker CLI Networks",
+          "route": "/cloudstack/docker?concept=c-cli-networks"
+        },
+        {
+          "title": "Chapter 02: Linux Namespaces & Isolation",
+          "route": "/cloudstack/docker?concept=c-linux-namespaces"
+        },
+        {
+          "title": "Chapter 08: Compose Multi-Network Setup",
+          "route": "/cloudstack/docker?concept=c-docker-compose"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Networking Overview",
+          "url": "https://docs.docker.com/network/"
+        },
+        {
+          "title": "Bridge Network Driver",
+          "url": "https://docs.docker.com/network/drivers/bridge/"
+        }
+      ],
+      "referenceMaterial": [
+        "Docker Networking and Security Deep Dive (Bret Fisher)"
+      ],
+      "usefulCommands": [
+        "docker network create --subnet=172.20.0.0/16 public-tier",
+        "docker network create --subnet=172.21.0.0/16 internal-tier",
+        "docker network connect internal-tier api-service",
+        "docker network inspect public-tier",
+        "docker exec api-service ip route show"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Map out network IP ranges, subnet masks, and container interface bindings.",
+      "2. Create user-defined bridge networks public-tier and internal-tier.",
+      "3. Launch the database container attached exclusively to internal-tier.",
+      "4. Launch the API container attached to public-tier.",
+      "5. Connect the API container to internal-tier using docker network connect.",
+      "6. Launch Nginx attached exclusively to public-tier.",
+      "7. Verify API container possesses two virtual network interfaces (eth0, eth1).",
+      "8. Test that API can query the database using its internal DNS name.",
+      "9. Execute test from Nginx attempting to resolve and ping the database; verify complete isolation.",
+      "10. Document all network topologies and test outputs in NETWORK_SECURITY_AUDIT.md."
     ],
-    expectedOutcome:
-      'Mastery of real-world container troubleshooting: dissecting crash logs, correcting port maps, diagnosing shadowed volume mounts, and stabilizing broken healthchecks.',
-    scoreMax: 100,
-    tags: ['docker', 'troubleshooting', 'debugging', 'docker-logs', 'docker-inspect', 'healthcheck'],
+    "importantConsiderations": [
+      "Why does Docker's embedded DNS server (127.0.0.11) only resolve container names on user-defined networks, not on default bridge?",
+      "How does multi-homing a container (attaching to multiple networks) establish a secure software DMZ?",
+      "How does Docker manipulate host iptables FORWARD rules to prevent cross-network packet leakage?"
+    ],
+    "commonPitfalls": [
+      "Using the default bridge network, inadvertently allowing all containers on the host to talk to each other.",
+      "Confusing container port exposure (EXPOSE) with host port publishing (-p).",
+      "Assigning overlapping subnets to custom bridge networks."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add network aliases to allow round-robin load balancing across two API containers."
+      ],
+      "intermediate": [
+        "Configure custom MTU (Maximum Transmission Unit) on the custom bridge network."
+      ],
+      "advanced": [
+        "Inspect and customize iptables rules inside the DOCKER-USER chain to enforce specific IP whitelisting."
+      ],
+      "expert": [
+        "Deploy an IPv6 dual-stack user-defined bridge network and verify global unicast routing."
+      ]
+    },
+    "completionChecklist": [
+      "public-tier and internal-tier bridge networks created with dedicated subnets",
+      "Database launched and verified isolated on internal-tier",
+      "Backend API launched and multi-homed on both networks",
+      "Nginx reverse proxy launched on public-tier",
+      "API confirms communication with database over internal network",
+      "Isolation test confirms Nginx cannot resolve or reach database",
+      "docker network inspect outputs verified",
+      "NETWORK_SECURITY_AUDIT.md published"
+    ],
+    "objectives": [
+      "Create two distinct user-defined bridge networks: public-tier and internal-tier",
+      "Deploy an Nginx reverse proxy attached exclusively to public-tier",
+      "Deploy a PostgreSQL database attached exclusively to internal-tier",
+      "Deploy a multi-homed Backend API container attached to BOTH public-tier and internal-tier",
+      "Verify that Nginx cannot reach the database, while the Backend API can reach both"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Advanced Application Networking & Service Discovery",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Advanced Application Networking & Service Discovery\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create public-tier and internal-tier networks with custom subnets",
+        "objective": "Create public-tier and internal-tier networks with custom subnets",
+        "commandSnippet": "docker network create --subnet=172.20.0.0/16 public-tier",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create public-tier and internal-tier networks with custom subnets"
+      },
+      {
+        "id": "task-2",
+        "title": "Run postgres on internal-tier with alias db-server",
+        "objective": "Run postgres on internal-tier with alias db-server",
+        "commandSnippet": "docker network create --subnet=172.21.0.0/16 internal-tier",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run postgres on internal-tier with alias db-server"
+      },
+      {
+        "id": "task-3",
+        "title": "Run api on public-tier, then connect to internal-tier using docker network connect",
+        "objective": "Run api on public-tier, then connect to internal-tier using docker network connect",
+        "commandSnippet": "docker network connect internal-tier api-service",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run api on public-tier, then connect to internal-tier using docker network connect"
+      },
+      {
+        "id": "task-4",
+        "title": "Run nginx on public-tier proxying requests to api:3000",
+        "objective": "Run nginx on public-tier proxying requests to api:3000",
+        "commandSnippet": "docker network inspect public-tier",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run nginx on public-tier proxying requests to api:3000"
+      },
+      {
+        "id": "task-5",
+        "title": "Test successful connectivity: api can reach db-server:5432 and nginx can reach api:3000",
+        "objective": "Test successful connectivity: api can reach db-server:5432 and nginx can reach api:3000",
+        "commandSnippet": "docker exec api-service ip route show",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Test successful connectivity: api can reach db-server:5432 and nginx can reach api:3000"
+      },
+      {
+        "id": "task-6",
+        "title": "Test isolation: nginx cannot reach db-server:5432 (timeout / unresolvable)",
+        "objective": "Test isolation: nginx cannot reach db-server:5432 (timeout / unresolvable)",
+        "commandSnippet": "docker network create --subnet=172.20.0.0/16 public-tier",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Test isolation: nginx cannot reach db-server:5432 (timeout / unresolvable)"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Using the default bridge network, inadvertently allowing all containers on the host to talk to each other.",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Confusing container port exposure (EXPOSE) with host port publishing (-p).",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "public-tier and internal-tier bridge networks created with dedicated subnets",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Database launched and verified isolated on internal-tier",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Backend API launched and multi-homed on both networks",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Nginx reverse proxy launched on public-tier",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "API confirms communication with database over internal network",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Isolation test confirms Nginx cannot resolve or reach database",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "docker network inspect outputs verified",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "NETWORK_SECURITY_AUDIT.md published",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'docker-05',
-    code: 'DOCKER-05',
-    title: 'Docker CI/CD Pipeline',
-    academy: 'docker',
-    difficulty: 'Expert',
-    estimatedTime: '120 mins',
-    overview:
-      'Construct a complete, enterprise-grade Docker automated Continuous Integration and Continuous Deployment (CI/CD) delivery pipeline. You will integrate the entire lifecycle: 1) Git commit hook triggers, 2) Unit test execution in an ephemeral test container, 3) BuildKit multi-stage image compilation with layer caching, 4) Automated CVE security scanning with Trivy (failing the pipeline on CRITICAL vulnerabilities), 5) Container image signing with Cosign, 6) Pushing immutable image tags (commit SHA and SemVer) to an OCI Container Registry, and 7) Zero-downtime rolling update deployment to a staging server.',
-    objectives: [
-      'Design an automated Docker CI/CD pipeline script simulating GitHub Actions / GitLab CI.',
-      'Execute automated unit and integration tests inside an ephemeral Docker container.',
-      'Build container image utilizing BuildKit cache mounts and multi-platform tags (amd64/arm64).',
-      'Integrate Trivy security scanning to fail builds containing unpatched CVEs.',
-      'Tag image with both git commit SHA (immutable) and semantic version (v1.2.0).',
-      'Push image to local/remote OCI container registry.',
-      'Execute automated rolling update deployment and verify health with rollback trigger.',
+    "id": "docker-05",
+    "code": "DOCKER-05",
+    "title": "Production Docker Image Optimization & Multi-Stage Builds",
+    "academy": "docker",
+    "difficulty": "Intermediate+",
+    "estimatedTime": "8-12 hours",
+    "technologies": [
+      "Multi-Stage Builds",
+      "Distroless / Scratch",
+      "Layer Optimization",
+      "BuildKit Cache Mounts",
+      "Non-Root Users"
     ],
-    requirements: [
-      'Docker Engine with BuildKit enabled.',
-      'Understanding of modern CI/CD stages: Lint -> Test -> Build -> Scan -> Push -> Deploy.',
-      'Familiarity with container registries (Docker Hub, GHCR, ECR) and tag mutability risks.',
+    "overview": "Refactor bloated, insecure development Docker images into lean, production-hardened artifacts using multi-stage builds, Distroless base images, BuildKit cache mounts, and unprivileged user enforcement.",
+    "tags": [
+      "docker",
+      "multi-stage",
+      "image-optimization",
+      "distroless",
+      "buildkit",
+      "security"
     ],
-    startingState: {
-      description:
-        'A Git repository containing application source, tests/test.js, and an empty .github/workflows/deploy.yml pipeline file.',
-      environment: 'CI/CD Automation Runner Node',
-      startingFiles: {
-        'src/app.js': 'module.exports = { add: (a, b) => a + b };',
-        'tests/test.js': 'const { add } = require("../src/app");\nif (add(2, 3) !== 5) { console.error("Test Failed"); process.exit(1); }\nconsole.log("All unit tests passed!");',
-        'Dockerfile': 'FROM node:20-alpine\nWORKDIR /app\nCOPY src/ src/\nCOPY package*.json ./\nCMD ["node", "src/app.js"]',
-      },
-    },
-    architecture: {
-      summary:
-        'Automated CI/CD Delivery Pipeline: Git Commit -> Test Container -> BuildKit Build -> Trivy Security Scan -> OCI Registry -> Rolling Deployment -> Health Verification.',
-      nodes: [
-        { id: 'git-trigger', name: 'Git Commit (SHA: a1b2c3d)', role: 'Pipeline Trigger', description: 'Code push event triggering the automated runner.', technologies: ['Git', 'Webhooks'], status: 'active' },
-        { id: 'test-runner', name: 'Ephemeral Test Container', role: 'Test Isolation', description: 'Executes unit tests in clean isolated container.', technologies: ['Node.js', 'Jest'], status: 'healthy' },
-        { id: 'buildkit-ci', name: 'BuildKit Builder', role: 'Image Compiler', description: 'Compiles multi-stage image with remote cache.', technologies: ['BuildKit', 'Docker'], status: 'healthy' },
-        { id: 'trivy-scan', name: 'Trivy Security Gate', role: 'DevSecOps Barrier', description: 'Fails build if CVE severity is CRITICAL.', technologies: ['Trivy', 'SAST/DAST'], status: 'healthy' },
-        { id: 'registry', name: 'OCI Container Registry', role: 'Artifact Storage', description: 'Stores immutable tagged images (:a1b2c3d and :v1.2.0).', technologies: ['GHCR', 'Docker Registry'], status: 'healthy' },
-        { id: 'prod-deploy', name: 'Production Deployment', role: 'Runtime Host', description: 'Performs zero-downtime rolling update and verifies health.', technologies: ['Docker Run', 'Healthcheck'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Production Docker Image Optimization & Multi-Stage Builds",
+      "academy": "docker",
+      "difficulty": "Intermediate+",
+      "estimatedEffort": "8-12 hours",
+      "technologies": [
+        "Multi-Stage Builds",
+        "Docker BuildKit",
+        "Google Distroless",
+        "Layer Caching",
+        "Non-Root USER"
       ],
-      edges: [
-        { from: 'git-trigger', to: 'test-runner', label: '1. run unit tests' },
-        { from: 'test-runner', to: 'buildkit-ci', label: '2. tests pass -> build image' },
-        { from: 'buildkit-ci', to: 'trivy-scan', label: '3. scan image for CVEs' },
-        { from: 'trivy-scan', to: 'registry', label: '4. scan clean -> push image' },
-        { from: 'registry', to: 'prod-deploy', label: '5. pull & deploy' },
-      ],
-      flowDescription:
-        'Git Push -> Run Tests -> Docker Build -> Security Scan -> Registry Push -> Deploy Container -> Verify Health.',
+      "shortDescription": "Reduce an application image size from 1.2 GB to under 80 MB while eliminating compilers, package managers, and root user execution."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Execute Tests in Ephemeral Test Container',
-        objective: 'Run test suite inside node:20-alpine container and capture exit code.',
-        commandSnippet: 'docker run --rm -v $(pwd):/app -w /app node:20-alpine node tests/test.js',
-        expectedOutput: 'All unit tests passed!',
-        verificationCriteria: 'Command returns exit code 0.',
-        hints: ['--rm ensures the test container is immediately destroyed after test completion.'],
-        explanation: 'Running tests inside the exact container base image guarantees identical behavior between CI test runs and production.',
-      },
-      {
-        id: 'task-2',
-        title: 'Build Container Image Tagged with Git SHA and SemVer',
-        objective: 'Build image and tag with simulated git commit SHA and release version v1.2.0.',
-        commandSnippet: 'GIT_SHA="a1b2c3d"\ndocker build -t mycompany/api:$GIT_SHA -t mycompany/api:v1.2.0 -t mycompany/api:latest .\ndocker images mycompany/api',
-        expectedOutput: 'Image built and tagged with :a1b2c3d, :v1.2.0, and :latest.',
-        verificationCriteria: 'docker images lists mycompany/api with all 3 tags.',
-        hints: ['Never rely only on :latest in production because :latest is mutable and untraceable.'],
-        explanation: 'Tagging with git SHA creates an immutable audit trail linking the deployed container directly to the source commit.',
-      },
-      {
-        id: 'task-3',
-        title: 'Execute Security Vulnerability Scan Gate',
-        objective: 'Simulate Trivy security scan validating zero critical CVEs.',
-        commandSnippet: 'echo "Running Trivy Vulnerability Scan on mycompany/api:v1.2.0..."\necho "Scanning OS packages (alpine 3.19)... 0 vulnerabilities found."\necho "SCAN RESULT: PASSED (0 Critical, 0 High)"',
-        expectedOutput: 'SCAN RESULT: PASSED (0 Critical, 0 High)',
-        verificationCriteria: 'Security gate passes.',
-        hints: ['In enterprise CI pipelines, trivy image --exit-code 1 --severity CRITICAL blocks deployments.'],
-        explanation: 'Automated vulnerability scanning prevents known CVE exploits from ever being pushed to registries.',
-      },
-      {
-        id: 'task-4',
-        title: 'Simulate Zero-Downtime Rolling Update Deployment',
-        objective: 'Deploy new container version alongside old version, verify health, and decommission old version.',
-        commandSnippet: 'docker run -d --name api-v1 -p 8080:8080 node:20-alpine sh -c "while true; do echo -e \\"HTTP/1.1 200 OK\\\\r\\\\n\\\\r\\\\nv1\\" | nc -l -p 8080 -q 1; done" 2>/dev/null || true\n# Deploy v2\ndocker run -d --name api-v2 -p 8081:8080 node:20-alpine sh -c "while true; do echo -e \\"HTTP/1.1 200 OK\\\\r\\\\n\\\\r\\\\nv2\\" | nc -l -p 8080 -q 1; done"\nsleep 2\n# Decommission v1\ndocker stop api-v1 && docker rm api-v1\necho "Rolling update complete: v2 active."',
-        expectedOutput: 'Rolling update complete: v2 active.',
-        verificationCriteria: 'docker ps | grep -q api-v2',
-        hints: ['Start the new container and verify health before stopping the older instance.'],
-        explanation: 'Blue-green and rolling deployment strategies prevent user-facing downtime during application upgrades.',
-      },
+    "scenario": "Your CI/CD pipeline takes 12 minutes to pull and push a bloated 1.2 GB application image containing Node/Python compilers, build-essential, git, test runners, and raw source code. Security scanning flagged 47 critical CVE vulnerabilities in the base OS layers. You must re-architect the Dockerfile using multi-stage builds and minimal base images.",
+    "problemStatement": "Single-stage Dockerfiles retain heavy build tools (compilers, npm cache, header files) in the final production artifact. This inflates image transfer times, wastes registry storage, and drastically increases the attack surface with hundreds of unnecessary binaries.",
+    "projectObjective": [
+      "Refactor a bloated single-stage image into a multi-stage Dockerfile separating \"builder\" from \"runner\"",
+      "Utilize BuildKit cache mounts (--mount=type=cache) to speed up package installation",
+      "Deploy the production runtime on a hardened, minimal base image (alpine, distroless, or scratch)",
+      "Enforce non-root execution (USER 10001:10001) with read-only root filesystem compatibility",
+      "Achieve at least an 85% reduction in final image size and eliminate all High/Critical CVEs"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A multi-stage Dockerfile producing a tiny, production-hardened image containing only compiled artifacts and runtime dependencies.",
+      "diagram": "Stage 1: [Builder Stage (node:20-alpine or golang:1.22)] (1.2 GB)\n├── Full SDK, Compilers, devDependencies, Git\n├── npm run build (or go build -o /app/bin)\n└── Produces: compiled dist/ bundle\n           │\n           ▼ (COPY --from=builder /app/dist /app)\nStage 2: [Runner Stage (gcr.io/distroless/nodejs20-debian12)] (< 80 MB)\n├── Minimal runtime only (NO shell, NO package manager, NO compilers)\n├── Runs as: non-root USER 65532:65532\n└── Zero High/Critical CVEs"
+    },
+    "requirements": {
+      "functional": [
+        "Optimized image must execute the application identically to the legacy image",
+        "Application must serve HTTP traffic and pass all integration health checks",
+        "Final image size must be under 100 MB"
+      ],
+      "technical": [
+        "Implement at least 2 build stages in Dockerfile (e.g. AS builder and AS runner)",
+        "Enable BuildKit syntax (DOCKER_BUILDKIT=1)",
+        "Copy only compiled runtime artifacts using COPY --from=builder"
+      ],
+      "security": [
+        "Enforce non-root user via USER nonroot or USER 10001",
+        "Eliminate unnecessary system utilities (curl, wget, bash, sh) in the final image"
+      ]
+    },
+    "architecture": {
+      "summary": "Multi-stage build pipeline architecture isolating build dependencies in temporary transient layers and copying only immutable release artifacts to the final stage.",
+      "diagram": "Source Code ──> [Build Stage: Compile & Test] ──(COPY --from=build)──> [Production Stage: Distroless Runtime] ──> Published Image",
+      "components": [
+        {
+          "name": "Builder Stage",
+          "role": "Full developer environment with build tools, compilers, and linters",
+          "technologies": [
+            "Node SDK / Go SDK"
+          ]
+        },
+        {
+          "name": "BuildKit Cache",
+          "role": "Persistent host-level compiler/package cache mount avoiding redownloads",
+          "technologies": [
+            "BuildKit"
+          ]
+        },
+        {
+          "name": "Production Runner Stage",
+          "role": "Stripped down, secure user-space runtime environment",
+          "technologies": [
+            "Distroless / Alpine"
+          ]
+        },
+        {
+          "name": "Non-Root Security Context",
+          "role": "Unprivileged UID/GID preventing container breakout escalation",
+          "technologies": [
+            "POSIX UID"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine 24+ with BuildKit enabled",
+        "Compiled application (Go, Rust, TypeScript, or React/Node)"
+      ],
+      "optional": [
+        "trivy or grype vulnerability scanner for CVE comparison"
+      ],
+      "outOfScope": [
+        "Full Kubernetes PodSecurityStandards"
+      ]
+    },
+    "functionalRequirements": [
+      "Construct initial unoptimized single-stage Dockerfile and measure size (docker images)",
+      "Refactor into multi-stage Dockerfile: Stage 1 builds application, Stage 2 packages runtime",
+      "Configure non-root user and set appropriate file ownership (chown)",
+      "Build optimized image: docker build -t app:optimized .",
+      "Verify container runs successfully: docker run -d -p 8080:8080 --name test-opt app:optimized",
+      "Measure image size difference and document percentage reduction",
+      "Scan both images with Trivy and compare CVE count reduction"
+    ],
+    "technicalRequirements": [
+      "Inspect layer sizes: docker history app:optimized",
+      "Verify process runs as non-root: docker top test-opt",
+      "Ensure read-only root compatibility (docker run --read-only ...)"
+    ],
+    "securityRequirements": [
+      "Final image must not contain package managers (no apt-get, no apk) or compilers",
+      "No files in the final image should be world-writable"
+    ],
+    "constraints": [
+      "Do not compromise application functionality or drop required runtime libraries to save size",
+      "Do not run the container as root in the final stage"
+    ],
+    "expectedOutcome": "A lightweight, secure, production-hardened Docker image with an 85%+ reduction in disk footprint and zero critical vulnerabilities.",
+    "deliverables": [
+      "Original Dockerfile.legacy and refactored Dockerfile",
+      ".dockerignore file",
+      "IMAGE_OPTIMIZATION_BENCHMARK.md comparing image sizes, layer counts, build times, and CVE scan results"
+    ],
+    "suggestedProjectStructure": "optimization-project/\n├── Dockerfile.legacy\n├── Dockerfile\n├── .dockerignore\n├── src/\n│   ├── index.ts\n│   └── package.json\n└── IMAGE_OPTIMIZATION_BENCHMARK.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'CI Pipeline Fails at Test Stage',
-        symptom: 'Pipeline halts at step 1; Docker build is never initiated.',
-        rootCause: 'Unit test assertion failed in tests/test.js.',
-        diagnosticCommand: 'node tests/test.js',
-        fixCommand: 'Fix logic in src/app.js so tests pass cleanly.',
-        verification: 'docker run test container exits with 0.',
-        preventativeMeasures: 'Mandate pre-push git hooks running unit tests locally.',
+        "name": "Image Size & Multi-Stage Builds",
+        "lessonId": "c-image-size-security",
+        "academyRoute": "/docker"
       },
       {
-        id: 'fail-2',
-        title: 'Security Scan Gate Failure: High CVE in Base Image',
-        symptom: 'Trivy scanner exits with code 1: CVE-2024-XXXX found in libcrypto.',
-        rootCause: 'Base image outdated.',
-        diagnosticCommand: 'trivy image mycompany/api:v1.2.0',
-        fixCommand: 'Update base image to latest patched release (e.g., alpine:3.19.1) and rebuild.',
-        verification: 'Trivy returns 0 vulnerabilities.',
-        preventativeMeasures: 'Automate base image dependabot PRs weekly.',
+        "name": "Dockerfiles & Instructions",
+        "lessonId": "c-dockerfiles",
+        "academyRoute": "/docker"
       },
+      {
+        "name": "Layer Caching Optimization",
+        "lessonId": "c-layer-caching",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Runtime Security Hardening",
+        "lessonId": "c-runtime-security",
+        "academyRoute": "/docker"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'Unit tests executed cleanly in isolated ephemeral container', verificationCommand: 'docker images | grep -q "node"', points: 25 },
-      { id: 'v2', label: 'Docker image built and tagged with immutable Git SHA and SemVer', verificationCommand: 'docker images mycompany/api | grep -q "v1.2.0"', points: 25 },
-      { id: 'v3', label: 'Automated vulnerability scanning gate passed', verificationCommand: 'docker inspect mycompany/api:v1.2.0', points: 25 },
-      { id: 'v4', label: 'Zero-downtime rolling update deployment executed', verificationCommand: 'docker ps | grep -q "api-v2"', points: 25 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 06: Multi-Stage Builds",
+          "route": "/cloudstack/docker?concept=c-image-size-security"
+        },
+        {
+          "title": "Chapter 06: Dockerfile Instructions",
+          "route": "/cloudstack/docker?concept=c-dockerfiles"
+        },
+        {
+          "title": "Chapter 12: Runtime Security Hardening",
+          "route": "/cloudstack/docker?concept=c-runtime-security"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Multi-Stage Builds",
+          "url": "https://docs.docker.com/build/building/multi-stage/"
+        },
+        {
+          "title": "Google Container Tools - Distroless",
+          "url": "https://github.com/GoogleContainerTools/distroless"
+        }
+      ],
+      "referenceMaterial": [
+        "Docker BuildKit Advanced Caching Documentation"
+      ],
+      "usefulCommands": [
+        "DOCKER_BUILDKIT=1 docker build -t app:opt .",
+        "docker images --format \"table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}\"",
+        "docker history app:opt",
+        "trivy image app:opt",
+        "docker run -d --read-only --user 10001:10001 -p 8080:8080 app:opt"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Benchmark the unoptimized baseline Dockerfile: record build time, image size, and CVE count.",
+      "2. Identify all development dependencies that are unnecessary at runtime (compilers, linters, test frameworks).",
+      "3. Structure Stage 1 (builder): install all dependencies and compile production bundles.",
+      "4. Select a hardened minimal runner base image (e.g. gcr.io/distroless/nodejs20 or alpine).",
+      "5. In Stage 2: create non-root system user and copy only the compiled artifacts from builder stage.",
+      "6. Configure USER nonroot and expose application port.",
+      "7. Build with BuildKit and compare image size against baseline.",
+      "8. Test execution with --read-only and --tmpfs to ensure stateless compliance.",
+      "9. Scan both images with Trivy to verify elimination of vulnerabilities.",
+      "10. Author IMAGE_OPTIMIZATION_BENCHMARK.md with before/after comparison tables."
     ],
-    expectedOutcome:
-      'A fully automated enterprise Docker CI/CD delivery pipeline executing isolated unit testing, multi-tag image builds, automated CVE scanning, registry pushing, and zero-downtime rolling deployments.',
-    scoreMax: 100,
-    tags: ['docker', 'ci-cd', 'devops', 'trivy', 'security-scan', 'rolling-update', 'automation'],
+    "importantConsiderations": [
+      "Why does Distroless eliminate the majority of CVE vulnerabilities compared to standard Ubuntu or Debian base images?",
+      "How does BuildKit cache mounts (--mount=type=cache) preserve npm or pip cache between builds without bloating image layers?",
+      "What are the debugging trade-offs of running containers without a shell (e.g. /bin/sh)?"
+    ],
+    "commonPitfalls": [
+      "Installing devDependencies into the production runner stage.",
+      "Running chown -R on large directories in a separate RUN step, duplicating layers in Overlay2.",
+      "Failing to specify user permissions on files copied from the builder stage, causing permission denied errors."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add a .dockerignore rule blocking markdown and documentation files."
+      ],
+      "intermediate": [
+        "Implement BuildKit secret mounts (--mount=type=secret) for private npm/git tokens."
+      ],
+      "advanced": [
+        "Compile a Go or Rust application into a single static binary and run on FROM scratch."
+      ],
+      "expert": [
+        "Generate a Software Bill of Materials (SBOM) for the image using syft and sign with cosign."
+      ]
+    },
+    "completionChecklist": [
+      "Baseline image built, sized, and scanned for CVEs",
+      "Multi-stage Dockerfile authored with separate builder and runner stages",
+      "Compiled assets copied selectively using COPY --from=builder",
+      "Hardened minimal or Distroless base image used for final stage",
+      "Non-root user configured and verified with docker top",
+      "Image size reduced by at least 80%",
+      "Trivy scan confirms reduction of critical vulnerabilities",
+      "IMAGE_OPTIMIZATION_BENCHMARK.md published"
+    ],
+    "objectives": [
+      "Refactor a bloated single-stage image into a multi-stage Dockerfile separating \"builder\" from \"runner\"",
+      "Utilize BuildKit cache mounts (--mount=type=cache) to speed up package installation",
+      "Deploy the production runtime on a hardened, minimal base image (alpine, distroless, or scratch)",
+      "Enforce non-root execution (USER 10001:10001) with read-only root filesystem compatibility",
+      "Achieve at least an 85% reduction in final image size and eliminate all High/Critical CVEs"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Production Docker Image Optimization & Multi-Stage Builds",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Production Docker Image Optimization & Multi-Stage Builds\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Construct initial unoptimized single-stage Dockerfile and measure size (docker images)",
+        "objective": "Construct initial unoptimized single-stage Dockerfile and measure size (docker images)",
+        "commandSnippet": "DOCKER_BUILDKIT=1 docker build -t app:opt .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Construct initial unoptimized single-stage Dockerfile and measure size (docker images)"
+      },
+      {
+        "id": "task-2",
+        "title": "Refactor into multi-stage Dockerfile: Stage 1 builds application, Stage 2 packages runtime",
+        "objective": "Refactor into multi-stage Dockerfile: Stage 1 builds application, Stage 2 packages runtime",
+        "commandSnippet": "docker images --format \"table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Refactor into multi-stage Dockerfile: Stage 1 builds application, Stage 2 packages runtime"
+      },
+      {
+        "id": "task-3",
+        "title": "Configure non-root user and set appropriate file ownership (chown)",
+        "objective": "Configure non-root user and set appropriate file ownership (chown)",
+        "commandSnippet": "docker history app:opt",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure non-root user and set appropriate file ownership (chown)"
+      },
+      {
+        "id": "task-4",
+        "title": "Build optimized image: docker build -t app:optimized .",
+        "objective": "Build optimized image: docker build -t app:optimized .",
+        "commandSnippet": "trivy image app:opt",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Build optimized image: docker build -t app:optimized ."
+      },
+      {
+        "id": "task-5",
+        "title": "Verify container runs successfully: docker run -d -p 8080:8080 --name test-opt app:optimized",
+        "objective": "Verify container runs successfully: docker run -d -p 8080:8080 --name test-opt app:optimized",
+        "commandSnippet": "docker run -d --read-only --user 10001:10001 -p 8080:8080 app:opt",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify container runs successfully: docker run -d -p 8080:8080 --name test-opt app:optimized"
+      },
+      {
+        "id": "task-6",
+        "title": "Measure image size difference and document percentage reduction",
+        "objective": "Measure image size difference and document percentage reduction",
+        "commandSnippet": "DOCKER_BUILDKIT=1 docker build -t app:opt .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Measure image size difference and document percentage reduction"
+      },
+      {
+        "id": "task-7",
+        "title": "Scan both images with Trivy and compare CVE count reduction",
+        "objective": "Scan both images with Trivy and compare CVE count reduction",
+        "commandSnippet": "docker images --format \"table {{.Repository}}\\t{{.Tag}}\\t{{.Size}}\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Scan both images with Trivy and compare CVE count reduction"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Installing devDependencies into the production runner stage.",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Running chown -R on large directories in a separate RUN step, duplicating layers in Overlay2.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Baseline image built, sized, and scanned for CVEs",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Multi-stage Dockerfile authored with separate builder and runner stages",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Compiled assets copied selectively using COPY --from=builder",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Hardened minimal or Distroless base image used for final stage",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Non-root user configured and verified with docker top",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Image size reduced by at least 80%",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Trivy scan confirms reduction of critical vulnerabilities",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "IMAGE_OPTIMIZATION_BENCHMARK.md published",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
   },
+  {
+    "id": "docker-06",
+    "code": "DOCKER-06",
+    "title": "Secure Container Platform & Vulnerability Remediation",
+    "academy": "docker",
+    "difficulty": "Advanced",
+    "estimatedTime": "10-14 hours",
+    "technologies": [
+      "Trivy Scanner",
+      "Read-Only Rootfs",
+      "Linux Capabilities (cap-drop)",
+      "Seccomp Profiles",
+      "Docker Daemon Security"
+    ],
+    "overview": "Harden container runtime security by implementing dropped Linux capabilities (cap-drop=ALL), read-only root filesystems, custom seccomp syscall filters, daemon socket authorization, and automated CVE remediation.",
+    "tags": [
+      "docker",
+      "security",
+      "trivy",
+      "capabilities",
+      "seccomp",
+      "read-only",
+      "hardening"
+    ],
+    "projectOverview": {
+      "projectName": "Secure Container Platform & Vulnerability Remediation",
+      "academy": "docker",
+      "difficulty": "Advanced",
+      "estimatedEffort": "10-14 hours",
+      "technologies": [
+        "Trivy",
+        "Linux Capabilities",
+        "Seccomp",
+        "Read-Only Filesystem",
+        "Docker Security"
+      ],
+      "shortDescription": "Construct a hardened container execution platform enforcing dropped Linux capabilities, read-only root filesystems, and automated image vulnerability scanning."
+    },
+    "scenario": "Your security compliance audit flagged multiple container breakout vulnerabilities across company microservices. Containers were running with root privileges, full Linux capabilities (including CAP_NET_RAW and CAP_SYS_ADMIN), and write access to the host filesystem. You must establish a zero-trust container runtime security benchmark.",
+    "problemStatement": "Default Docker containers run with excessive Linux kernel capabilities and writeable root filesystems. If an application is compromised via remote code execution (RCE), attackers can modify system libraries, install malware, or leverage kernel exploits to escape into the host.",
+    "projectObjective": [
+      "Audit container images for CVE vulnerabilities using Trivy and remediate detected flaws",
+      "Run containers with a read-only root filesystem (--read-only) and dedicated tmpfs scratch mounts",
+      "Drop all default Linux capabilities (--cap-drop=ALL) and add back only strictly necessary ones",
+      "Apply custom Seccomp security profiles to restrict dangerous kernel system calls",
+      "Harden the Docker daemon configuration (/etc/docker/daemon.json) with user namespace remapping (userns-remap)"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "A hardened container runtime configuration preventing privilege escalation, filesystem tampering, and unauthorized system calls.",
+      "diagram": "Compromised Container Payload (Attempted Escalation)\n                   │\n                   ▼\n[Defense Layer 1: Read-Only Root Filesystem] ──> Fails! (Read-only file system error)\n                   │\n                   ▼\n[Defense Layer 2: Dropped Capabilities (cap-drop=ALL)] ──> Fails! (Operation not permitted)\n                   │\n                   ▼\n[Defense Layer 3: Seccomp Profile Filter] ──> Fails! (Syscall blocked by seccomp)\n                   │\n                   ▼\n[Defense Layer 4: User Namespaces (userns-remap)] ──> Isolated! (Root in container = unprivileged on host)"
+    },
+    "requirements": {
+      "functional": [
+        "Application must function normally while running with --read-only root filesystem",
+        "Attempting to write to /etc or /bin must fail with read-only filesystem error",
+        "Container must execute under --cap-drop=ALL with only required capabilities added"
+      ],
+      "technical": [
+        "Configure tmpfs mounts for temporary directories: --tmpfs /tmp --tmpfs /run",
+        "Supply seccomp profile JSON blocking dangerous syscalls (ptrace, mount, reboot)",
+        "Configure /etc/docker/daemon.json with \"no-new-privileges\": true"
+      ],
+      "security": [
+        "Zero High/Critical CVEs allowed in the deployed image",
+        "Container must run as unprivileged UID (e.g. 10001)"
+      ]
+    },
+    "architecture": {
+      "summary": "Multi-layered container isolation architecture enforcing kernel namespace boundaries, seccomp filters, capability masking, and read-only storage.",
+      "diagram": "User Space App ──> Seccomp Filter ──> Capability Bounding Set ──> Kernel Syscall Interface",
+      "components": [
+        {
+          "name": "Trivy Scanner",
+          "role": "Static analysis engine auditing OS packages and language dependencies",
+          "technologies": [
+            "Trivy"
+          ]
+        },
+        {
+          "name": "Linux Capability Mask",
+          "role": "Kernel permission flags partitioning root privileges into distinct units",
+          "technologies": [
+            "POSIX Capabilities"
+          ]
+        },
+        {
+          "name": "Seccomp BPF Profile",
+          "role": "Berkeley Packet Filter trapping and rejecting unauthorized syscalls",
+          "technologies": [
+            "Seccomp"
+          ]
+        },
+        {
+          "name": "User Namespace Remapping",
+          "role": "Kernel UID virtualization mapping container root (UID 0) to unprivileged host UID",
+          "technologies": [
+            "userns"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine 24+ on Linux",
+        "Trivy scanner CLI",
+        "jq utility"
+      ],
+      "optional": [
+        "Falco runtime security monitoring agent"
+      ],
+      "outOfScope": [
+        "Full SELinux custom MLS module development"
+      ]
+    },
+    "functionalRequirements": [
+      "Scan base image with trivy image --severity HIGH,CRITICAL and patch vulnerabilities",
+      "Run application container with --read-only and mount writeable tmpfs at /tmp and /app/cache",
+      "Run container with --cap-drop=ALL --cap-add=NET_BIND_SERVICE",
+      "Test attempted attack: docker exec container touch /test.txt (must fail)",
+      "Apply custom seccomp profile blocking unneeded syscalls and verify container starts",
+      "Configure /etc/docker/daemon.json with \"live-restore\": true and \"icc\": false"
+    ],
+    "technicalRequirements": [
+      "Document all required Linux capabilities for the workload",
+      "Inspect container capabilities using capsh or getpcaps",
+      "Validate seccomp profile syntax with JSON linter"
+    ],
+    "securityRequirements": [
+      "Verify container cannot establish raw socket sniffing without CAP_NET_RAW",
+      "Ensure Docker socket (/var/run/docker.sock) is never mounted inside application containers"
+    ],
+    "constraints": [
+      "Do not use --privileged under any circumstances",
+      "Do not mount host root directories into the container"
+    ],
+    "expectedOutcome": "A certified, hardened container platform adhering to CIS Docker Benchmarks with verified defenses against container breakout attacks.",
+    "deliverables": [
+      "Hardened Dockerfile with zero critical CVEs",
+      "Custom seccomp profile (seccomp-profile.json)",
+      "Hardened daemon configuration (/etc/docker/daemon.json)",
+      "CONTAINER_SECURITY_BENCHMARK.md documenting scan results, capability audit, and breakout test results"
+    ],
+    "suggestedProjectStructure": "secure-platform/\n├── Dockerfile\n├── seccomp-profile.json\n├── daemon.json\n├── run-hardened.sh\n└── CONTAINER_SECURITY_BENCHMARK.md",
+    "requiredConcepts": [
+      {
+        "name": "Runtime Security Hardening",
+        "lessonId": "c-runtime-security",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Image Security & Vulnerability Scanning",
+        "lessonId": "c-image-security",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Linux Namespaces & cgroups",
+        "lessonId": "c-linux-namespaces",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Inspection & Process Stats",
+        "lessonId": "c-container-inspect-stats",
+        "academyRoute": "/docker"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 12: Runtime Security Hardening",
+          "route": "/cloudstack/docker?concept=c-runtime-security"
+        },
+        {
+          "title": "Chapter 12: Image Security & Vulnerability Scanning",
+          "route": "/cloudstack/docker?concept=c-image-security"
+        },
+        {
+          "title": "Chapter 02: Linux Namespaces & Isolation",
+          "route": "/cloudstack/docker?concept=c-linux-namespaces"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Security Documentation",
+          "url": "https://docs.docker.com/engine/security/"
+        },
+        {
+          "title": "CIS Docker Community Edition Benchmark",
+          "url": "https://www.cisecurity.org/benchmark/docker"
+        }
+      ],
+      "referenceMaterial": [
+        "Container Security by Liz Rice (O'Reilly)"
+      ],
+      "usefulCommands": [
+        "trivy image --severity HIGH,CRITICAL my-app:latest",
+        "docker run --read-only --tmpfs /tmp --cap-drop=ALL --cap-add=NET_BIND_SERVICE -d -p 80:80 my-app",
+        "docker inspect --format \"{{.HostConfig.CapDrop}}\" <container_id>",
+        "docker run --security-opt seccomp=seccomp-profile.json -d my-app"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Scan current application image with Trivy to establish baseline vulnerability count.",
+      "2. Update base images and package dependencies to patch detected vulnerabilities.",
+      "3. Audit application filesystem write requirements (e.g. logging, session cache).",
+      "4. Launch container with --read-only and map temporary scratch locations to tmpfs mounts.",
+      "5. Drop all Linux capabilities using --cap-drop=ALL.",
+      "6. Test application functionality and add back only strictly necessary capabilities.",
+      "7. Author custom seccomp profile JSON restricting dangerous kernel syscalls.",
+      "8. Configure /etc/docker/daemon.json with CIS recommended hardening directives.",
+      "9. Execute penetration/breakout simulations (attempting filesystem writes and raw socket binding).",
+      "10. Compile findings into CONTAINER_SECURITY_BENCHMARK.md."
+    ],
+    "importantConsiderations": [
+      "What security risks arise when mounting /var/run/docker.sock into an application container?",
+      "Why does running a container with --read-only prevent attackers from downloading and executing rootkits?",
+      "How does user namespace remapping (userns-remap) mitigate container breakout zero-day vulnerabilities?"
+    ],
+    "commonPitfalls": [
+      "Dropping all capabilities without testing, causing services that bind low ports (<1024) to crash without CAP_NET_BIND_SERVICE.",
+      "Enabling --read-only without providing tmpfs mounts for applications that require writing temporary PID or socket files.",
+      "Mounting host directories with write permissions into untrusted containers."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Run docker-bench-security script and achieve compliance score > 80."
+      ],
+      "intermediate": [
+        "Configure automated Trivy vulnerability gating in a GitHub Actions pipeline."
+      ],
+      "advanced": [
+        "Implement user namespace remapping (userns-remap) in /etc/docker/daemon.json."
+      ],
+      "expert": [
+        "Deploy Falco runtime agent and alert on suspicious container shell spawning."
+      ]
+    },
+    "completionChecklist": [
+      "Trivy scan executed and critical CVEs remediated",
+      "Container runs successfully with --read-only root filesystem",
+      "tmpfs mounts configured for /tmp and application scratch areas",
+      "Linux capabilities dropped (--cap-drop=ALL) and audited",
+      "Seccomp profile authored and applied",
+      "Breakout tests confirm filesystem writes are blocked",
+      "Docker daemon configuration hardened",
+      "CONTAINER_SECURITY_BENCHMARK.md completed"
+    ],
+    "objectives": [
+      "Audit container images for CVE vulnerabilities using Trivy and remediate detected flaws",
+      "Run containers with a read-only root filesystem (--read-only) and dedicated tmpfs scratch mounts",
+      "Drop all default Linux capabilities (--cap-drop=ALL) and add back only strictly necessary ones",
+      "Apply custom Seccomp security profiles to restrict dangerous kernel system calls",
+      "Harden the Docker daemon configuration (/etc/docker/daemon.json) with user namespace remapping (userns-remap)"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Secure Container Platform & Vulnerability Remediation",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Secure Container Platform & Vulnerability Remediation\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Scan base image with trivy image --severity HIGH,CRITICAL and patch vulnerabilities",
+        "objective": "Scan base image with trivy image --severity HIGH,CRITICAL and patch vulnerabilities",
+        "commandSnippet": "trivy image --severity HIGH,CRITICAL my-app:latest",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Scan base image with trivy image --severity HIGH,CRITICAL and patch vulnerabilities"
+      },
+      {
+        "id": "task-2",
+        "title": "Run application container with --read-only and mount writeable tmpfs at /tmp and /app/cache",
+        "objective": "Run application container with --read-only and mount writeable tmpfs at /tmp and /app/cache",
+        "commandSnippet": "docker run --read-only --tmpfs /tmp --cap-drop=ALL --cap-add=NET_BIND_SERVICE -d -p 80:80 my-app",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run application container with --read-only and mount writeable tmpfs at /tmp and /app/cache"
+      },
+      {
+        "id": "task-3",
+        "title": "Run container with --cap-drop=ALL --cap-add=NET_BIND_SERVICE",
+        "objective": "Run container with --cap-drop=ALL --cap-add=NET_BIND_SERVICE",
+        "commandSnippet": "docker inspect --format \"{{.HostConfig.CapDrop}}\" <container_id>",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run container with --cap-drop=ALL --cap-add=NET_BIND_SERVICE"
+      },
+      {
+        "id": "task-4",
+        "title": "Test attempted attack: docker exec container touch /test.txt (must fail)",
+        "objective": "Test attempted attack: docker exec container touch /test.txt (must fail)",
+        "commandSnippet": "docker run --security-opt seccomp=seccomp-profile.json -d my-app",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Test attempted attack: docker exec container touch /test.txt (must fail)"
+      },
+      {
+        "id": "task-5",
+        "title": "Apply custom seccomp profile blocking unneeded syscalls and verify container starts",
+        "objective": "Apply custom seccomp profile blocking unneeded syscalls and verify container starts",
+        "commandSnippet": "trivy image --severity HIGH,CRITICAL my-app:latest",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Apply custom seccomp profile blocking unneeded syscalls and verify container starts"
+      },
+      {
+        "id": "task-6",
+        "title": "Configure /etc/docker/daemon.json with \"live-restore\": true and \"icc\": false",
+        "objective": "Configure /etc/docker/daemon.json with \"live-restore\": true and \"icc\": false",
+        "commandSnippet": "docker run --read-only --tmpfs /tmp --cap-drop=ALL --cap-add=NET_BIND_SERVICE -d -p 80:80 my-app",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure /etc/docker/daemon.json with \"live-restore\": true and \"icc\": false"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Dropping all capabilities without testing, causing services that bind low ports (<1024) to crash without CAP_NET_BIND_SERVICE.",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Enabling --read-only without providing tmpfs mounts for applications that require writing temporary PID or socket files.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Trivy scan executed and critical CVEs remediated",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Container runs successfully with --read-only root filesystem",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "tmpfs mounts configured for /tmp and application scratch areas",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Linux capabilities dropped (--cap-drop=ALL) and audited",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Seccomp profile authored and applied",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Breakout tests confirm filesystem writes are blocked",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Docker daemon configuration hardened",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "CONTAINER_SECURITY_BENCHMARK.md completed",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "docker-07",
+    "code": "DOCKER-07",
+    "title": "Multi-Service Production Stack with Nginx & Healthchecks",
+    "academy": "docker",
+    "difficulty": "Advanced+",
+    "estimatedTime": "12-16 hours",
+    "technologies": [
+      "Docker Compose",
+      "Nginx Reverse Proxy",
+      "Healthcheck Directives",
+      "Graceful Shutdown",
+      "Logging Drivers"
+    ],
+    "overview": "Design, orchestrate, and validate an enterprise production multi-service application stack featuring an Nginx edge proxy, load-balanced web replicas, Redis caching, PostgreSQL persistence, and healthcheck dependencies.",
+    "tags": [
+      "docker",
+      "production-stack",
+      "nginx",
+      "healthchecks",
+      "compose",
+      "high-availability"
+    ],
+    "projectOverview": {
+      "projectName": "Multi-Service Production Stack with Nginx & Healthchecks",
+      "academy": "docker",
+      "difficulty": "Advanced+",
+      "estimatedEffort": "12-16 hours",
+      "technologies": [
+        "Docker Compose v2",
+        "Nginx Reverse Proxy",
+        "Healthchecks",
+        "PostgreSQL",
+        "Redis"
+      ],
+      "shortDescription": "Build an enterprise production stack featuring Nginx reverse proxying to replicated backend services, persistent PostgreSQL, Redis cache, and healthcheck startup dependencies."
+    },
+    "scenario": "Your e-commerce backend suffers from race conditions during deployment: the API containers start up and attempt to query the database before PostgreSQL is ready to accept connections, causing crashed pods and customer 500 errors. You have been tasked with architecting a resilient production stack using Compose healthchecks and Nginx reverse proxying.",
+    "problemStatement": "Simple \"depends_on\" in Docker Compose only waits for a container to start, not for the service inside to be healthy and ready for traffic. Production stacks require declarative HEALTHCHECK directives, connection retries, graceful shutdown handling, and central reverse proxying.",
+    "projectObjective": [
+      "Orchestrate a 5-tier architecture: Nginx reverse proxy, 2 API service replicas, Redis cache, and PostgreSQL database",
+      "Configure robust HEALTHCHECK instructions on database, cache, and backend containers",
+      "Use depends_on with condition: service_healthy to sequence boot order safely",
+      "Configure Nginx upstream block to round-robin balance traffic across backend replicas",
+      "Verify zero-downtime rolling restart of backend services"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "An enterprise multi-service production stack with ordered healthcheck boot sequencing and load-balanced reverse proxying.",
+      "diagram": "Client Requests (http://localhost:80)\n            │\n            ▼\n     [Nginx Edge Proxy]\n            │ (Round-Robin Upstream: backend_pool)\n            ├──────────────────────────┐\n            ▼                          ▼\n    [API Replica 1]            [API Replica 2]\n    (Waits for DB & Redis)     (Waits for DB & Redis)\n            │                          │\n            └────────────┬─────────────┘\n                         │\n        ┌────────────────┴────────────────┐\n        ▼ (Health: pg_isready)            ▼ (Health: redis-cli ping)\n[PostgreSQL Database]               [Redis Cache]\n(Named Volume: db_data)             (In-Memory Cache)"
+    },
+    "requirements": {
+      "functional": [
+        "Stack must start cleanly without a single connection retry failure",
+        "Nginx must balance incoming HTTP requests across both API replicas",
+        "If one API replica is stopped, Nginx must automatically route traffic to the remaining healthy replica"
+      ],
+      "technical": [
+        "PostgreSQL healthcheck: test: [\"CMD-SHELL\", \"pg_isready -U postgres\"]",
+        "Redis healthcheck: test: [\"CMD\", \"redis-cli\", \"ping\"]",
+        "API depends_on must specify condition: service_healthy for both dependencies"
+      ],
+      "security": [
+        "Neither PostgreSQL nor Redis may expose public ports to the host",
+        "All containers must run as unprivileged users"
+      ]
+    },
+    "architecture": {
+      "summary": "High-availability multi-service production topology with health-gated startup dependencies, internal service discovery, and Layer 7 load balancing.",
+      "diagram": "Edge Ingress (Nginx) ──> Internal Bridge ──> Scaled Backend API Replicas ──> Gated Stateful Layer (Postgres + Redis)",
+      "components": [
+        {
+          "name": "Nginx Load Balancer",
+          "role": "Edge gateway distributing HTTP requests across backend replicas",
+          "technologies": [
+            "Nginx"
+          ]
+        },
+        {
+          "name": "API Replicas",
+          "role": "Stateless application instances processing business logic",
+          "technologies": [
+            "Node / Python",
+            "Compose scale"
+          ]
+        },
+        {
+          "name": "Healthcheck State Machine",
+          "role": "Periodic probe monitoring process readiness before routing traffic",
+          "technologies": [
+            "Docker HEALTHCHECK"
+          ]
+        },
+        {
+          "name": "PostgreSQL & Redis",
+          "role": "Stateful persistence and caching layer",
+          "technologies": [
+            "PostgreSQL 16",
+            "Redis 7"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine with Compose v2",
+        "Nginx alpine image",
+        "Postgres and Redis alpine images"
+      ],
+      "optional": [
+        "Apache Benchmark (ab) or k6 for load testing"
+      ],
+      "outOfScope": [
+        "Multi-host Kubernetes clusters"
+      ]
+    },
+    "functionalRequirements": [
+      "Create compose.yaml defining nginx, api (replicas: 2), db, and redis",
+      "Configure healthchecks with interval: 5s, timeout: 3s, retries: 5, and start_period: 10s",
+      "Configure Nginx upstream with round-robin balancing to api:3000",
+      "Start stack: docker compose up -d",
+      "Observe boot order in docker compose ps: db and redis become healthy before api launches",
+      "Execute 100 requests with curl or ab and verify balanced responses across replicas"
+    ],
+    "technicalRequirements": [
+      "Inspect health logs: docker inspect --format \"{{json .State.Health}}\" <container_id>",
+      "Test graceful shutdown: verify docker compose stop stops containers cleanly within 10 seconds"
+    ],
+    "securityRequirements": [
+      "Database password passed via external .env file with mode 600 permissions"
+    ],
+    "constraints": [
+      "Do not rely on arbitrary sleep commands in entrypoint scripts to wait for the database",
+      "Do not bind database or cache ports to the host"
+    ],
+    "expectedOutcome": "A resilient, production-ready multi-service container environment with deterministic boot sequencing, automatic load balancing, and graceful recovery.",
+    "deliverables": [
+      "Production compose.yaml with healthcheck dependencies and replicas",
+      "Nginx configuration with upstream round-robin block",
+      "Application Dockerfile with embedded healthcheck endpoint",
+      "PRODUCTION_STACK_RUNBOOK.md detailing healthcheck parameters, failover behavior, and scaling commands"
+    ],
+    "suggestedProjectStructure": "production-stack/\n├── compose.yaml\n├── .env.example\n├── nginx/\n│   ├── nginx.conf\n│   └── conf.d/default.conf\n├── api/\n│   ├── Dockerfile\n│   ├── package.json\n│   └── server.js\n└── PRODUCTION_STACK_RUNBOOK.md",
+    "requiredConcepts": [
+      {
+        "name": "docker compose Orchestration",
+        "lessonId": "c-docker-compose",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "docker run Configuration Options",
+        "lessonId": "c-docker-run-flags",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Database Containers",
+        "lessonId": "c-running-databases",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Container Logs & Streaming",
+        "lessonId": "c-container-logs",
+        "academyRoute": "/docker"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 08: docker compose Orchestration",
+          "route": "/cloudstack/docker?concept=c-docker-compose"
+        },
+        {
+          "title": "Chapter 07: Container Configuration & Flags",
+          "route": "/cloudstack/docker?concept=c-docker-run-flags"
+        },
+        {
+          "title": "Chapter 09: Container Logs & Streaming",
+          "route": "/cloudstack/docker?concept=c-container-logs"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Compose File - depends_on",
+          "url": "https://docs.docker.com/compose/compose-file/05-services/#depends_on"
+        },
+        {
+          "title": "Dockerfile HEALTHCHECK Reference",
+          "url": "https://docs.docker.com/engine/reference/builder/#healthcheck"
+        }
+      ],
+      "referenceMaterial": [
+        "Production Docker Architectures (Nick Janetakis)"
+      ],
+      "usefulCommands": [
+        "docker compose up -d",
+        "docker compose ps",
+        "docker compose scale api=3",
+        "docker inspect --format \"{{.State.Health.Status}}\" <container_id>",
+        "docker compose down"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Design the service dependency graph and identify necessary readiness probes.",
+      "2. Build the API application with a dedicated /healthz endpoint verifying database connectivity.",
+      "3. Author Nginx configuration with upstream backend_servers balancing across api:3000.",
+      "4. Author compose.yaml configuring db, redis, api, and nginx.",
+      "5. Define HEALTHCHECK blocks on postgres (pg_isready) and redis (redis-cli ping).",
+      "6. Configure api service depends_on requiring service_healthy condition for both data services.",
+      "7. Configure nginx service depends_on requiring api to be healthy.",
+      "8. Launch stack and observe deterministic sequential startup via docker compose ps.",
+      "9. Execute load tests against Nginx port 80 and verify balanced distribution across replicas.",
+      "10. Document operational runbook in PRODUCTION_STACK_RUNBOOK.md."
+    ],
+    "importantConsiderations": [
+      "Why is start_period essential in healthcheck definitions for slow-starting databases?",
+      "How does Nginx resolve upstream container service names when replicas scale dynamically?",
+      "What happens if a backend replica becomes unhealthy: does Docker automatically restart it or drop it from DNS?"
+    ],
+    "commonPitfalls": [
+      "Using depends_on without condition: service_healthy, resulting in race conditions during database startup.",
+      "Configuring overly aggressive healthchecks (interval: 1s) that consume excessive CPU and fill logs.",
+      "Failing to handle SIGTERM inside application code, causing docker stop to wait 10 seconds before issuing SIGKILL."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Scale API replicas dynamically using docker compose up -d --scale api=4."
+      ],
+      "intermediate": [
+        "Configure Docker JSON file logging limits (max-size: 10m, max-file: 3)."
+      ],
+      "advanced": [
+        "Implement zero-downtime rolling restart using docker compose restart."
+      ],
+      "expert": [
+        "Add Prometheus metrics exporter sidecar to scrape Nginx and PostgreSQL metrics."
+      ]
+    },
+    "completionChecklist": [
+      "5-tier architecture orchestrated in compose.yaml",
+      "HEALTHCHECK configured on database, cache, and API containers",
+      "depends_on with service_healthy verified sequencing boot order",
+      "Nginx configured with round-robin upstream balancing",
+      "Load test verifies traffic distributed evenly across API replicas",
+      "Graceful shutdown verified within 10 seconds",
+      "Zero database connection errors during startup",
+      "PRODUCTION_STACK_RUNBOOK.md published"
+    ],
+    "objectives": [
+      "Orchestrate a 5-tier architecture: Nginx reverse proxy, 2 API service replicas, Redis cache, and PostgreSQL database",
+      "Configure robust HEALTHCHECK instructions on database, cache, and backend containers",
+      "Use depends_on with condition: service_healthy to sequence boot order safely",
+      "Configure Nginx upstream block to round-robin balance traffic across backend replicas",
+      "Verify zero-downtime rolling restart of backend services"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Multi-Service Production Stack with Nginx & Healthchecks",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Multi-Service Production Stack with Nginx & Healthchecks\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create compose.yaml defining nginx, api (replicas: 2), db, and redis",
+        "objective": "Create compose.yaml defining nginx, api (replicas: 2), db, and redis",
+        "commandSnippet": "docker compose up -d",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create compose.yaml defining nginx, api (replicas: 2), db, and redis"
+      },
+      {
+        "id": "task-2",
+        "title": "Configure healthchecks with interval: 5s, timeout: 3s, retries: 5, and start_period: 10s",
+        "objective": "Configure healthchecks with interval: 5s, timeout: 3s, retries: 5, and start_period: 10s",
+        "commandSnippet": "docker compose ps",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure healthchecks with interval: 5s, timeout: 3s, retries: 5, and start_period: 10s"
+      },
+      {
+        "id": "task-3",
+        "title": "Configure Nginx upstream with round-robin balancing to api:3000",
+        "objective": "Configure Nginx upstream with round-robin balancing to api:3000",
+        "commandSnippet": "docker compose scale api=3",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure Nginx upstream with round-robin balancing to api:3000"
+      },
+      {
+        "id": "task-4",
+        "title": "Start stack: docker compose up -d",
+        "objective": "Start stack: docker compose up -d",
+        "commandSnippet": "docker inspect --format \"{{.State.Health.Status}}\" <container_id>",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Start stack: docker compose up -d"
+      },
+      {
+        "id": "task-5",
+        "title": "Observe boot order in docker compose ps: db and redis become healthy before api launches",
+        "objective": "Observe boot order in docker compose ps: db and redis become healthy before api launches",
+        "commandSnippet": "docker compose down",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Observe boot order in docker compose ps: db and redis become healthy before api launches"
+      },
+      {
+        "id": "task-6",
+        "title": "Execute 100 requests with curl or ab and verify balanced responses across replicas",
+        "objective": "Execute 100 requests with curl or ab and verify balanced responses across replicas",
+        "commandSnippet": "docker compose up -d",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Execute 100 requests with curl or ab and verify balanced responses across replicas"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Using depends_on without condition: service_healthy, resulting in race conditions during database startup.",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Configuring overly aggressive healthchecks (interval: 1s) that consume excessive CPU and fill logs.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "5-tier architecture orchestrated in compose.yaml",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "HEALTHCHECK configured on database, cache, and API containers",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "depends_on with service_healthy verified sequencing boot order",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Nginx configured with round-robin upstream balancing",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Load test verifies traffic distributed evenly across API replicas",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Graceful shutdown verified within 10 seconds",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Zero database connection errors during startup",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "PRODUCTION_STACK_RUNBOOK.md published",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "docker-08",
+    "code": "DOCKER-08",
+    "title": "Docker CI/CD Pipeline & Automated Registry Publishing",
+    "academy": "docker",
+    "difficulty": "Expert",
+    "estimatedTime": "14-18 hours",
+    "technologies": [
+      "GitHub Actions / GitLab CI",
+      "Docker Buildx",
+      "Multi-Arch Builds (amd64/arm64)",
+      "GHCR / Docker Hub",
+      "Image Signing (Cosign)"
+    ],
+    "overview": "Design, implement, and automate an enterprise continuous integration and delivery (CI/CD) pipeline for Docker images, featuring multi-architecture compilation (AMD64/ARM64), Buildx cache backends, automated vulnerability gatekeeping, and cryptographic image signing with Cosign.",
+    "tags": [
+      "docker",
+      "ci-cd",
+      "buildx",
+      "multi-arch",
+      "registry",
+      "cosign",
+      "github-actions"
+    ],
+    "projectOverview": {
+      "projectName": "Docker CI/CD Pipeline & Automated Registry Publishing",
+      "academy": "docker",
+      "difficulty": "Expert",
+      "estimatedEffort": "14-18 hours",
+      "technologies": [
+        "Docker Buildx",
+        "Multi-Arch (linux/amd64, linux/arm64)",
+        "GitHub Actions",
+        "Cosign Signing"
+      ],
+      "shortDescription": "Build an automated CI/CD pipeline compiling multi-architecture Docker images with Buildx caching, vulnerability gating, and Cosign cryptographic signing."
+    },
+    "scenario": "Your organization runs developer laptops on Apple Silicon (ARM64) while production servers run on x86_64 cloud virtual machines (AMD64). Developers frequently push images built for ARM64 that crash in production with \"exec format error\". You must build an automated CI/CD pipeline compiling multi-platform images and signing them cryptographically.",
+    "problemStatement": "Manual image builds on developer machines produce architecture mismatches, untagged images, unverified security vulnerabilities, and no cryptographic proof of image origin. An automated pipeline is required to build, scan, test, sign, and push multi-arch images.",
+    "projectObjective": [
+      "Configure Docker Buildx for cross-compilation targeting linux/amd64 and linux/arm64",
+      "Build an automated CI workflow (.github/workflows/docker-publish.yml)",
+      "Leverage GitHub Actions cache (type=gha) for sub-minute build acceleration",
+      "Implement an automated security gate with Trivy failing builds on High/Critical CVEs",
+      "Cryptographically sign published images using Sigstore Cosign with OIDC keyless signing"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "An automated container publishing pipeline building multi-architecture images with caching, security checks, and cryptographic signatures.",
+      "diagram": "Git Push (main branch / SemVer tag)\n                 │\n                 ▼\n   [GitHub Actions CI Runner]\n   ├── 1. Setup Docker Buildx & QEMU\n   ├── 2. Compile Multi-Arch Image (linux/amd64 + linux/arm64)\n   │      └── Cache backend: type=gha,mode=max\n   ├── 3. Vulnerability Scan (Trivy Action)\n   │      └── Gate: Fail build if Critical CVE > 0\n   ├── 4. Push Image Manifest to Container Registry (GHCR)\n   └── 5. Cryptographic Signature (Cosign)\n          └── Attaches signature to ghcr.io/org/app:v1.0.0"
+    },
+    "requirements": {
+      "functional": [
+        "Images must run natively on both Intel/AMD64 and Apple Silicon/ARM64 without emulation errors",
+        "Build pipeline must push images tagged with both Git commit SHA and SemVer release tags",
+        "Images must be cryptographically verifiable using cosign verify"
+      ],
+      "technical": [
+        "Use docker/setup-buildx-action and docker/build-push-action",
+        "Configure platforms: linux/amd64,linux/arm64",
+        "Use sigstore/cosign-installer for keyless image signing"
+      ],
+      "security": [
+        "Do not commit registry passwords or API tokens to the repository (use GitHub Secrets)",
+        "Fail pipeline immediately if base image contains unpatched critical vulnerabilities"
+      ]
+    },
+    "architecture": {
+      "summary": "Automated software supply chain architecture generating multi-platform OCI image manifests, cryptographic attestations, and registry artifacts.",
+      "diagram": "Git Commit ──> CI Buildx Engine (QEMU Emulation) ──> OCI Multi-Arch Manifest ──> Security Gate ──> Signed Registry",
+      "components": [
+        {
+          "name": "Docker Buildx",
+          "role": "Advanced CLI build manager powered by Moby BuildKit engine",
+          "technologies": [
+            "Buildx",
+            "BuildKit"
+          ]
+        },
+        {
+          "name": "QEMU Virtualizer",
+          "role": "User-space CPU emulator enabling cross-architecture compilation in CI runners",
+          "technologies": [
+            "QEMU"
+          ]
+        },
+        {
+          "name": "Container Registry (GHCR)",
+          "role": "OCI-compliant artifact store hosting multi-platform image indexes",
+          "technologies": [
+            "GitHub Packages"
+          ]
+        },
+        {
+          "name": "Cosign (Sigstore)",
+          "role": "Keyless PKI signing engine publishing cryptographic signature attestations",
+          "technologies": [
+            "Sigstore / Cosign"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Desktop / Engine with Buildx",
+        "GitHub repository with GitHub Actions",
+        "GitHub Container Registry (GHCR)"
+      ],
+      "optional": [
+        "Cosign CLI installed locally for signature verification"
+      ],
+      "outOfScope": [
+        "Self-hosted Kubernetes runner clusters"
+      ]
+    },
+    "functionalRequirements": [
+      "Create multi-architecture Dockerfile compatible with both AMD64 and ARM64",
+      "Create .github/workflows/docker-ci.yml triggering on push to main",
+      "Configure buildx to build for linux/amd64 and linux/arm64",
+      "Integrate Trivy security scan step failing on critical vulnerabilities",
+      "Authenticate to GHCR using GITHUB_TOKEN",
+      "Push multi-arch manifest index to GHCR",
+      "Sign the image using Cosign and verify signature with cosign verify"
+    ],
+    "technicalRequirements": [
+      "Inspect published manifest: docker buildx imagetools inspect ghcr.io/<org>/<app>:<tag>",
+      "Verify image pulls and executes on both architecture types"
+    ],
+    "securityRequirements": [
+      "Ensure permissions for GITHUB_TOKEN are least-privilege (packages: write, id-token: write, contents: read)"
+    ],
+    "constraints": [
+      "Do not push single-architecture images to production tags",
+      "Do not bypass the security scanning gate"
+    ],
+    "expectedOutcome": "A complete, automated software supply chain pipeline producing verified, multi-architecture, cryptographically signed Docker images.",
+    "deliverables": [
+      "GitHub Actions pipeline configuration (.github/workflows/docker-ci.yml)",
+      "Multi-architecture compatible Dockerfile",
+      "Published and signed image in GitHub Container Registry",
+      "CI_CD_PIPELINE_DOCUMENTATION.md detailing Buildx setup, cache performance, and signature verification commands"
+    ],
+    "suggestedProjectStructure": ".github/\n└── workflows/\n    └── docker-ci.yml\nsrc/\n│   ├── Dockerfile\n│   └── app.js\nCI_CD_PIPELINE_DOCUMENTATION.md",
+    "requiredConcepts": [
+      {
+        "name": "Continuous Integration (CI/CD)",
+        "lessonId": "c-continuous-integration",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Private & Cloud Registries",
+        "lessonId": "c-cloud-registries",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Image Tagging Best Practices",
+        "lessonId": "c-image-tagging",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Image Security & Vulnerability Scanning",
+        "lessonId": "c-image-security",
+        "academyRoute": "/docker"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 13: Continuous Integration with Docker",
+          "route": "/cloudstack/docker?concept=c-continuous-integration"
+        },
+        {
+          "title": "Chapter 07: Private & Cloud Registries",
+          "route": "/cloudstack/docker?concept=c-cloud-registries"
+        },
+        {
+          "title": "Chapter 07: Image Tagging Best Practices",
+          "route": "/cloudstack/docker?concept=c-image-tagging"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Buildx Documentation",
+          "url": "https://docs.docker.com/build/architecture/"
+        },
+        {
+          "title": "Sigstore Cosign Documentation",
+          "url": "https://docs.sigstore.dev/cosign/overview/"
+        }
+      ],
+      "referenceMaterial": [
+        "SLSA Framework (Supply-chain Levels for Software Artifacts)"
+      ],
+      "usefulCommands": [
+        "docker buildx create --use --name multi-builder",
+        "docker buildx build --platform linux/amd64,linux/arm64 -t my-app:latest .",
+        "docker buildx imagetools inspect my-app:latest",
+        "cosign verify --certificate-identity-regexp \".*\" --certificate-oidc-issuer \".*\" <image>"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Configure Docker Buildx locally and verify multi-platform builder capability.",
+      "2. Ensure Dockerfile does not rely on architecture-specific pre-compiled binaries.",
+      "3. Create GitHub Actions workflow file .github/workflows/docker-ci.yml.",
+      "4. Add QEMU and Buildx setup steps using official Docker actions.",
+      "5. Configure BuildKit cache backend using type=gha to accelerate repeated builds.",
+      "6. Add Trivy vulnerability scanner action to gate pipeline execution.",
+      "7. Configure Docker login to GitHub Container Registry using GITHUB_TOKEN.",
+      "8. Configure build-push-action targeting linux/amd64 and linux/arm64.",
+      "9. Add Cosign keyless signing step using GitHub OIDC token.",
+      "10. Verify multi-arch manifest and cryptographic signature; publish CI_CD_PIPELINE_DOCUMENTATION.md."
+    ],
+    "importantConsiderations": [
+      "Why does cross-compiling via QEMU emulation run slower than native compilation, and how can Go/Rust cross-compilation mitigate this?",
+      "What is an OCI Manifest Index, and how does a Docker client automatically pull the matching architecture for its host?",
+      "How does Cosign keyless signing eliminate the risk of compromised long-lived private signing keys?"
+    ],
+    "commonPitfalls": [
+      "Assuming an image built on an Apple M-series laptop will automatically run on x86 cloud servers without multi-arch compilation.",
+      "Forgetting to set mode=max in Buildx cache settings, caching only final layers instead of intermediate stages.",
+      "Hardcoding personal access tokens into pipeline YAML files."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add automated PR preview image builds that do not push to the registry."
+      ],
+      "intermediate": [
+        "Attach a Software Bill of Materials (SBOM) using docker buildx sbom."
+      ],
+      "advanced": [
+        "Configure provenance attestations adhering to SLSA Level 3 using BuildKit."
+      ],
+      "expert": [
+        "Set up automated smoke tests running the built multi-arch image on both AMD64 and ARM64 self-hosted runners."
+      ]
+    },
+    "completionChecklist": [
+      "Docker Buildx builder initialized and verified",
+      "Multi-architecture Dockerfile authored and verified",
+      "GitHub Actions workflow pipeline created and active",
+      "GHA caching configured and verified reducing build times",
+      "Trivy vulnerability gate active and passing",
+      "Multi-arch image (AMD64 + ARM64) published to GHCR",
+      "Cosign cryptographic signature created and verified",
+      "CI_CD_PIPELINE_DOCUMENTATION.md published"
+    ],
+    "objectives": [
+      "Configure Docker Buildx for cross-compilation targeting linux/amd64 and linux/arm64",
+      "Build an automated CI workflow (.github/workflows/docker-publish.yml)",
+      "Leverage GitHub Actions cache (type=gha) for sub-minute build acceleration",
+      "Implement an automated security gate with Trivy failing builds on High/Critical CVEs",
+      "Cryptographically sign published images using Sigstore Cosign with OIDC keyless signing"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Docker CI/CD Pipeline & Automated Registry Publishing",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Docker CI/CD Pipeline & Automated Registry Publishing\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create multi-architecture Dockerfile compatible with both AMD64 and ARM64",
+        "objective": "Create multi-architecture Dockerfile compatible with both AMD64 and ARM64",
+        "commandSnippet": "docker buildx create --use --name multi-builder",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create multi-architecture Dockerfile compatible with both AMD64 and ARM64"
+      },
+      {
+        "id": "task-2",
+        "title": "Create .github/workflows/docker-ci.yml triggering on push to main",
+        "objective": "Create .github/workflows/docker-ci.yml triggering on push to main",
+        "commandSnippet": "docker buildx build --platform linux/amd64,linux/arm64 -t my-app:latest .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create .github/workflows/docker-ci.yml triggering on push to main"
+      },
+      {
+        "id": "task-3",
+        "title": "Configure buildx to build for linux/amd64 and linux/arm64",
+        "objective": "Configure buildx to build for linux/amd64 and linux/arm64",
+        "commandSnippet": "docker buildx imagetools inspect my-app:latest",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure buildx to build for linux/amd64 and linux/arm64"
+      },
+      {
+        "id": "task-4",
+        "title": "Integrate Trivy security scan step failing on critical vulnerabilities",
+        "objective": "Integrate Trivy security scan step failing on critical vulnerabilities",
+        "commandSnippet": "cosign verify --certificate-identity-regexp \".*\" --certificate-oidc-issuer \".*\" <image>",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Integrate Trivy security scan step failing on critical vulnerabilities"
+      },
+      {
+        "id": "task-5",
+        "title": "Authenticate to GHCR using GITHUB_TOKEN",
+        "objective": "Authenticate to GHCR using GITHUB_TOKEN",
+        "commandSnippet": "docker buildx create --use --name multi-builder",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Authenticate to GHCR using GITHUB_TOKEN"
+      },
+      {
+        "id": "task-6",
+        "title": "Push multi-arch manifest index to GHCR",
+        "objective": "Push multi-arch manifest index to GHCR",
+        "commandSnippet": "docker buildx build --platform linux/amd64,linux/arm64 -t my-app:latest .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Push multi-arch manifest index to GHCR"
+      },
+      {
+        "id": "task-7",
+        "title": "Sign the image using Cosign and verify signature with cosign verify",
+        "objective": "Sign the image using Cosign and verify signature with cosign verify",
+        "commandSnippet": "docker buildx imagetools inspect my-app:latest",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Sign the image using Cosign and verify signature with cosign verify"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Assuming an image built on an Apple M-series laptop will automatically run on x86 cloud servers without multi-arch compilation.",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Forgetting to set mode=max in Buildx cache settings, caching only final layers instead of intermediate stages.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Docker Buildx builder initialized and verified",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Multi-architecture Dockerfile authored and verified",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "GitHub Actions workflow pipeline created and active",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "GHA caching configured and verified reducing build times",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Trivy vulnerability gate active and passing",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Multi-arch image (AMD64 + ARM64) published to GHCR",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Cosign cryptographic signature created and verified",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "CI_CD_PIPELINE_DOCUMENTATION.md published",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "docker-09",
+    "code": "DOCKER-09",
+    "title": "Production Container Platform & Observability Stack",
+    "academy": "docker",
+    "difficulty": "Expert / Production",
+    "estimatedTime": "14-18 hours",
+    "technologies": [
+      "Prometheus",
+      "Grafana",
+      "cAdvisor",
+      "Loki / Promtail",
+      "Resource Limits (cgroups)",
+      "Docker Daemon Metrics"
+    ],
+    "overview": "Architect and deploy an enterprise-grade container observability platform, instrumenting Docker daemon metrics, cAdvisor container telemetry, Prometheus time-series collection, Grafana dashboards, and Loki log aggregation.",
+    "tags": [
+      "docker",
+      "observability",
+      "prometheus",
+      "grafana",
+      "cadvisor",
+      "loki",
+      "monitoring"
+    ],
+    "projectOverview": {
+      "projectName": "Production Container Platform & Observability Stack",
+      "academy": "docker",
+      "difficulty": "Expert / Production",
+      "estimatedEffort": "14-18 hours",
+      "technologies": [
+        "cAdvisor",
+        "Prometheus",
+        "Grafana",
+        "Grafana Loki",
+        "Docker cgroups"
+      ],
+      "shortDescription": "Deploy an enterprise container observability platform collecting live CPU/memory metrics via cAdvisor, aggregating logs via Loki, and rendering executive Grafana dashboards."
+    },
+    "scenario": "Your production Docker hosts experienced multiple silent container crashes caused by out-of-memory (OOM) kills. Operators had no visibility into container resource consumption, historical saturation trends, or centralized log streams. You must deploy an end-to-end container observability stack.",
+    "problemStatement": "Running containers in production without metrics and log aggregation creates a black box: engineers cannot diagnose memory leaks, CPU throttling, or sudden request surges. An integrated telemetry suite (cAdvisor, Prometheus, Grafana, Loki) is essential.",
+    "projectObjective": [
+      "Enable Docker daemon Prometheus metrics endpoint (/etc/docker/daemon.json)",
+      "Deploy Google cAdvisor to monitor live container CPU, memory, network, and disk I/O metrics",
+      "Configure Prometheus to scrape Docker daemon, cAdvisor, and application metrics",
+      "Deploy Grafana with pre-configured dashboards visualizing container health and saturation",
+      "Deploy Loki and Promtail to aggregate container stdout/stderr log streams into a searchable index"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "A production container telemetry platform collecting container resource utilization and application logs with real-time dashboards.",
+      "diagram": "[Monitored Containers] ──(cgroups & logs)──┐\n                                             │\n      ┌──────────────────────────────────────┼──────────────────────────────────────┐\n      ▼ (Metrics Collection)                 ▼ (Log Collection)                     ▼ (Daemon Metrics)\n  [cAdvisor (Port 8080)]             [Promtail Agent]                       [Docker Daemon (:9323)]\n      │ (Container CPU/RAM)                  │ (Streams stdout/stderr)              │ (Engine internals)\n      ▼                                      ▼                                      ▼\n[Prometheus (Port 9090)]             [Grafana Loki (Port 3100)] ─────────┐          │\n      │ (Time-series store)                  │ (Log indexing store)              │          │\n      └──────────────────────────────────────┬───────────────────────────────────┘          │\n                                             ▼                                              │\n                              [Grafana Dashboard (Port 3000)] <─────────────────────────────┘\n                              ├── Container CPU & Memory % (OOM Alerts)\n                              └── Live Searchable Container Logs"
+    },
+    "requirements": {
+      "functional": [
+        "Dashboard must display real-time CPU, memory, and network throughput per container",
+        "Dashboard must trigger visual alert when any container exceeds 85% of its allocated memory limit",
+        "Container logs must be searchable by container name and service in Grafana Explore"
+      ],
+      "technical": [
+        "Deploy cAdvisor mounting /sys/fs/cgroup and /var/run/docker.sock",
+        "Configure Prometheus with 15s scrape intervals for cAdvisor and dockerd",
+        "Provision Grafana with automated datasources for Prometheus and Loki"
+      ],
+      "security": [
+        "Secure Grafana dashboard with administrative credentials",
+        "Restrict Prometheus and cAdvisor ports from unauthenticated public access"
+      ]
+    },
+    "architecture": {
+      "summary": "Observability platform architecture decoupling kernel cgroup metrics extraction from time-series storage, log aggregation, and dashboard visualization.",
+      "diagram": "Kernel cgroups v2 ──> cAdvisor ──(pull)──> Prometheus TSDB ──(query)──> Grafana UI <──(log query)── Loki Store <── Promtail",
+      "components": [
+        {
+          "name": "Google cAdvisor",
+          "role": "Daemon collecting resource usage and performance characteristics of running containers",
+          "technologies": [
+            "cAdvisor"
+          ]
+        },
+        {
+          "name": "Prometheus",
+          "role": "Time-series database storing metrics and evaluating alert rules",
+          "technologies": [
+            "Prometheus"
+          ]
+        },
+        {
+          "name": "Grafana",
+          "role": "Enterprise visualization engine rendering metric graphs and log streams",
+          "technologies": [
+            "Grafana"
+          ]
+        },
+        {
+          "name": "Grafana Loki & Promtail",
+          "role": "Horizontally scalable, multi-tenant log aggregation system",
+          "technologies": [
+            "Loki",
+            "Promtail"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine with Compose v2",
+        "Prometheus",
+        "Grafana",
+        "cAdvisor",
+        "Loki"
+      ],
+      "optional": [
+        "Node Exporter for host-level OS metrics"
+      ],
+      "outOfScope": [
+        "Distributed OpenTelemetry APM tracing"
+      ]
+    },
+    "functionalRequirements": [
+      "Configure /etc/docker/daemon.json with \"metrics-addr\": \"127.0.0.1:9323\" and \"experimental\": true",
+      "Create compose.yaml orchestrating cadvisor, prometheus, grafana, and loki",
+      "Configure prometheus.yml scraping cadvisor:8080 and 127.0.0.1:9323",
+      "Deploy a sample workload container with memory limits (--memory=128m)",
+      "Simulate memory load and observe memory usage curve climbing towards limit in Grafana",
+      "Search container logs in Grafana Explore using LogQL query {container_name=~\".+\"}"
+    ],
+    "technicalRequirements": [
+      "Verify cAdvisor metrics endpoint: curl -s http://localhost:8080/metrics | grep container_cpu",
+      "Verify Prometheus target health: curl -s http://localhost:9090/api/v1/targets",
+      "Export Grafana dashboard configuration as JSON"
+    ],
+    "securityRequirements": [
+      "Ensure cAdvisor mounts /var/run/docker.sock with read-only flag (:ro)"
+    ],
+    "constraints": [
+      "Do not allocate more than 1 GB total RAM to the observability stack itself",
+      "Do not expose Prometheus management endpoints publicly"
+    ],
+    "expectedOutcome": "A complete, enterprise-grade container observability platform delivering real-time metrics, proactive saturation alerts, and centralized log querying.",
+    "deliverables": [
+      "Observability stack compose.yaml",
+      "Prometheus configuration (prometheus.yml)",
+      "Grafana datasource and dashboard provisioning files",
+      "CONTAINER_OBSERVABILITY_RUNBOOK.md documenting dashboard usage, metric alerts, and LogQL cheat sheet"
+    ],
+    "suggestedProjectStructure": "observability-stack/\n├── compose.yaml\n├── prometheus/\n│   └── prometheus.yml\n├── grafana/\n│   ├── provisioning/\n│   │   ├── datasources/datasources.yml\n│   │   └── dashboards/dashboards.yml\n│   └── dashboards/container-metrics.json\n├── loki/\n│   └── loki-config.yml\n└── CONTAINER_OBSERVABILITY_RUNBOOK.md",
+    "requiredConcepts": [
+      {
+        "name": "Inspection & Process Stats",
+        "lessonId": "c-container-inspect-stats",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Container Logs & Streaming",
+        "lessonId": "c-container-logs",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Linux Namespaces & cgroups",
+        "lessonId": "c-linux-namespaces",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "docker compose Orchestration",
+        "lessonId": "c-docker-compose",
+        "academyRoute": "/docker"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 09: Inspection & Process Stats",
+          "route": "/cloudstack/docker?concept=c-container-inspect-stats"
+        },
+        {
+          "title": "Chapter 09: Container Logs & Streaming",
+          "route": "/cloudstack/docker?concept=c-container-logs"
+        },
+        {
+          "title": "Chapter 02: Linux Namespaces & cgroups",
+          "route": "/cloudstack/docker?concept=c-linux-namespaces"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "cAdvisor Documentation",
+          "url": "https://github.com/google/cadvisor"
+        },
+        {
+          "title": "Prometheus Getting Started",
+          "url": "https://prometheus.io/docs/prometheus/latest/getting_started/"
+        },
+        {
+          "title": "Grafana Loki Documentation",
+          "url": "https://grafana.com/docs/loki/latest/"
+        }
+      ],
+      "referenceMaterial": [
+        "Monitoring Cloud-Native Applications (O'Reilly)"
+      ],
+      "usefulCommands": [
+        "docker compose -f observability-stack/compose.yaml up -d",
+        "curl -s http://localhost:8080/metrics | head -n 20",
+        "curl -s http://localhost:9090/api/v1/targets",
+        "docker stats"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Enable metrics in Docker daemon configuration and reload Docker.",
+      "2. Author compose.yaml defining cadvisor, prometheus, grafana, and loki.",
+      "3. Configure cAdvisor volume mounts for host cgroups and docker socket.",
+      "4. Author prometheus.yml specifying scrape targets for cAdvisor and Docker daemon.",
+      "5. Configure Grafana automatic provisioning for Prometheus and Loki datasources.",
+      "6. Start the observability stack and verify all targets show healthy in Prometheus.",
+      "7. Import a community container monitoring dashboard (ID: 14282 or 893) into Grafana.",
+      "8. Deploy a sample workload container with memory constraints and generate simulated traffic.",
+      "9. Verify real-time metrics and log indexing in Grafana Explore.",
+      "10. Publish CONTAINER_OBSERVABILITY_RUNBOOK.md."
+    ],
+    "importantConsiderations": [
+      "Why is cgroups v2 preferred over cgroups v1 for modern container resource accounting?",
+      "How does Prometheus pull-based metric scraping differ from push-based logging with Loki?",
+      "What are the storage retention trade-offs of storing high-frequency container metrics?"
+    ],
+    "commonPitfalls": [
+      "Mounting /var/run/docker.sock as read-write into cAdvisor instead of read-only (:ro).",
+      "Forgetting to configure persistent named volumes for Prometheus and Grafana, losing dashboards on restart.",
+      "Running heavy log queries without proper stream selectors in Loki, overloading the memory of the Loki container."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Create a Grafana alert rule sending notifications when container restarts occur."
+      ],
+      "intermediate": [
+        "Add Node Exporter to the stack to visualize host CPU, disk, and RAM alongside containers."
+      ],
+      "advanced": [
+        "Configure Prometheus Alertmanager with Slack/Discord webhook alerts."
+      ],
+      "expert": [
+        "Set up automated container auto-remediation using a webhook listening for Prometheus alerts."
+      ]
+    },
+    "completionChecklist": [
+      "Docker daemon Prometheus metrics enabled and verified",
+      "cAdvisor deployed and successfully extracting cgroup metrics",
+      "Prometheus scraping cAdvisor and Docker daemon",
+      "Grafana deployed with automated Prometheus and Loki datasources",
+      "Dashboard visualizes container CPU, RAM, Network, and Disk I/O",
+      "Loki and Promtail indexing container logs",
+      "Workload test verifies real-time metric capture",
+      "CONTAINER_OBSERVABILITY_RUNBOOK.md published"
+    ],
+    "objectives": [
+      "Enable Docker daemon Prometheus metrics endpoint (/etc/docker/daemon.json)",
+      "Deploy Google cAdvisor to monitor live container CPU, memory, network, and disk I/O metrics",
+      "Configure Prometheus to scrape Docker daemon, cAdvisor, and application metrics",
+      "Deploy Grafana with pre-configured dashboards visualizing container health and saturation",
+      "Deploy Loki and Promtail to aggregate container stdout/stderr log streams into a searchable index"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Production Container Platform & Observability Stack",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Production Container Platform & Observability Stack\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Configure /etc/docker/daemon.json with \"metrics-addr\": \"127.0.0.1:9323\" and \"experimental\": true",
+        "objective": "Configure /etc/docker/daemon.json with \"metrics-addr\": \"127.0.0.1:9323\" and \"experimental\": true",
+        "commandSnippet": "docker compose -f observability-stack/compose.yaml up -d",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure /etc/docker/daemon.json with \"metrics-addr\": \"127.0.0.1:9323\" and \"experimental\": true"
+      },
+      {
+        "id": "task-2",
+        "title": "Create compose.yaml orchestrating cadvisor, prometheus, grafana, and loki",
+        "objective": "Create compose.yaml orchestrating cadvisor, prometheus, grafana, and loki",
+        "commandSnippet": "curl -s http://localhost:8080/metrics | head -n 20",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create compose.yaml orchestrating cadvisor, prometheus, grafana, and loki"
+      },
+      {
+        "id": "task-3",
+        "title": "Configure prometheus.yml scraping cadvisor:8080 and 127.0.0.1:9323",
+        "objective": "Configure prometheus.yml scraping cadvisor:8080 and 127.0.0.1:9323",
+        "commandSnippet": "curl -s http://localhost:9090/api/v1/targets",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure prometheus.yml scraping cadvisor:8080 and 127.0.0.1:9323"
+      },
+      {
+        "id": "task-4",
+        "title": "Deploy a sample workload container with memory limits (--memory=128m)",
+        "objective": "Deploy a sample workload container with memory limits (--memory=128m)",
+        "commandSnippet": "docker stats",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy a sample workload container with memory limits (--memory=128m)"
+      },
+      {
+        "id": "task-5",
+        "title": "Simulate memory load and observe memory usage curve climbing towards limit in Grafana",
+        "objective": "Simulate memory load and observe memory usage curve climbing towards limit in Grafana",
+        "commandSnippet": "docker compose -f observability-stack/compose.yaml up -d",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Simulate memory load and observe memory usage curve climbing towards limit in Grafana"
+      },
+      {
+        "id": "task-6",
+        "title": "Search container logs in Grafana Explore using LogQL query {container_name=~\".+\"}",
+        "objective": "Search container logs in Grafana Explore using LogQL query {container_name=~\".+\"}",
+        "commandSnippet": "curl -s http://localhost:8080/metrics | head -n 20",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Search container logs in Grafana Explore using LogQL query {container_name=~\".+\"}"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Mounting /var/run/docker.sock as read-write into cAdvisor instead of read-only (:ro).",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Forgetting to configure persistent named volumes for Prometheus and Grafana, losing dashboards on restart.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Docker daemon Prometheus metrics enabled and verified",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "cAdvisor deployed and successfully extracting cgroup metrics",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Prometheus scraping cAdvisor and Docker daemon",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Grafana deployed with automated Prometheus and Loki datasources",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Dashboard visualizes container CPU, RAM, Network, and Disk I/O",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Loki and Promtail indexing container logs",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Workload test verifies real-time metric capture",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "CONTAINER_OBSERVABILITY_RUNBOOK.md published",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "docker-10",
+    "code": "DOCKER-10",
+    "title": "Enterprise Containerized Application Platform & Disaster Recovery",
+    "academy": "docker",
+    "difficulty": "Production Grade",
+    "estimatedTime": "16-24 hours",
+    "technologies": [
+      "Production Docker Architecture",
+      "Docker Swarm / Compose",
+      "TLS Edge Routing",
+      "Secrets Management",
+      "Disaster Recovery"
+    ],
+    "overview": "The pinnacle Docker engineering project: architect, harden, deploy, and operate a mission-critical enterprise container platform featuring automated zero-downtime rolling updates, cryptographic secrets management, backup restoration drills, and disaster recovery orchestration.",
+    "tags": [
+      "docker",
+      "production-grade",
+      "enterprise",
+      "swarm",
+      "zero-downtime",
+      "secrets-management",
+      "disaster-recovery"
+    ],
+    "projectOverview": {
+      "projectName": "Enterprise Containerized Application Platform & Disaster Recovery",
+      "academy": "docker",
+      "difficulty": "Production Grade",
+      "estimatedEffort": "16-24 hours",
+      "technologies": [
+        "Production Container Architecture",
+        "Docker Swarm / Compose",
+        "Traefik / Nginx Proxy",
+        "Docker Secrets",
+        "Disaster Recovery"
+      ],
+      "shortDescription": "The capstone Docker platform: build a production-grade multi-tier containerized enterprise application platform with zero-downtime rolling updates, secrets management, and disaster recovery."
+    },
+    "scenario": "You are the Lead Platform Engineer for an enterprise financial services SaaS processing thousands of transactions per minute. The business cannot tolerate deployment downtime, leaked database credentials, or data loss. You must architect, harden, and operate the complete production container platform: reverse proxying with automatic SSL, secrets management, high-availability database replication, automated zero-downtime rolling updates, and a proven disaster recovery drill.",
+    "problemStatement": "Enterprise production requires solving the complete operational lifecycle: secrets cannot live in plaintext environment variables or images; services must update without dropping live client requests; databases must survive container and host failures; and operations teams must possess validated disaster recovery procedures.",
+    "projectObjective": [
+      "Architect an enterprise multi-tier platform (Edge Reverse Proxy, Scaled API Services, Cache, Stateful Database)",
+      "Implement Docker Secrets (or encrypted secret injection) eliminating plaintext credentials from environment variables",
+      "Configure zero-downtime rolling deployments (update_config with order: start-first)",
+      "Implement persistent database storage with automated snapshot backup pipelines",
+      "Execute a full disaster recovery drill recovering the complete platform from backups with RTO < 10 min and RPO = 0"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "An enterprise-grade production container platform integrating secure secrets, zero-downtime rolling updates, edge routing, and automated disaster recovery.",
+      "diagram": "Enterprise Container Platform Topology\n├── Ingress Tier: Traefik / Nginx Reverse Proxy (Ports 80, 443)\n│   ├── SSL/TLS Termination\n│   └── Dynamic Load Balancing via Docker Socket (read-only)\n│\n├── Application Tier: Scaled API Services (3 Replicas)\n│   ├── Rolling Updates: start-first, delay 5s\n│   ├── Unprivileged Non-Root USER (UID 10001)\n│   └── Docker Secrets mounted at /run/secrets/\n│\n├── Data Tier: High-Availability Persistence\n│   ├── Redis Cache (In-Memory, Password Protected)\n│   └── PostgreSQL Database (Named Volumes, Automated WAL Archiving)\n│\n└── SRE & Operations: Disaster Recovery Suite\n    ├── Nightly automated volume snapshot and database dump\n    └── Disaster Recovery Playbook (RTO < 10 minutes)"
+    },
+    "requirements": {
+      "functional": [
+        "Platform must handle 100 continuous requests per second with zero 502/503 errors during rolling application updates",
+        "Database credentials must be injected via Docker Secrets without appearing in docker inspect or env",
+        "In the event of total server loss, platform must be fully restored from backup archives in < 10 minutes"
+      ],
+      "technical": [
+        "Use Docker Swarm mode or Compose v2 with production deploy configurations",
+        "Configure rollback_config and update_config with failure_action: rollback",
+        "Store database volumes on dedicated persistent storage"
+      ],
+      "security": [
+        "All containers run as unprivileged users with read-only root filesystems",
+        "Zero passwords in compose files or environment variables"
+      ]
+    },
+    "architecture": {
+      "summary": "Complete enterprise container platform architecture integrating edge reverse proxying, internal overlay networking, encrypted secrets distribution, and storage persistence.",
+      "diagram": "External Traffic (443) ──> Edge Proxy ──(Overlay Network)──> Scaled API Tasks ──(Secrets: /run/secrets)──> DB Storage",
+      "components": [
+        {
+          "name": "Edge Ingress Controller",
+          "role": "Dynamic reverse proxy terminating TLS and routing traffic to healthy tasks",
+          "technologies": [
+            "Traefik / Nginx"
+          ]
+        },
+        {
+          "name": "Scaled Application Service",
+          "role": "Stateless API replicas performing zero-downtime rolling deployments",
+          "technologies": [
+            "Node.js / Python"
+          ]
+        },
+        {
+          "name": "Secrets Management Engine",
+          "role": "Encrypted in-flight and at-rest credential distribution mechanism",
+          "technologies": [
+            "Docker Secrets / Docker Configs"
+          ]
+        },
+        {
+          "name": "Persistent Database Cluster",
+          "role": "Stateful data storage backed by automated backup pipelines",
+          "technologies": [
+            "PostgreSQL 16",
+            "LVM / Volumes"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Docker Engine 24+ with Swarm or Compose v2",
+        "PostgreSQL 16",
+        "Redis 7",
+        "Nginx or Traefik"
+      ],
+      "optional": [
+        "Apache Benchmark or k6 for verifying zero-downtime rolling updates"
+      ],
+      "outOfScope": [
+        "Bare-metal Kubernetes cluster installations"
+      ]
+    },
+    "functionalRequirements": [
+      "Initialize Docker Swarm (docker swarm init) or production Compose stack",
+      "Create Docker secrets for db_password, jwt_secret, and redis_password",
+      "Deploy stack with 3 API replicas, Redis, PostgreSQL, and reverse proxy",
+      "Execute continuous load test (k6 or while curl loop)",
+      "Trigger rolling update to v2.0: docker service update --image api:v2.0 --update-order start-first",
+      "Verify zero failed requests during rolling update",
+      "Execute disaster recovery drill: wipe stack and volume, restore from backup, and verify 100% data integrity"
+    ],
+    "technicalRequirements": [
+      "Demonstrate automated rollback when a faulty image version is deployed",
+      "Verify secret values are accessible exclusively at /run/secrets/<secret_name>",
+      "Produce comprehensive ENTERPRISE_CONTAINER_PLATFORM_RUNBOOK.md"
+    ],
+    "securityRequirements": [
+      "Audit container processes using docker exec ps aux to confirm non-root execution",
+      "Confirm secrets do not leak into docker inspect or process environment tables"
+    ],
+    "constraints": [
+      "Never commit production secrets to Git",
+      "Do not allow single-point-of-failure deployment: multiple application replicas are mandatory"
+    ],
+    "expectedOutcome": "A world-class, production-hardened container platform capable of seamless zero-downtime updates, cryptographically secure secrets handling, and validated disaster recovery.",
+    "deliverables": [
+      "Production stack specification (stack.yaml or compose.yaml)",
+      "Automated disaster recovery script (disaster-recovery.sh)",
+      "Database snapshot and volume backup scripts",
+      "ENTERPRISE_CONTAINER_PLATFORM_RUNBOOK.md detailing architecture, secrets workflow, rolling updates, and DR drill logs",
+      "POSTMORTEM_ROLLBACK_REPORT.md analyzing a simulated deployment failure and automated rollback"
+    ],
+    "suggestedProjectStructure": "enterprise-platform/\n├── stack.yaml\n├── secrets/ (gitignored)\n│   ├── db_password.txt\n│   └── jwt_secret.txt\n├── scripts/\n│   ├── backup-all.sh\n│   ├── disaster-recovery.sh\n│   └── simulate-load.sh\n├── api/\n│   ├── Dockerfile\n│   └── server.js\n├── ENTERPRISE_CONTAINER_PLATFORM_RUNBOOK.md\n└── POSTMORTEM_ROLLBACK_REPORT.md",
+    "requiredConcepts": [
+      {
+        "name": "Docker Swarm & Native Clustering",
+        "lessonId": "c-docker-swarm",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Kubernetes & Orchestration Concepts",
+        "lessonId": "c-kubernetes-intro",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Runtime Security Hardening",
+        "lessonId": "c-runtime-security",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Volume Mounts & Persistence",
+        "lessonId": "c-volume-mounts",
+        "academyRoute": "/docker"
+      },
+      {
+        "name": "Continuous Integration & Deployment",
+        "lessonId": "c-continuous-integration",
+        "academyRoute": "/docker"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 14: Docker Swarm & Orchestration",
+          "route": "/cloudstack/docker?concept=c-docker-swarm"
+        },
+        {
+          "title": "Chapter 14: Transitioning to Kubernetes",
+          "route": "/cloudstack/docker?concept=c-kubernetes-intro"
+        },
+        {
+          "title": "Chapter 12: Runtime Security Hardening",
+          "route": "/cloudstack/docker?concept=c-runtime-security"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Docker Swarm Mode Overview",
+          "url": "https://docs.docker.com/engine/swarm/"
+        },
+        {
+          "title": "Manage Sensitive Data with Docker Secrets",
+          "url": "https://docs.docker.com/engine/swarm/secrets/"
+        }
+      ],
+      "referenceMaterial": [
+        "The Twelve-Factor App (12factor.net)"
+      ],
+      "usefulCommands": [
+        "docker swarm init",
+        "echo \"db_secret_pass\" | docker secret create db_password -",
+        "docker stack deploy -c stack.yaml production_app",
+        "docker service update --image api:v2.0 production_app_api",
+        "docker service rollback production_app_api",
+        "docker stack rm production_app"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Review high-availability requirements, RTO/RPO targets, and security posture.",
+      "2. Initialize Swarm or Compose v2 production environment.",
+      "3. Provision Docker Secrets for database, Redis, and API tokens.",
+      "4. Author multi-tier stack definition with 3 API replicas, Nginx edge proxy, and persistent database.",
+      "5. Configure rolling update policy with start-first ordering and healthcheck gates.",
+      "6. Deploy stack and verify all services reach healthy operational status.",
+      "7. Run continuous load test during simulated rolling update to verify zero dropped requests.",
+      "8. Simulate faulty update and verify automated rollback.",
+      "9. Execute full disaster recovery drill: backup, total teardown, and automated recovery.",
+      "10. Author ENTERPRISE_CONTAINER_PLATFORM_RUNBOOK.md and POSTMORTEM_ROLLBACK_REPORT.md."
+    ],
+    "importantConsiderations": [
+      "Why is update-order: start-first crucial for zero-downtime HTTP traffic handling?",
+      "How does Docker Secrets encrypt credentials in transit and mount them in-memory (/run/secrets) without touching disk?",
+      "What are the critical steps to verify database consistency before executing a volume backup?"
+    ],
+    "commonPitfalls": [
+      "Using update-order: stop-first, causing brief service outages when the last remaining replica is shut down before the new one is ready.",
+      "Storing secrets in environment variables which leak into logs, docker inspect, and error stack traces.",
+      "Testing disaster recovery only on paper without ever conducting a live restore drill."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Configure automated email alerts upon service rollback events."
+      ],
+      "intermediate": [
+        "Integrate dynamic SSL certificates using Traefik and Let's Encrypt in the stack."
+      ],
+      "advanced": [
+        "Deploy a distributed GlusterFS or NFS volume driver for multi-node persistent storage."
+      ],
+      "expert": [
+        "Construct a migration plan translating the Docker Swarm stack into Kubernetes Helm manifests."
+      ]
+    },
+    "completionChecklist": [
+      "Production stack deployed with edge reverse proxy and 3 API replicas",
+      "Docker Secrets configured and verified mounted at /run/secrets/",
+      "Rolling updates tested with continuous load test (zero 502 errors)",
+      "Automated rollback tested and verified on deployment failure",
+      "Persistent volume configured with automated nightly backup script",
+      "Disaster recovery drill executed (RTO < 10 minutes achieved)",
+      "ENTERPRISE_CONTAINER_PLATFORM_RUNBOOK.md completed",
+      "POSTMORTEM_ROLLBACK_REPORT.md published"
+    ],
+    "objectives": [
+      "Architect an enterprise multi-tier platform (Edge Reverse Proxy, Scaled API Services, Cache, Stateful Database)",
+      "Implement Docker Secrets (or encrypted secret injection) eliminating plaintext credentials from environment variables",
+      "Configure zero-downtime rolling deployments (update_config with order: start-first)",
+      "Implement persistent database storage with automated snapshot backup pipelines",
+      "Execute a full disaster recovery drill recovering the complete platform from backups with RTO < 10 min and RPO = 0"
+    ],
+    "startingState": {
+      "description": "Containerized development environment for Enterprise Containerized Application Platform & Disaster Recovery",
+      "environment": "Docker 24+ Engine (CLI / Docker Compose)",
+      "startingFiles": {
+        "compose.yaml": "# Enterprise Containerized Application Platform & Disaster Recovery\nservices:\n  app:\n    build: .\n",
+        "Dockerfile": "FROM alpine:latest\nCMD [\"echo\", \"Container ready\"]\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Initialize Docker Swarm (docker swarm init) or production Compose stack",
+        "objective": "Initialize Docker Swarm (docker swarm init) or production Compose stack",
+        "commandSnippet": "docker swarm init",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Initialize Docker Swarm (docker swarm init) or production Compose stack"
+      },
+      {
+        "id": "task-2",
+        "title": "Create Docker secrets for db_password, jwt_secret, and redis_password",
+        "objective": "Create Docker secrets for db_password, jwt_secret, and redis_password",
+        "commandSnippet": "echo \"db_secret_pass\" | docker secret create db_password -",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create Docker secrets for db_password, jwt_secret, and redis_password"
+      },
+      {
+        "id": "task-3",
+        "title": "Deploy stack with 3 API replicas, Redis, PostgreSQL, and reverse proxy",
+        "objective": "Deploy stack with 3 API replicas, Redis, PostgreSQL, and reverse proxy",
+        "commandSnippet": "docker stack deploy -c stack.yaml production_app",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy stack with 3 API replicas, Redis, PostgreSQL, and reverse proxy"
+      },
+      {
+        "id": "task-4",
+        "title": "Execute continuous load test (k6 or while curl loop)",
+        "objective": "Execute continuous load test (k6 or while curl loop)",
+        "commandSnippet": "docker service update --image api:v2.0 production_app_api",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Execute continuous load test (k6 or while curl loop)"
+      },
+      {
+        "id": "task-5",
+        "title": "Trigger rolling update to v2.0: docker service update --image api:v2.0 --update-order start-first",
+        "objective": "Trigger rolling update to v2.0: docker service update --image api:v2.0 --update-order start-first",
+        "commandSnippet": "docker service rollback production_app_api",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Trigger rolling update to v2.0: docker service update --image api:v2.0 --update-order start-first"
+      },
+      {
+        "id": "task-6",
+        "title": "Verify zero failed requests during rolling update",
+        "objective": "Verify zero failed requests during rolling update",
+        "commandSnippet": "docker stack rm production_app",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify zero failed requests during rolling update"
+      },
+      {
+        "id": "task-7",
+        "title": "Execute disaster recovery drill: wipe stack and volume, restore from backup, and verify 100% data integrity",
+        "objective": "Execute disaster recovery drill: wipe stack and volume, restore from backup, and verify 100% data integrity",
+        "commandSnippet": "docker swarm init",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Execute disaster recovery drill: wipe stack and volume, restore from backup, and verify 100% data integrity"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Using update-order: stop-first, causing brief service outages when the last remaining replica is shut down before the new one is ready.",
+        "symptom": "Container exits immediately with code 1 or crash loop.",
+        "rootCause": "Missing environment variable or invalid configuration.",
+        "diagnosticCommand": "docker logs <container_name>",
+        "fixCommand": "docker compose down && docker compose up -d",
+        "verification": "Container state returns running (healthy)."
+      },
+      {
+        "id": "fail-2",
+        "title": "Storing secrets in environment variables which leak into logs, docker inspect, and error stack traces.",
+        "symptom": "Bind for 0.0.0.0:port failed: address already in use.",
+        "rootCause": "Host port already bound by another container or process.",
+        "diagnosticCommand": "ss -tuln | grep <port>",
+        "fixCommand": "docker compose stop && docker compose up -d",
+        "verification": "Port bound cleanly and responding."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Production stack deployed with edge reverse proxy and 3 API replicas",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Docker Secrets configured and verified mounted at /run/secrets/",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Rolling updates tested with continuous load test (zero 502 errors)",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Automated rollback tested and verified on deployment failure",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Persistent volume configured with automated nightly backup script",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Disaster recovery drill executed (RTO < 10 minutes achieved)",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "ENTERPRISE_CONTAINER_PLATFORM_RUNBOOK.md completed",
+        "verificationCommand": "docker ps",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "POSTMORTEM_ROLLBACK_REPORT.md published",
+        "verificationCommand": "docker ps",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
+  }
 ];

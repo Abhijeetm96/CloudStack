@@ -11,6 +11,7 @@ import {
   DevOpsOfficialIcon,
   RoadmapOfficialIcon,
 } from '../common/TechnologyIcons';
+import { TOTAL_CAPSTONE_PROJECTS } from '../../platform/capstones/data';
 import './suiteHeaderNav.css';
 
 export const SuiteHeaderNav: React.FC = () => {
@@ -178,12 +179,12 @@ export const SuiteHeaderNav: React.FC = () => {
             border: mode === 'capstone' ? '1px solid rgba(56, 189, 248, 0.7)' : '1px solid rgba(56, 189, 248, 0.25)',
             boxShadow: mode === 'capstone' ? '0 0 16px rgba(56, 189, 248, 0.4)' : 'none',
           }}
-          title="Capstone Project System (31 Real-World Projects)"
+          title={`Capstone Project System (${TOTAL_CAPSTONE_PROJECTS} Production Engineering Projects)`}
           aria-label="Capstone Projects"
         >
           <Trophy size={20} color="#38bdf8" />
           <span className="suite-nav-text">Capstones</span>
-          <span style={{ fontSize: '0.65rem', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 800 }}>31</span>
+          <span style={{ fontSize: '0.65rem', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 800 }}>{TOTAL_CAPSTONE_PROJECTS}</span>
         </button>
       </div>
 
@@ -351,7 +352,7 @@ export const SuiteHeaderNav: React.FC = () => {
             <Trophy size={20} color="#38bdf8" />
             <div>
               <div style={{ color: '#38bdf8', fontWeight: 700 }}>Capstone Project System</div>
-              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>31 Real-World Capstone Projects</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>{TOTAL_CAPSTONE_PROJECTS} Production Engineering Projects</div>
             </div>
           </button>
 

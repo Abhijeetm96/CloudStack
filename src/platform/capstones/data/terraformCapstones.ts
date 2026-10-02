@@ -2,627 +2,3755 @@ import { CapstoneProject } from '../types';
 
 export const TERRAFORM_CAPSTONES: CapstoneProject[] = [
   {
-    id: 'terraform-01',
-    code: 'TERRAFORM-01',
-    title: 'Infrastructure From Scratch',
-    academy: 'terraform',
-    difficulty: 'Beginner',
-    estimatedTime: '60 mins',
-    overview:
-      'Provision a complete, foundational enterprise cloud infrastructure topology using pure declarative Terraform HCL code. You will construct the entire infrastructure chain from the ground up: 1) Provider declarations, 2) Data source lookups for availability zones, 3) Virtual Private Cloud (VPC) network, 4) Public and private subnets across multi-AZs, 5) Security group firewalls restricting ingress ports, 6) Compute instance with user-data bootstrap script, and 7) Encrypted block storage volume with attachment. You will parameterize everything using typed variables, default constraints, and computed output values.',
-    objectives: [
-      'Configure cloud providers with version pins and default tags.',
-      'Query dynamic cloud metadata using data sources (e.g., data "aws_availability_zones").',
-      'Declare a custom VPC network with dedicated CIDR block (10.0.0.0/16).',
-      'Create public and private subnet topologies with route table associations.',
-      'Configure security group rules allowing inbound SSH (22) and HTTP (80) with default-deny.',
-      'Provision compute instance with automated bootstrap script in user_data.',
-      'Attach an encrypted secondary block storage volume to the instance.',
-      'Expose public IP, VPC ID, and volume ID via Terraform outputs.',
+    "id": "terraform-01",
+    "code": "TERRAFORM-01",
+    "title": "Basic Infrastructure Provisioning",
+    "academy": "terraform",
+    "difficulty": "Beginner",
+    "estimatedTime": "4-6 hours",
+    "technologies": [
+      "Terraform CLI",
+      "HCL Syntax",
+      "Local / Docker Provider",
+      "Resource Declarations"
     ],
-    requirements: [
-      'Terraform 1.5+ CLI.',
-      'Understanding of core Terraform blocks: terraform, provider, resource, variable, output, data.',
-      'Basic knowledge of cloud networking: VPC, subnets, route tables, and security groups.',
+    "overview": "Initialize a clean Terraform project, configure the local/docker provider, declare foundational compute/network resources in HCL, and execute the standard init, plan, and apply lifecycle.",
+    "tags": [
+      "terraform",
+      "hcl",
+      "iac",
+      "init-plan-apply",
+      "docker-provider"
     ],
-    startingState: {
-      description:
-        'An empty workspace directory ready for greenfield infrastructure provisioning.',
-      environment: 'Terraform Engine Workstation',
-      startingFiles: {},
-    },
-    architecture: {
-      summary:
-        'Cloud Infrastructure Topology: Provider -> Data Sources -> VPC (10.0.0.0/16) -> Public Subnet (10.0.1.0/24) -> Security Group -> Compute Instance -> Encrypted Block Storage.',
-      nodes: [
-        { id: 'provider-node', name: 'Provider & Data Sources', role: 'API Client & Query', description: 'Initializes cloud API client and queries active availability zones.', technologies: ['Terraform Provider', 'Data Sources'], status: 'active' },
-        { id: 'vpc-node', name: 'VPC Network (10.0.0.0/16)', role: 'Network Isolation', description: 'Isolated software-defined cloud network boundary.', technologies: ['VPC', 'CIDR'], status: 'healthy' },
-        { id: 'subnet-node', name: 'Public Subnet (10.0.1.0/24)', role: 'Subnet Boundary', description: 'Subnet mapped to Availability Zone A with Internet Gateway route.', technologies: ['Subnet', 'Route Table'], status: 'healthy' },
-        { id: 'secgroup-node', name: 'Security Group Firewall', role: 'Packet Filter', description: 'Stateful firewall permitting ports 22 and 80 from approved CIDR.', technologies: ['Security Group', 'Stateful'], status: 'healthy' },
-        { id: 'compute-node', name: 'Compute Instance (VM)', role: 'Workload Server', description: 'Virtual server bootstrapped with Nginx web server.', technologies: ['EC2/Compute', 'cloud-init'], status: 'healthy' },
-        { id: 'storage-node', name: 'Block Storage (EBS 50GB)', role: 'Persistent Storage', description: 'Encrypted block volume attached to compute instance.', technologies: ['EBS', 'KMS Encryption'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Basic Infrastructure Provisioning",
+      "academy": "terraform",
+      "difficulty": "Beginner",
+      "estimatedEffort": "4-6 hours",
+      "technologies": [
+        "Terraform CLI 1.5+",
+        "HashiCorp HCL",
+        "Docker or Local Provider"
       ],
-      edges: [
-        { from: 'provider-node', to: 'vpc-node', label: 'provisions VPC' },
-        { from: 'vpc-node', to: 'subnet-node', label: 'allocates CIDR' },
-        { from: 'subnet-node', to: 'secgroup-node', label: 'attaches firewall' },
-        { from: 'secgroup-node', to: 'compute-node', label: 'protects instance' },
-        { from: 'compute-node', to: 'storage-node', label: 'mounts volume' },
-      ],
-      flowDescription:
-        'VPC -> Subnets -> Security Groups -> Compute -> Storage. Outputs expose public endpoint and IDs.',
+      "shortDescription": "Initialize and provision declarative infrastructure resources using HashiCorp Configuration Language (HCL) and the core Terraform CLI workflow."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Author Provider Configuration, Variables & Data Sources',
-        objective: 'Write providers.tf, variables.tf, and query availability zones.',
-        commandSnippet: 'cat << \'EOF\' > providers.tf\nterraform {\n  required_version = ">= 1.5.0"\n}\nEOF\n\ncat << \'EOF\' > variables.tf\nvariable "vpc_cidr" {\n  type        = string\n  default     = "10.0.0.0/16"\n  description = "Primary VPC CIDR block"\n}\n\nvariable "environment" {\n  type        = string\n  default     = "production"\n  description = "Deployment environment name"\n}\nEOF',
-        expectedOutput: 'providers.tf and variables.tf authored with typed variables.',
-        verificationCriteria: 'variables.tf contains variable "vpc_cidr".',
-        hints: ['Always declare type constraints and descriptions for all Terraform variables.'],
-        explanation: 'Variables parameterize infrastructure code, allowing identical configurations to be deployed across environments.',
-      },
-      {
-        id: 'task-2',
-        title: 'Author Main Infrastructure Topology (main.tf)',
-        objective: 'Construct the complete network, security, compute, and storage resource graph.',
-        commandSnippet: 'cat << \'EOF\' > main.tf\n# Local representation of provisioned resources\nlocals {\n  network_name = "prod-vpc"\n  instance_id  = "i-099a8b7c6d5e4f3a1"\n  volume_id    = "vol-0123456789abcdef0"\n}\n\n# Simulated Cloud Infrastructure Graph\noutput "vpc_cidr_block" {\n  value = var.vpc_cidr\n}\n\noutput "security_group_ports" {\n  value = [22, 80, 443]\n}\n\noutput "compute_instance_id" {\n  value = locals.instance_id\n}\n\noutput "storage_volume_id" {\n  value = locals.volume_id\n}\n\noutput "infrastructure_status" {\n  value = "Provisioned: Network, Subnets, Security, Compute, Storage in ${var.environment}"\n}\nEOF',
-        expectedOutput: 'main.tf authored with complete resource chain and outputs.',
-        verificationCriteria: 'main.tf contains all required outputs.',
-        hints: ['Use outputs to expose critical resource attributes to CI/CD runners or users.'],
-        explanation: 'Outputs act as the public API of a Terraform configuration, returning IP addresses, endpoints, and resource IDs.',
-      },
-      {
-        id: 'task-3',
-        title: 'Initialize Workspace & Validate Infrastructure Syntax',
-        objective: 'Execute terraform init and terraform validate.',
-        commandSnippet: 'terraform init\nterraform validate',
-        expectedOutput: 'Success! The configuration is valid.',
-        verificationCriteria: 'terraform validate exits with code 0.',
-        hints: ['terraform validate checks for internal consistency and syntax errors before calling any cloud APIs.'],
-        explanation: 'Validation ensures variable references, resource types, and syntax obey the HCL specification.',
-      },
-      {
-        id: 'task-4',
-        title: 'Execute Terraform Plan & Apply Greenfield Infrastructure',
-        objective: 'Apply the configuration and verify outputs.',
-        commandSnippet: 'terraform apply -auto-approve',
-        expectedOutput: 'Apply complete! Resources: 0 added, 0 changed, 0 destroyed.\nOutputs:\ncompute_instance_id = "i-099a8b7c6d5e4f3a1"\n...',
-        verificationCriteria: 'terraform output infrastructure_status returns expected string.',
-        hints: ['-auto-approve is suitable for automated CI pipelines.'],
-        explanation: 'Terraform calculates the execution graph and provisions dependencies in topological order.',
-      },
+    "scenario": "Your platform engineering team has committed to deprecating manual cloud console provisioning (ClickOps). As the newest infrastructure engineer, you have been assigned to construct your team's first version-controlled Terraform configuration, provisioning an isolated web service environment from declarative code.",
+    "problemStatement": "Manual infrastructure provisioning creates undocumented configuration drift, cannot be peer-reviewed, and makes disaster recovery impossible. The team requires a standardized, version-controlled HCL codebase that can reliably provision infrastructure using automated execution commands.",
+    "projectObjective": [
+      "Initialize a clean Terraform workspace using terraform init",
+      "Declare required providers and provider configurations (kreuzwerker/docker or hashicorp/local)",
+      "Declare network and container/compute resources using declarative HCL blocks",
+      "Generate and inspect execution plans with terraform plan",
+      "Apply changes to real infrastructure with terraform apply and verify state creation"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A declarative HCL infrastructure definition provisioning a dedicated virtual bridge network and an Nginx container serving a custom HTML landing page.",
+      "diagram": "[Terraform Configuration (main.tf)]\n               │\n      (terraform apply)\n               │\n               ▼\n[Docker / Cloud Infrastructure]\n├── Docker Network: [custom_bridge (172.28.0.0/16)]\n└── Docker Container: [web_server (nginx:alpine)]\n    ├── Published Port: 8080:80\n    └── Attached to: custom_bridge"
+    },
+    "requirements": {
+      "functional": [
+        "Terraform must successfully provision the network and compute/container resources",
+        "Nginx web server must be accessible from host at http://localhost:8080",
+        "Running terraform apply again with no code changes must result in \"No changes. Infrastructure is up-to-date.\""
+      ],
+      "technical": [
+        "Write configuration in main.tf following HCL conventions",
+        "Specify terraform required_version \">= 1.5.0\"",
+        "Configure required_providers block pinning provider version"
+      ],
+      "security": [
+        "Add .gitignore blocking .terraform/ directory, *.tfstate, and *.tfstate.backup",
+        "Do not commit sensitive state files to public repositories"
+      ]
+    },
+    "architecture": {
+      "summary": "Declarative Infrastructure as Code architecture translating HCL configuration into real provider API calls via state-driven execution graphs.",
+      "diagram": "HCL Manifest (main.tf) ──> DAG Dependency Graph ──> Provider Plugin (Docker/AWS) ──> Real Infrastructure",
+      "components": [
+        {
+          "name": "HCL Resource Blocks",
+          "role": "Declarative definitions of desired infrastructure target state",
+          "technologies": [
+            "HCL2"
+          ]
+        },
+        {
+          "name": "Terraform State Engine",
+          "role": "State ledger (terraform.tfstate) mapping HCL identifiers to real resource IDs",
+          "technologies": [
+            "JSON State"
+          ]
+        },
+        {
+          "name": "Provider Plugin",
+          "role": "gRPC binary plugin executing API calls against destination platform",
+          "technologies": [
+            "Terraform Provider"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "Docker Desktop or Docker Engine on Linux",
+        "Text editor"
+      ],
+      "optional": [
+        "AWS CLI if deploying to cloud free-tier"
+      ],
+      "outOfScope": [
+        "Terraform Cloud Enterprise workspaces",
+        "Kubernetes Helm operators"
+      ]
+    },
+    "functionalRequirements": [
+      "Create main.tf configuring kreuzwerker/docker provider (or local file provider)",
+      "Declare docker_network resource named \"app_network\"",
+      "Declare docker_image resource pulling \"nginx:alpine\"",
+      "Declare docker_container resource running Nginx and publishing port 8080",
+      "Run terraform init, terraform plan, and terraform apply",
+      "Verify container response via curl -I http://localhost:8080",
+      "Run terraform destroy and confirm resources are cleanly removed"
+    ],
+    "technicalRequirements": [
+      "Format code using terraform fmt -check",
+      "Validate configuration syntax using terraform validate",
+      "Inspect generated state file with terraform show"
+    ],
+    "securityRequirements": [
+      "Ensure state file is excluded from Git tracking via .gitignore"
+    ],
+    "constraints": [
+      "Do not manually start or modify containers outside of Terraform",
+      "All resources must be managed strictly through HCL"
+    ],
+    "expectedOutcome": "A repeatable, version-controlled Infrastructure as Code baseline capable of provisioning and destroying infrastructure deterministically in under 30 seconds.",
+    "deliverables": [
+      "Complete main.tf configuration",
+      ".gitignore file blocking state files",
+      "TERRAFORM_BASELINE_REPORT.md detailing init, plan, apply, and destroy terminal logs"
+    ],
+    "suggestedProjectStructure": "basic-infrastructure/\n├── main.tf\n├── .gitignore\n├── README.md\n└── TERRAFORM_BASELINE_REPORT.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'Circular Dependency in Resource Graph',
-        symptom: 'terraform plan fails with: Cycle: aws_instance.web, aws_security_group.web.',
-        rootCause: 'Instance references security group ID while security group rule references instance IP.',
-        diagnosticCommand: 'terraform graph | dot -Tpng > graph.png',
-        fixCommand: 'Decouple rules using standalone aws_security_group_rule resources.',
-        verification: 'Cycle error resolves and plan executes cleanly.',
-        preventativeMeasures: 'Separate security group container definitions from dynamic security group rules.',
+        "name": "What is Infrastructure as Code?",
+        "lessonId": "ch-01",
+        "academyRoute": "/terraform"
       },
       {
-        id: 'fail-2',
-        title: 'Missing Required Variable Value',
-        symptom: 'Terraform pauses execution asking for input interactively in headless CI.',
-        rootCause: 'Variable has no default value and was not supplied via terraform.tfvars or -var.',
-        diagnosticCommand: 'grep -A 5 "variable" variables.tf',
-        fixCommand: 'Supply default value or provide TF_VAR_variable_name in environment.',
-        verification: 'terraform plan runs non-interactively.',
-        preventativeMeasures: 'Always provide sensible defaults or enforce mandatory variable definitions in .tfvars files.',
+        "name": "Terraform Architecture & Providers",
+        "lessonId": "ch-02",
+        "academyRoute": "/terraform"
       },
+      {
+        "name": "HCL Syntax & Resources",
+        "lessonId": "ch-03",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform State Management",
+        "lessonId": "ch-07",
+        "academyRoute": "/terraform"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'Terraform configuration validates cleanly with terraform validate', verificationCommand: 'terraform validate', points: 25 },
-      { id: 'v2', label: 'VPC CIDR and environment variables declared with type constraints', verificationCommand: 'grep -q "variable \\"vpc_cidr\\"" variables.tf', points: 25 },
-      { id: 'v3', label: 'All 5 layers provisioned (Network, Subnets, Security, Compute, Storage)', verificationCommand: 'terraform output infrastructure_status | grep -q "Provisioned: Network, Subnets, Security, Compute, Storage"', points: 25 },
-      { id: 'v4', label: 'Outputs expose instance ID, volume ID, and security group ports', verificationCommand: 'terraform output compute_instance_id', points: 25 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 01: Infrastructure as Code Fundamentals",
+          "route": "/cloudstack/terraform?concept=ch-01"
+        },
+        {
+          "title": "Chapter 03: HCL Syntax & Resources",
+          "route": "/cloudstack/terraform?concept=ch-03"
+        },
+        {
+          "title": "Chapter 07: Terraform State Core",
+          "route": "/cloudstack/terraform?concept=ch-07"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Terraform Language Documentation",
+          "url": "https://developer.hashicorp.com/terraform/language"
+        },
+        {
+          "title": "Docker Provider Documentation",
+          "url": "https://registry.terraform.io/providers/kreuzwerker/docker/latest/docs"
+        }
+      ],
+      "referenceMaterial": [
+        "Terraform: Up & Running Chapter 2 - Getting Started"
+      ],
+      "usefulCommands": [
+        "terraform init",
+        "terraform fmt",
+        "terraform validate",
+        "terraform plan",
+        "terraform apply -auto-approve",
+        "terraform show",
+        "terraform destroy"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Create the project directory and author a comprehensive .gitignore.",
+      "2. Author main.tf with the terraform block declaring required_providers.",
+      "3. Execute terraform init to download the provider plugin binary.",
+      "4. Declare the network resource in HCL.",
+      "5. Declare the image and container resources, referencing the network via interpolation.",
+      "6. Run terraform validate to ensure syntax is valid.",
+      "7. Execute terraform plan to review proposed resource creation.",
+      "8. Execute terraform apply to instantiate resources.",
+      "9. Verify the running container using curl and docker ps.",
+      "10. Execute terraform destroy to test clean teardown; author TERRAFORM_BASELINE_REPORT.md."
     ],
-    expectedOutcome:
-      'Greenfield cloud infrastructure provisioned completely from code: networking, subnets, firewall rules, compute, and encrypted storage with validated outputs.',
-    scoreMax: 100,
-    tags: ['terraform', 'iac', 'vpc', 'compute', 'storage', 'security-groups', 'hcl'],
+    "importantConsiderations": [
+      "Why is the terraform.tfstate file considered the source of truth for managed infrastructure?",
+      "What happens if a resource managed by Terraform is modified manually in the cloud console (drift)?",
+      "Why must provider versions always be pinned using ~> or = in production code?"
+    ],
+    "commonPitfalls": [
+      "Committing terraform.tfstate to public Git repositories, exposing sensitive IP addresses or credentials.",
+      "Modifying infrastructure directly in the cloud console, desynchronizing the state file.",
+      "Forgetting to run terraform init after adding new providers in main.tf."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add local-exec provisioner printing a completion message."
+      ],
+      "intermediate": [
+        "Create an index.html file and mount it into the container using host_path."
+      ],
+      "advanced": [
+        "Replace Docker provider with AWS VPC and EC2 resources using LocalStack."
+      ],
+      "expert": [
+        "Inspect the raw JSON graph representation using terraform graph | dot -Tpng."
+      ]
+    },
+    "completionChecklist": [
+      "Terraform workspace initialized with provider plugin installed",
+      "HCL configuration authored and formatted with terraform fmt",
+      "terraform validate confirms zero syntax errors",
+      "Resources created via terraform apply",
+      "Web service confirmed responsive at http://localhost:8080",
+      "terraform state show verifies resource registration",
+      "terraform destroy verifies clean resource removal",
+      "TERRAFORM_BASELINE_REPORT.md published"
+    ],
+    "objectives": [
+      "Initialize a clean Terraform workspace using terraform init",
+      "Declare required providers and provider configurations (kreuzwerker/docker or hashicorp/local)",
+      "Declare network and container/compute resources using declarative HCL blocks",
+      "Generate and inspect execution plans with terraform plan",
+      "Apply changes to real infrastructure with terraform apply and verify state creation"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Basic Infrastructure Provisioning",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Basic Infrastructure Provisioning\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create main.tf configuring kreuzwerker/docker provider (or local file provider)",
+        "objective": "Create main.tf configuring kreuzwerker/docker provider (or local file provider)",
+        "commandSnippet": "terraform init",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create main.tf configuring kreuzwerker/docker provider (or local file provider)"
+      },
+      {
+        "id": "task-2",
+        "title": "Declare docker_network resource named \"app_network\"",
+        "objective": "Declare docker_network resource named \"app_network\"",
+        "commandSnippet": "terraform fmt",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Declare docker_network resource named \"app_network\""
+      },
+      {
+        "id": "task-3",
+        "title": "Declare docker_image resource pulling \"nginx:alpine\"",
+        "objective": "Declare docker_image resource pulling \"nginx:alpine\"",
+        "commandSnippet": "terraform validate",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Declare docker_image resource pulling \"nginx:alpine\""
+      },
+      {
+        "id": "task-4",
+        "title": "Declare docker_container resource running Nginx and publishing port 8080",
+        "objective": "Declare docker_container resource running Nginx and publishing port 8080",
+        "commandSnippet": "terraform plan",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Declare docker_container resource running Nginx and publishing port 8080"
+      },
+      {
+        "id": "task-5",
+        "title": "Run terraform init, terraform plan, and terraform apply",
+        "objective": "Run terraform init, terraform plan, and terraform apply",
+        "commandSnippet": "terraform apply -auto-approve",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run terraform init, terraform plan, and terraform apply"
+      },
+      {
+        "id": "task-6",
+        "title": "Verify container response via curl -I http://localhost:8080",
+        "objective": "Verify container response via curl -I http://localhost:8080",
+        "commandSnippet": "terraform show",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify container response via curl -I http://localhost:8080"
+      },
+      {
+        "id": "task-7",
+        "title": "Run terraform destroy and confirm resources are cleanly removed",
+        "objective": "Run terraform destroy and confirm resources are cleanly removed",
+        "commandSnippet": "terraform destroy",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run terraform destroy and confirm resources are cleanly removed"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Committing terraform.tfstate to public Git repositories, exposing sensitive IP addresses or credentials.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Modifying infrastructure directly in the cloud console, desynchronizing the state file.",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Terraform workspace initialized with provider plugin installed",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "HCL configuration authored and formatted with terraform fmt",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "terraform validate confirms zero syntax errors",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Resources created via terraform apply",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Web service confirmed responsive at http://localhost:8080",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "terraform state show verifies resource registration",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "terraform destroy verifies clean resource removal",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "TERRAFORM_BASELINE_REPORT.md published",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'terraform-02',
-    code: 'TERRAFORM-02',
-    title: 'Modular Infrastructure',
-    academy: 'terraform',
-    difficulty: 'Intermediate',
-    estimatedTime: '75 mins',
-    overview:
-      'Refactor monolithic infrastructure into a composable, enterprise-standard modular architecture. You will construct 4 decoupled, reusable Terraform modules: 1) modules/network (VPC, subnets, routing, NAT), 2) modules/security (IAM roles, KMS keys, security groups), 3) modules/compute (auto-scaling groups, launch templates, load balancers), and 4) modules/database (RDS PostgreSQL with read replicas and subnet groups). You will connect modules via typed inputs and outputs, enforce module versioning, and deploy a complete production environment through a clean root composition manifest.',
-    objectives: [
-      'Design and build 4 reusable modules: modules/network, modules/security, modules/compute, modules/database.',
-      'Establish clean input/output boundaries adhering to the Unix philosophy of doing one thing well.',
-      'Pass outputs from network and security modules as inputs into compute and database modules.',
-      'Enforce module validation, variable documentation, and semantic versioning conventions.',
-      'Deploy the full composite architecture from a concise root main.tf manifest.',
-      'Verify that modules encapsulate internal implementation details while exposing essential attributes.',
+    "id": "terraform-02",
+    "code": "TERRAFORM-02",
+    "title": "Input Variables, Local Values and Structured Outputs",
+    "academy": "terraform",
+    "difficulty": "Beginner+",
+    "estimatedTime": "6-8 hours",
+    "technologies": [
+      "Input Variables (tfvars)",
+      "Output Values",
+      "Local Values (locals)",
+      "Type Constraints",
+      "Validation Rules"
     ],
-    requirements: [
-      'Terraform 1.5+ CLI.',
-      'Understanding of Terraform module mechanics (source, inputs, outputs, module references).',
-      'Knowledge of encapsulation, DRY (Don\'t Repeat Yourself), and separation of concerns.',
+    "overview": "Parametrize hardcoded infrastructure by implementing strongly-typed input variables, custom validation rules, local value transformations, and structured sensitive outputs.",
+    "tags": [
+      "terraform",
+      "variables",
+      "outputs",
+      "locals",
+      "type-constraints",
+      "validation"
     ],
-    startingState: {
-      description:
-        'A blank project ready for modular structure creation: modules/network, modules/security, modules/compute, modules/database.',
-      environment: 'Modular Terraform Architecture Sandbox',
-      startingFiles: {},
-    },
-    architecture: {
-      summary:
-        'Modular Architecture Topology: Root Composition -> modules/network -> modules/security -> modules/compute + modules/database.',
-      nodes: [
-        { id: 'root-compose', name: 'Root Composition (main.tf)', role: 'Module Orchestrator', description: 'Calls modules and wires module outputs to downstream module inputs.', technologies: ['Terraform Root'], status: 'active' },
-        { id: 'mod-network', name: 'modules/network', role: 'Networking Module', description: 'Provisions VPC, public/private subnets, and internet gateways.', technologies: ['VPC', 'Subnets'], status: 'healthy' },
-        { id: 'mod-security', name: 'modules/security', role: 'Security Module', description: 'Creates security groups and IAM instance profiles.', technologies: ['Security Groups', 'IAM'], status: 'healthy' },
-        { id: 'mod-compute', name: 'modules/compute', role: 'Compute Module', description: 'Launches application compute instances behind load balancer.', technologies: ['Compute', 'ASG'], status: 'healthy' },
-        { id: 'mod-database', name: 'modules/database', role: 'Persistence Module', description: 'Provisions relational database in isolated private subnets.', technologies: ['PostgreSQL', 'RDS'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Input Variables, Local Values and Structured Outputs",
+      "academy": "terraform",
+      "difficulty": "Beginner+",
+      "estimatedEffort": "6-8 hours",
+      "technologies": [
+        "Terraform Variables",
+        "Output Values",
+        "HCL Type Constraints",
+        "terraform.tfvars"
       ],
-      edges: [
-        { from: 'root-compose', to: 'mod-network', label: 'cidr_block = "10.0.0.0/16"' },
-        { from: 'root-compose', to: 'mod-security', label: 'vpc_id = module.network.vpc_id' },
-        { from: 'mod-network', to: 'mod-compute', label: 'subnet_ids = module.network.public_subnets' },
-        { from: 'mod-network', to: 'mod-database', label: 'subnet_ids = module.network.private_subnets' },
-      ],
-      flowDescription:
-        'Root main.tf calls 4 isolated modules -> network outputs passed to compute and database -> clean modular encapsulation.',
+      "shortDescription": "Transform static hardcoded Terraform code into a dynamic, parameterized configuration using type-enforced variables, computed locals, and structured outputs."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Create modules/network Module',
-        objective: 'Construct network module with inputs, outputs, and VPC declarations.',
-        commandSnippet: 'mkdir -p modules/network\ncat << \'EOF\' > modules/network/variables.tf\nvariable "vpc_cidr" { type = string; default = "10.0.0.0/16" }\nEOF\n\ncat << \'EOF\' > modules/network/main.tf\noutput "vpc_id" { value = "vpc-0987654321fedcba0" }\noutput "public_subnets" { value = ["subnet-1a", "subnet-1b"] }\noutput "private_subnets" { value = ["subnet-2a", "subnet-2b"] }\nEOF',
-        expectedOutput: 'modules/network created with VPC ID and subnet outputs.',
-        verificationCriteria: 'test -f modules/network/main.tf',
-        hints: ['Modules should expose only the minimal attributes required by callers.'],
-        explanation: 'Encapsulating network infrastructure inside a dedicated module allows networking teams to update routing without touching application code.',
-      },
-      {
-        id: 'task-2',
-        title: 'Create modules/security Module',
-        objective: 'Construct security module declaring firewalls and IAM roles.',
-        commandSnippet: 'mkdir -p modules/security\ncat << \'EOF\' > modules/security/variables.tf\nvariable "vpc_id" { type = string }\nEOF\n\ncat << \'EOF\' > modules/security/main.tf\noutput "app_security_group_id" { value = "sg-01a2b3c4d5e6f7" }\noutput "db_security_group_id" { value = "sg-99z8y7x6w5v4u3" }\nEOF',
-        expectedOutput: 'modules/security created with app and db security group outputs.',
-        verificationCriteria: 'test -f modules/security/main.tf',
-        hints: ['Notice that modules/security accepts vpc_id as a required input variable.'],
-        explanation: 'Isolating security rules ensures uniform firewall policies across all microservices.',
-      },
-      {
-        id: 'task-3',
-        title: 'Create modules/compute and modules/database Modules',
-        objective: 'Construct compute and database modules consuming network and security outputs.',
-        commandSnippet: 'mkdir -p modules/compute modules/database\ncat << \'EOF\' > modules/compute/variables.tf\nvariable "subnet_ids" { type = list(string) }\nvariable "security_group_id" { type = string }\nEOF\ncat << \'EOF\' > modules/compute/main.tf\noutput "load_balancer_dns" { value = "app-alb-12345.elb.amazonaws.com" }\nEOF\n\ncat << \'EOF\' > modules/database/variables.tf\nvariable "subnet_ids" { type = list(string) }\nvariable "security_group_id" { type = string }\nEOF\ncat << \'EOF\' > modules/database/main.tf\noutput "db_endpoint" { value = "db-postgres.internal:5432" }\nEOF',
-        expectedOutput: 'modules/compute and modules/database created.',
-        verificationCriteria: 'test -f modules/compute/main.tf && test -f modules/database/main.tf',
-        hints: ['Both compute and database consume subnet and security group IDs from the other modules.'],
-        explanation: 'Dependency injection via module arguments prevents hardcoding resource names.',
-      },
-      {
-        id: 'task-4',
-        title: 'Compose All Modules in Root main.tf & Deploy',
-        objective: 'Wire all 4 modules together in root main.tf and run terraform apply.',
-        commandSnippet: 'cat << \'EOF\' > main.tf\nmodule "network" {\n  source   = "./modules/network"\n  vpc_cidr = "10.0.0.0/16"\n}\n\nmodule "security" {\n  source = "./modules/security"\n  vpc_id = module.network.vpc_id\n}\n\nmodule "compute" {\n  source            = "./modules/compute"\n  subnet_ids        = module.network.public_subnets\n  security_group_id = module.security.app_security_group_id\n}\n\nmodule "database" {\n  source            = "./modules/database"\n  subnet_ids        = module.network.private_subnets\n  security_group_id = module.security.db_security_group_id\n}\n\noutput "app_url" {\n  value = module.compute.load_balancer_dns\n}\noutput "db_host" {\n  value = module.database.db_endpoint\n}\nEOF\nterraform init\nterraform apply -auto-approve',
-        expectedOutput: 'Apply complete! Resources: 0 added, 0 changed, 0 destroyed.\nOutputs:\napp_url = "app-alb-12345.elb.amazonaws.com"\ndb_host = "db-postgres.internal:5432"',
-        verificationCriteria: 'terraform output app_url returns load balancer DNS.',
-        hints: ['terraform init is mandatory after adding new module blocks.'],
-        explanation: 'The root manifest becomes an elegant composition file specifying high-level architecture without drowning in low-level details.',
-      },
+    "scenario": "Your team needs to deploy the same infrastructure across three different regions with varying server sizing and port configurations. Currently, engineers copy-paste the entire main.tf file and manually edit hardcoded values, leading to syntax errors and configuration drift. You must refactor the codebase to use input variables and outputs.",
+    "problemStatement": "Hardcoded infrastructure definitions cannot be reused across environments without duplicating code. Parameters like ports, instance counts, and environment tags must be externalized into variables with strict type constraints and validation rules.",
+    "projectObjective": [
+      "Separate configuration into main.tf, variables.tf, and outputs.tf",
+      "Define strongly-typed input variables (string, number, list, map, object) with sensible defaults and descriptions",
+      "Implement custom variable validation blocks enforcing naming and port range restrictions",
+      "Use local values (locals) to compute standardized resource tags and names",
+      "Expose structured output values (including sensitive values) for downstream consumption"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A modular, parameterized Terraform configuration driven by external variable files producing formatted output data.",
+      "diagram": "[Input Variables (variables.tf & terraform.tfvars)]\n├── app_port = 8080 (number, validation: 1024..65535)\n├── environment = \"staging\" (string, validation: dev|staging|prod)\n└── container_replicas = 2 (number)\n                 │\n                 ▼\n[Local Computations (locals.tf)]\n└── common_tags = { ManagedBy = \"Terraform\", Env = var.environment }\n                 │\n                 ▼ (terraform apply)\n[Provisioned Resources] ──> [Structured Outputs (outputs.tf)]\n                            ├── service_url = \"http://localhost:8080\"\n                            └── connection_string = (sensitive = true)"
+    },
+    "requirements": {
+      "functional": [
+        "Infrastructure parameters must be completely configurable via variables.tf and terraform.tfvars",
+        "Passing an invalid environment name (e.g. \"testing\") must fail immediately with a custom validation error",
+        "Outputs must display the active service URL upon apply completion"
+      ],
+      "technical": [
+        "Enforce variable types: type = string, type = number, type = map(string)",
+        "Implement validation { condition = ... error_message = ... } in variable definitions",
+        "Mark sensitive credentials with sensitive = true in outputs.tf"
+      ],
+      "security": [
+        "Verify sensitive outputs are masked by default in CLI output",
+        "Do not commit real production secret variables into public Git repos"
+      ]
+    },
+    "architecture": {
+      "summary": "Data flow architecture separating variable parameter ingress, local expression computation, resource interpolation, and output export.",
+      "diagram": "Variable Definitions ──> Local Transformations ──> Resource Interpolation (var.*, local.*) ──> Outputs",
+      "components": [
+        {
+          "name": "variables.tf",
+          "role": "Public API contract defining parameter types, defaults, and validation rules",
+          "technologies": [
+            "HCL Variables"
+          ]
+        },
+        {
+          "name": "locals.tf",
+          "role": "Internal computed expressions reducing DRY duplication",
+          "technologies": [
+            "HCL Locals"
+          ]
+        },
+        {
+          "name": "outputs.tf",
+          "role": "Exported return values providing endpoints and metadata to operators",
+          "technologies": [
+            "HCL Outputs"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "Docker or Local Provider"
+      ],
+      "optional": [
+        "tfvars files for multiple environments (dev.tfvars, prod.tfvars)"
+      ],
+      "outOfScope": [
+        "Complex remote state data source lookups"
+      ]
+    },
+    "functionalRequirements": [
+      "Define variable app_port with number type and validation ensuring port > 1024",
+      "Define variable environment with validation allowing only \"dev\", \"staging\", or \"prod\"",
+      "Compute local.name_prefix combining project name and environment",
+      "Define outputs: public_url, container_id, and database_password (marked sensitive)",
+      "Create dev.tfvars and prod.tfvars specifying distinct port numbers",
+      "Run terraform apply -var-file=dev.tfvars and inspect formatted outputs",
+      "Verify sensitive output masking: terraform output masks the password unless explicitly queried with -raw"
+    ],
+    "technicalRequirements": [
+      "Test variable validation: run with -var=\"environment=invalid\" and confirm error message triggers",
+      "Verify all outputs with terraform output -json"
+    ],
+    "securityRequirements": [
+      "Ensure terraform.tfvars containing real passwords is added to .gitignore"
+    ],
+    "constraints": [
+      "Zero hardcoded strings or numbers inside resource blocks in main.tf",
+      "All variables must include a description field"
+    ],
+    "expectedOutcome": "A fully parameterized, validated Terraform project capable of targeting multiple environments through external configuration files.",
+    "deliverables": [
+      "main.tf, variables.tf, locals.tf, and outputs.tf files",
+      "dev.tfvars and prod.tfvars parameter files",
+      ".env.example / terraform.tfvars.example",
+      "VARIABLE_DESIGN_SPEC.md detailing validation rules and output schema"
+    ],
+    "suggestedProjectStructure": "parameterized-infra/\n├── main.tf\n├── variables.tf\n├── locals.tf\n├── outputs.tf\n├── dev.tfvars\n├── prod.tfvars\n├── terraform.tfvars.example\n└── VARIABLE_DESIGN_SPEC.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'Module Not Found During Initialization',
-        symptom: 'terraform init fails: Unreadable module directory: source path not found.',
-        rootCause: 'Typo in source argument path (e.g. source = "modules/network" without ./).',
-        diagnosticCommand: 'ls -ld modules/network',
-        fixCommand: 'Use explicit relative path: source = "./modules/network".',
-        verification: 'terraform init installs module successfully.',
-        preventativeMeasures: 'Always prefix local module source paths with ./ or ../.',
+        "name": "Input Variables & Validation",
+        "lessonId": "ch-04",
+        "academyRoute": "/terraform"
       },
       {
-        id: 'fail-2',
-        title: 'Output Not Exposed from Child Module',
-        symptom: 'Error: Unsupported attribute: This object does not have an attribute named "vpc_id".',
-        rootCause: 'Child module did not declare output "vpc_id" in its outputs.',
-        diagnosticCommand: 'cat modules/network/main.tf',
-        fixCommand: 'Add output "vpc_id" { value = ... } to child module.',
-        verification: 'Root module can reference module.network.vpc_id.',
-        preventativeMeasures: 'Design module contracts with explicit public outputs before implementing child resources.',
+        "name": "Outputs & Data Flow",
+        "lessonId": "ch-05",
+        "academyRoute": "/terraform"
       },
+      {
+        "name": "Local Values & Expressions",
+        "lessonId": "ch-06",
+        "academyRoute": "/terraform"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'All 4 modules created in modules/ (network, security, compute, database)', verificationCommand: 'test -d modules/network && test -d modules/security && test -d modules/compute && test -d modules/database', points: 30 },
-      { id: 'v2', label: 'Root main.tf calls all 4 modules and wires inputs/outputs', verificationCommand: 'grep -q "module \\"network\\"" main.tf && grep -q "module \\"database\\"" main.tf', points: 35 },
-      { id: 'v3', label: 'Composite architecture initializes and applies cleanly', verificationCommand: 'terraform output app_url', points: 35 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 04: Input Variables & Types",
+          "route": "/cloudstack/terraform?concept=ch-04"
+        },
+        {
+          "title": "Chapter 05: Output Values & Data Flow",
+          "route": "/cloudstack/terraform?concept=ch-05"
+        },
+        {
+          "title": "Chapter 06: Local Values & Built-in Functions",
+          "route": "/cloudstack/terraform?concept=ch-06"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Terraform Input Variables",
+          "url": "https://developer.hashicorp.com/terraform/language/values/variables"
+        },
+        {
+          "title": "Custom Variable Validation",
+          "url": "https://developer.hashicorp.com/terraform/language/values/variables#custom-validation-rules"
+        }
+      ],
+      "referenceMaterial": [
+        "Terraform Best Practices - Structuring Variables"
+      ],
+      "usefulCommands": [
+        "terraform plan -var-file=dev.tfvars",
+        "terraform apply -var-file=dev.tfvars -auto-approve",
+        "terraform output",
+        "terraform output -raw database_password",
+        "terraform output -json"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Review existing hardcoded resource blocks and identify values that vary across environments.",
+      "2. Create variables.tf declaring input variables with type constraints and descriptions.",
+      "3. Add custom validation blocks to variables enforcing naming conventions and port boundaries.",
+      "4. Create locals.tf to calculate composite names and standardized tags.",
+      "5. Refactor main.tf to replace hardcoded values with var.<name> and local.<name>.",
+      "6. Create outputs.tf exporting critical endpoints, marking sensitive fields appropriately.",
+      "7. Create dev.tfvars and prod.tfvars files with environment-specific values.",
+      "8. Test invalid variable values and verify that custom error messages trigger properly.",
+      "9. Apply using -var-file=dev.tfvars and verify formatted output values.",
+      "10. Document all variables and outputs in VARIABLE_DESIGN_SPEC.md."
     ],
-    expectedOutcome:
-      'A modular, enterprise-standard Terraform architecture decomposing infrastructure into reusable, encapsulated modules wired through clean interfaces.',
-    scoreMax: 100,
-    tags: ['terraform', 'modules', 'dry', 'refactoring', 'encapsulation', 'reusability'],
+    "importantConsiderations": [
+      "How does the variable definition precedence hierarchy work in Terraform (CLI args > tfvars > env vars > defaults)?",
+      "Why is marking an output sensitive important if the value still exists in plaintext inside terraform.tfstate?",
+      "When should an engineer use local values instead of input variables?"
+    ],
+    "commonPitfalls": [
+      "Committing *.tfvars files containing production passwords to public version control.",
+      "Omitting type constraints, allowing unexpected data types to cause cryptic errors deep in provider calls.",
+      "Creating redundant local variables that simply mirror an input variable without adding logic."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Use built-in HCL functions like lower(), format(), and merge() inside locals."
+      ],
+      "intermediate": [
+        "Create an object variable with complex nested schema (e.g. database configuration map)."
+      ],
+      "advanced": [
+        "Implement cross-variable validation using preconditions inside resource lifecycle blocks."
+      ],
+      "expert": [
+        "Generate automated markdown documentation for all variables and outputs using terraform-docs."
+      ]
+    },
+    "completionChecklist": [
+      "Variables separated into variables.tf with strict types and descriptions",
+      "Custom validation blocks implemented and tested failing on invalid input",
+      "Locals computed in locals.tf and used in main.tf",
+      "Outputs defined in outputs.tf with sensitive fields protected",
+      "dev.tfvars and prod.tfvars files created and tested",
+      "terraform output outputs inspected in both human and JSON format",
+      "VARIABLE_DESIGN_SPEC.md published"
+    ],
+    "objectives": [
+      "Separate configuration into main.tf, variables.tf, and outputs.tf",
+      "Define strongly-typed input variables (string, number, list, map, object) with sensible defaults and descriptions",
+      "Implement custom variable validation blocks enforcing naming and port range restrictions",
+      "Use local values (locals) to compute standardized resource tags and names",
+      "Expose structured output values (including sensitive values) for downstream consumption"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Input Variables, Local Values and Structured Outputs",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Input Variables, Local Values and Structured Outputs\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Define variable app_port with number type and validation ensuring port > 1024",
+        "objective": "Define variable app_port with number type and validation ensuring port > 1024",
+        "commandSnippet": "terraform plan -var-file=dev.tfvars",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Define variable app_port with number type and validation ensuring port > 1024"
+      },
+      {
+        "id": "task-2",
+        "title": "Define variable environment with validation allowing only \"dev\", \"staging\", or \"prod\"",
+        "objective": "Define variable environment with validation allowing only \"dev\", \"staging\", or \"prod\"",
+        "commandSnippet": "terraform apply -var-file=dev.tfvars -auto-approve",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Define variable environment with validation allowing only \"dev\", \"staging\", or \"prod\""
+      },
+      {
+        "id": "task-3",
+        "title": "Compute local.name_prefix combining project name and environment",
+        "objective": "Compute local.name_prefix combining project name and environment",
+        "commandSnippet": "terraform output",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Compute local.name_prefix combining project name and environment"
+      },
+      {
+        "id": "task-4",
+        "title": "Define outputs: public_url, container_id, and database_password (marked sensitive)",
+        "objective": "Define outputs: public_url, container_id, and database_password (marked sensitive)",
+        "commandSnippet": "terraform output -raw database_password",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Define outputs: public_url, container_id, and database_password (marked sensitive)"
+      },
+      {
+        "id": "task-5",
+        "title": "Create dev.tfvars and prod.tfvars specifying distinct port numbers",
+        "objective": "Create dev.tfvars and prod.tfvars specifying distinct port numbers",
+        "commandSnippet": "terraform output -json",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create dev.tfvars and prod.tfvars specifying distinct port numbers"
+      },
+      {
+        "id": "task-6",
+        "title": "Run terraform apply -var-file=dev.tfvars and inspect formatted outputs",
+        "objective": "Run terraform apply -var-file=dev.tfvars and inspect formatted outputs",
+        "commandSnippet": "terraform plan -var-file=dev.tfvars",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run terraform apply -var-file=dev.tfvars and inspect formatted outputs"
+      },
+      {
+        "id": "task-7",
+        "title": "Verify sensitive output masking: terraform output masks the password unless explicitly queried with -raw",
+        "objective": "Verify sensitive output masking: terraform output masks the password unless explicitly queried with -raw",
+        "commandSnippet": "terraform apply -var-file=dev.tfvars -auto-approve",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify sensitive output masking: terraform output masks the password unless explicitly queried with -raw"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Committing *.tfvars files containing production passwords to public version control.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Omitting type constraints, allowing unexpected data types to cause cryptic errors deep in provider calls.",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Variables separated into variables.tf with strict types and descriptions",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-2",
+        "label": "Custom validation blocks implemented and tested failing on invalid input",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-3",
+        "label": "Locals computed in locals.tf and used in main.tf",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-4",
+        "label": "Outputs defined in outputs.tf with sensitive fields protected",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-5",
+        "label": "dev.tfvars and prod.tfvars files created and tested",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-6",
+        "label": "terraform output outputs inspected in both human and JSON format",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-7",
+        "label": "VARIABLE_DESIGN_SPEC.md published",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'terraform-03',
-    code: 'TERRAFORM-03',
-    title: 'Multi-Environment Infrastructure',
-    academy: 'terraform',
-    difficulty: 'Advanced',
-    estimatedTime: '90 mins',
-    overview:
-      'Design and implement a multi-environment deployment strategy across Development, Staging, and Production tiers using reusable Terraform code. You will configure environment-specific variable definitions (*.tfvars), implement dynamic resource sizing (t3.micro for dev vs c6g.2xlarge for prod), apply different networking rules (public access in dev vs private bastion in prod), configure multi-backend state separation (isolated state files per environment to prevent cross-environment blast radius), and enforce environment governance policies.',
-    objectives: [
-      'Architect a multi-environment Terraform structure supporting dev, staging, and prod.',
-      'Eliminate code duplication by driving environment variations through input variables.',
-      'Configure environment sizing matrices: smaller instances for dev, HA multi-AZ clusters for prod.',
-      'Isolate Terraform remote state files across environments (blast radius containment).',
-      'Deploy Development environment with dev.tfvars and inspect outputs.',
-      'Deploy Production environment with prod.tfvars and verify hardened security rules.',
+    "id": "terraform-03",
+    "code": "TERRAFORM-03",
+    "title": "Reusable Infrastructure with Loops and Conditionals",
+    "academy": "terraform",
+    "difficulty": "Lower Intermediate",
+    "estimatedTime": "8-10 hours",
+    "technologies": [
+      "count Meta-argument",
+      "for_each Meta-argument",
+      "for Expressions",
+      "Dynamic Blocks",
+      "Ternary Conditionals"
     ],
-    requirements: [
-      'Understanding of Terraform workspaces vs directory-based environment separation.',
-      'Knowledge of blast radius reduction in cloud infrastructure.',
-      'Familiarity with .tfvars variable definition files.',
+    "overview": "Construct dynamic, data-driven infrastructure configurations using Terraform meta-arguments (count, for_each), ternary conditionals, splat expressions (*), and dynamic nested blocks.",
+    "tags": [
+      "terraform",
+      "loops",
+      "for_each",
+      "count",
+      "dynamic-blocks",
+      "conditionals"
     ],
-    startingState: {
-      description:
-        'A reusable infrastructure codebase requiring environment parameterization for dev, staging, and prod.',
-      environment: 'Multi-Environment Cloud Architecture Host',
-      startingFiles: {},
-    },
-    architecture: {
-      summary:
-        'Multi-Environment Architecture: Shared Modules -> dev.tfvars (small, single-AZ) | staging.tfvars (medium, dual-AZ) | prod.tfvars (large, multi-AZ, KMS encrypted).',
-      nodes: [
-        { id: 'dev-env', name: 'Development Tier (dev)', role: 'Sandbox Environment', description: 't3.micro, single AZ, relaxed firewalls, low cost.', technologies: ['dev.tfvars', 't3.micro'], status: 'active' },
-        { id: 'staging-env', name: 'Staging Tier (staging)', role: 'Pre-Production QA', description: 't3.medium, dual AZ, identical topology to production.', technologies: ['staging.tfvars', 't3.medium'], status: 'healthy' },
-        { id: 'prod-env', name: 'Production Tier (prod)', role: 'Mission Critical', description: 'c6g.2xlarge, multi-AZ, KMS encryption, strict least-privilege.', technologies: ['prod.tfvars', 'c6g.2xlarge', 'KMS'], status: 'healthy' },
-        { id: 'state-store', name: 'Isolated State Files', role: 'Blast Radius Boundary', description: 'Separate state paths: envs/dev/terraform.tfstate vs envs/prod/terraform.tfstate.', technologies: ['S3', 'DynamoDB'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Reusable Infrastructure with Loops and Conditionals",
+      "academy": "terraform",
+      "difficulty": "Lower Intermediate",
+      "estimatedEffort": "8-10 hours",
+      "technologies": [
+        "for_each",
+        "count",
+        "Dynamic Blocks",
+        "Ternary Conditionals"
       ],
-      edges: [
-        { from: 'dev-env', to: 'state-store', label: 'writes dev state' },
-        { from: 'staging-env', to: 'state-store', label: 'writes staging state' },
-        { from: 'prod-env', to: 'state-store', label: 'writes prod state' },
-      ],
-      flowDescription:
-        'Single codebase parameterized by dev.tfvars, staging.tfvars, prod.tfvars. State files are strictly isolated to guarantee that a mistake in dev cannot impact prod.',
+      "shortDescription": "Build dynamic, scalable infrastructure using Terraform loops (for_each, count), conditional resource toggles, and dynamic block generation."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Define Environment Parameterization Variables',
-        objective: 'Write variables.tf supporting environment name, instance sizing, and replica counts.',
-        commandSnippet: 'cat << \'EOF\' > variables.tf\nvariable "environment" {\n  type        = string\n  description = "Target environment: dev, staging, or prod"\n}\n\nvariable "instance_type" {\n  type        = string\n  description = "Compute instance size"\n}\n\nvariable "replica_count" {\n  type        = number\n  description = "Number of application cluster replicas"\n}\n\nvariable "enable_multi_az" {\n  type        = bool\n  default     = false\n  description = "Enable Multi-AZ high availability"\n}\nEOF',
-        expectedOutput: 'variables.tf authored with environment-specific input variables.',
-        verificationCriteria: 'variables.tf contains variable "enable_multi_az".',
-        hints: ['Use boolean flags like enable_multi_az to toggle expensive cloud features in dev.'],
-        explanation: 'Parameterizing sizing and features enables teams to use the exact same tested code across all environments.',
-      },
-      {
-        id: 'task-2',
-        title: 'Author dev.tfvars, staging.tfvars, and prod.tfvars',
-        objective: 'Create distinct variable values files for development and production.',
-        commandSnippet: 'cat << \'EOF\' > dev.tfvars\nenvironment     = "dev"\ninstance_type   = "t3.micro"\nreplica_count   = 1\nenable_multi_az = false\nEOF\n\ncat << \'EOF\' > prod.tfvars\nenvironment     = "prod"\ninstance_type   = "c6g.2xlarge"\nreplica_count   = 6\nenable_multi_az = true\nEOF',
-        expectedOutput: 'dev.tfvars and prod.tfvars created with distinct specifications.',
-        verificationCriteria: 'test -f dev.tfvars && test -f prod.tfvars',
-        hints: ['Dev uses 1 replica on t3.micro; Prod uses 6 replicas on c6g.2xlarge with Multi-AZ.'],
-        explanation: 'Cost optimization requires down-sizing development infrastructure while keeping production resilient.',
-      },
-      {
-        id: 'task-3',
-        title: 'Author Multi-Environment Core main.tf',
-        objective: 'Construct main.tf dynamically generating outputs based on environment variables.',
-        commandSnippet: 'cat << \'EOF\' > main.tf\noutput "env_summary" {\n  value = "Environment: ${var.environment} | Sizing: ${var.instance_type} | Replicas: ${var.replica_count} | Multi-AZ: ${var.enable_multi_az}"\n}\nEOF\nterraform init',
-        expectedOutput: 'main.tf authored and initialized.',
-        verificationCriteria: 'test -f main.tf',
-        hints: ['Verify with terraform plan -var-file=dev.tfvars.'],
-        explanation: 'Dynamic configuration ensures zero hardcoded environment names in resource definitions.',
-      },
-      {
-        id: 'task-4',
-        title: 'Deploy and Validate Development Environment',
-        objective: 'Execute terraform plan and apply with dev.tfvars.',
-        commandSnippet: 'terraform apply -var-file=dev.tfvars -auto-approve',
-        expectedOutput: 'Apply complete!\nOutputs:\nenv_summary = "Environment: dev | Sizing: t3.micro | Replicas: 1 | Multi-AZ: false"',
-        verificationCriteria: 'terraform output env_summary contains "Environment: dev".',
-        hints: ['Notice that dev output confirms single-AZ t3.micro configuration.'],
-        explanation: 'Running terraform apply -var-file=dev.tfvars verifies the sandbox tier without risking production.',
-      },
-      {
-        id: 'task-5',
-        title: 'Simulate Production Deployment with prod.tfvars',
-        objective: 'Verify plan output for production tier using prod.tfvars.',
-        commandSnippet: 'terraform plan -var-file=prod.tfvars',
-        expectedOutput: 'Outputs:\n  ~ env_summary = "Environment: prod | Sizing: c6g.2xlarge | Replicas: 6 | Multi-AZ: true"',
-        verificationCriteria: 'Plan diff displays production sizing and multi-AZ enabled.',
-        hints: ['In real environments, dev and prod would use separate backend state configurations.'],
-        explanation: 'Verifying the plan ensures that production receives all high-availability settings.',
-      },
+    "scenario": "Your security team has requested firewall rules and storage buckets for 5 different microservices. Writing 5 identical resource blocks creates 150 lines of duplicate code that is difficult to maintain. You must refactor the codebase to use map-driven for_each loops, conditional resource toggles, and dynamic nested blocks.",
+    "problemStatement": "Copy-pasting resource blocks creates massive code duplication and maintenance nightmares. Infrastructure configurations must be data-driven: adding or removing a service should require only adding an entry to a map, not writing new resource blocks.",
+    "projectObjective": [
+      "Deploy multiple resources dynamically using the for_each meta-argument over maps and sets",
+      "Implement conditional resource creation using ternary operators (condition ? true_val : false_val)",
+      "Construct complex nested configurations using dynamic blocks and content blocks",
+      "Transform collections using for expressions and collect output lists using splat operators (*)"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A data-driven infrastructure configuration generating multiple isolated services from a single parameterized map with conditional monitoring features.",
+      "diagram": "[Input Map: var.services]\n├── \"auth\"    ──> { port = 8081, enable_monitoring = true }\n├── \"billing\" ──> { port = 8082, enable_monitoring = false }\n└── \"orders\"  ──> { port = 8083, enable_monitoring = true }\n                 │\n                 ▼ (for_each = var.services)\n[Generated Infrastructure Resources]\n├── Container: auth-service (Port 8081) ──> Monitoring Sidecar (ACTIVE)\n├── Container: billing-service (Port 8082) ──> (Monitoring SKIPPED via conditional)\n└── Container: orders-service (Port 8083) ──> Monitoring Sidecar (ACTIVE)"
+    },
+    "requirements": {
+      "functional": [
+        "Adding a new service entry to var.services must automatically provision a new container upon apply",
+        "Services with enable_monitoring = true must provision a companion monitoring sidecar; others must not",
+        "Outputs must produce a consolidated map mapping each service name to its assigned endpoint URL"
+      ],
+      "technical": [
+        "Use for_each over maps to ensure stable resource keys (avoid count index shifting)",
+        "Use ternary conditional count = var.enable_monitoring ? 1 : 0",
+        "Generate output map using for expression: { for k, v in ... => v.endpoint }"
+      ],
+      "security": [
+        "Ensure dynamic port allocations do not expose unapproved privileged ports"
+      ]
+    },
+    "architecture": {
+      "summary": "Data-driven resource compilation architecture converting input maps and sets into dynamic execution graph nodes with conditional inclusion branches.",
+      "diagram": "Map Definition ──> for_each Iterator ──> [Key-Addressable Resources] ──> for Expression Map Output",
+      "components": [
+        {
+          "name": "for_each Meta-argument",
+          "role": "Instantiates multiple resource instances identified by stable map keys",
+          "technologies": [
+            "HCL Engine"
+          ]
+        },
+        {
+          "name": "Ternary Conditional",
+          "role": "Selects values or enables/disables resources based on boolean evaluation",
+          "technologies": [
+            "HCL Expressions"
+          ]
+        },
+        {
+          "name": "dynamic block",
+          "role": "Generates repeated nested configuration blocks dynamically from collections",
+          "technologies": [
+            "HCL Dynamic Blocks"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "Docker or Cloud Provider"
+      ],
+      "optional": [
+        "LocalStack AWS provider"
+      ],
+      "outOfScope": [
+        "Full Terraform Registry module publishing"
+      ]
+    },
+    "functionalRequirements": [
+      "Define map variable services with 3 service definitions (name, port, enable_metrics)",
+      "Use for_each = var.services to create compute/container instances",
+      "Use conditional to launch metrics sidecar only when enable_metrics is true",
+      "Use dynamic block to generate custom environment variables or port bindings",
+      "Author output producing { for k, v in docker_container.app : k => \"http://localhost:${v.ports[0].external}\" }",
+      "Add a 4th service to the map and execute terraform apply to verify atomic addition"
+    ],
+    "technicalRequirements": [
+      "Demonstrate resource addressing: terraform state show 'docker_container.app[\"auth\"]'",
+      "Demonstrate safe removal: delete one service from map and verify only that single resource is destroyed"
+    ],
+    "securityRequirements": [
+      "Ensure sidecar containers run as unprivileged users"
+    ],
+    "constraints": [
+      "Do not use count for collections where items might be inserted or removed from the middle of the list (to avoid index shift cascade)",
+      "Do not hardcode duplicated resource blocks"
+    ],
+    "expectedOutcome": "A scalable, dry, data-driven Terraform configuration where services and nested blocks scale dynamically from configuration data structures.",
+    "deliverables": [
+      "Refactored main.tf utilizing for_each, conditionals, and dynamic blocks",
+      "variables.tf with map and object schema definitions",
+      "DATA_DRIVEN_INFRA_REPORT.md demonstrating dynamic additions, resource addressing, and safe deletions"
+    ],
+    "suggestedProjectStructure": "data-driven-infra/\n├── main.tf\n├── variables.tf\n├── outputs.tf\n├── services.tfvars\n└── DATA_DRIVEN_INFRA_REPORT.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'Accidental Mutation of Production from Dev Terminal',
-        symptom: 'Engineer ran terraform apply in wrong terminal, destroying prod.',
-        rootCause: 'Shared state file between development and production environments.',
-        diagnosticCommand: 'terraform workspace show',
-        fixCommand: 'Separate environments into independent directories (envs/dev/ vs envs/prod/) with distinct AWS accounts.',
-        verification: 'Dev credentials lack IAM permissions to modify production state.',
-        preventativeMeasures: 'Never share cloud accounts or state files between dev and prod.',
+        "name": "Meta-arguments: count & for_each",
+        "lessonId": "ch-03",
+        "academyRoute": "/terraform"
       },
       {
-        id: 'fail-2',
-        title: 'Missing Variable in Environment tfvars',
-        symptom: 'terraform apply fails: No value for required variable "replica_count".',
-        rootCause: 'A newly introduced variable was added to prod.tfvars but omitted from dev.tfvars.',
-        diagnosticCommand: 'terraform plan -var-file=dev.tfvars',
-        fixCommand: 'Add the missing variable to dev.tfvars or define a default in variables.tf.',
-        verification: 'Plan runs cleanly for all environments.',
-        preventativeMeasures: 'Run automated CI matrix checks running terraform validate across all *.tfvars files.',
+        "name": "HCL Functions & Expressions",
+        "lessonId": "ch-06",
+        "academyRoute": "/terraform"
       },
+      {
+        "name": "Dynamic Blocks",
+        "lessonId": "ch-06",
+        "academyRoute": "/terraform"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'variables.tf parameterizes environment, sizing, replicas, and multi-AZ', verificationCommand: 'grep -q "variable \\"environment\\"" variables.tf && grep -q "variable \\"instance_type\\"" variables.tf', points: 30 },
-      { id: 'v2', label: 'Distinct dev.tfvars and prod.tfvars files created with tailored specs', verificationCommand: 'grep -q "t3.micro" dev.tfvars && grep -q "c6g.2xlarge" prod.tfvars', points: 35 },
-      { id: 'v3', label: 'Environment deployments validated with isolated outputs', verificationCommand: 'terraform output env_summary', points: 35 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 03: Meta-arguments (for_each & count)",
+          "route": "/cloudstack/terraform?concept=ch-03"
+        },
+        {
+          "title": "Chapter 06: Built-in Functions & Expressions",
+          "route": "/cloudstack/terraform?concept=ch-06"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "The for_each Meta-Argument",
+          "url": "https://developer.hashicorp.com/terraform/language/meta-arguments/for_each"
+        },
+        {
+          "title": "Dynamic Blocks",
+          "url": "https://developer.hashicorp.com/terraform/language/expressions/dynamic-blocks"
+        }
+      ],
+      "referenceMaterial": [
+        "HashiCorp Guide: When to Use count vs for_each"
+      ],
+      "usefulCommands": [
+        "terraform plan -var-file=services.tfvars",
+        "terraform state list",
+        "terraform state show 'docker_container.service[\"auth\"]'"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Design the map schema representing the services and their configuration options.",
+      "2. Define the services variable with map(object({...})) type constraints.",
+      "3. Refactor main resource blocks to use for_each = var.services.",
+      "4. Implement conditional logic to create monitoring sidecars only when requested.",
+      "5. Implement a dynamic block to construct repeated environment variable lists.",
+      "6. Create outputs using for expressions to compile a consolidated endpoint directory.",
+      "7. Execute terraform apply and verify all services instantiate properly.",
+      "8. Inspect the state list to observe key-addressable resource syntax (resource[\"key\"]).",
+      "9. Add a new service to the map and verify Terraform only adds 1 resource without modifying existing ones.",
+      "10. Author DATA_DRIVEN_INFRA_REPORT.md."
     ],
-    expectedOutcome:
-      'A scalable multi-environment Terraform delivery structure deploying tailored configurations across Dev, Staging, and Production with zero code duplication and state blast-radius isolation.',
-    scoreMax: 100,
-    tags: ['terraform', 'multi-environment', 'tfvars', 'dev-staging-prod', 'sizing-matrix', 'state-isolation'],
+    "importantConsiderations": [
+      "Why does using count with a list cause destructive recreation when an item is removed from the middle of the list?",
+      "How does for_each solve the index-shifting problem by indexing resources by stable map keys?",
+      "When are dynamic blocks appropriate, and why should they be used sparingly to avoid unreadable code?"
+    ],
+    "commonPitfalls": [
+      "Using for_each with a list of strings without converting to a set using toset().",
+      "Attempting to use for_each on a resource whose keys are only known after apply (computed values).",
+      "Over-complicating configurations with deeply nested dynamic blocks that resemble imperative code."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Use the coalesce() function to provide fallback values."
+      ],
+      "intermediate": [
+        "Create a local value that filters the service map to only active services using for expressions."
+      ],
+      "advanced": [
+        "Implement complex validation checking that all service ports are mutually unique."
+      ],
+      "expert": [
+        "Construct a multi-tier dynamic block generating complex firewall rule sets."
+      ]
+    },
+    "completionChecklist": [
+      "Map variable defined with strongly typed object structure",
+      "for_each implemented creating key-addressable resources",
+      "Ternary conditional creates sidecars only for enabled services",
+      "dynamic block generates repeated nested configurations cleanly",
+      "Consolidated output map generated using HCL for expression",
+      "Resource addition and removal verified without index shifting",
+      "DATA_DRIVEN_INFRA_REPORT.md published"
+    ],
+    "objectives": [
+      "Deploy multiple resources dynamically using the for_each meta-argument over maps and sets",
+      "Implement conditional resource creation using ternary operators (condition ? true_val : false_val)",
+      "Construct complex nested configurations using dynamic blocks and content blocks",
+      "Transform collections using for expressions and collect output lists using splat operators (*)"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Reusable Infrastructure with Loops and Conditionals",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Reusable Infrastructure with Loops and Conditionals\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Define map variable services with 3 service definitions (name, port, enable_metrics)",
+        "objective": "Define map variable services with 3 service definitions (name, port, enable_metrics)",
+        "commandSnippet": "terraform plan -var-file=services.tfvars",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Define map variable services with 3 service definitions (name, port, enable_metrics)"
+      },
+      {
+        "id": "task-2",
+        "title": "Use for_each = var.services to create compute/container instances",
+        "objective": "Use for_each = var.services to create compute/container instances",
+        "commandSnippet": "terraform state list",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Use for_each = var.services to create compute/container instances"
+      },
+      {
+        "id": "task-3",
+        "title": "Use conditional to launch metrics sidecar only when enable_metrics is true",
+        "objective": "Use conditional to launch metrics sidecar only when enable_metrics is true",
+        "commandSnippet": "terraform state show 'docker_container.service[\"auth\"]'",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Use conditional to launch metrics sidecar only when enable_metrics is true"
+      },
+      {
+        "id": "task-4",
+        "title": "Use dynamic block to generate custom environment variables or port bindings",
+        "objective": "Use dynamic block to generate custom environment variables or port bindings",
+        "commandSnippet": "terraform plan -var-file=services.tfvars",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Use dynamic block to generate custom environment variables or port bindings"
+      },
+      {
+        "id": "task-5",
+        "title": "Author output producing { for k, v in docker_container.app : k => \"http://localhost:${v.ports[0].external}\" }",
+        "objective": "Author output producing { for k, v in docker_container.app : k => \"http://localhost:${v.ports[0].external}\" }",
+        "commandSnippet": "terraform state list",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Author output producing { for k, v in docker_container.app : k => \"http://localhost:${v.ports[0].external}\" }"
+      },
+      {
+        "id": "task-6",
+        "title": "Add a 4th service to the map and execute terraform apply to verify atomic addition",
+        "objective": "Add a 4th service to the map and execute terraform apply to verify atomic addition",
+        "commandSnippet": "terraform state show 'docker_container.service[\"auth\"]'",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Add a 4th service to the map and execute terraform apply to verify atomic addition"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Using for_each with a list of strings without converting to a set using toset().",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Attempting to use for_each on a resource whose keys are only known after apply (computed values).",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Map variable defined with strongly typed object structure",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-2",
+        "label": "for_each implemented creating key-addressable resources",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-3",
+        "label": "Ternary conditional creates sidecars only for enabled services",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-4",
+        "label": "dynamic block generates repeated nested configurations cleanly",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-5",
+        "label": "Consolidated output map generated using HCL for expression",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-6",
+        "label": "Resource addition and removal verified without index shifting",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-7",
+        "label": "DATA_DRIVEN_INFRA_REPORT.md published",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'terraform-04',
-    code: 'TERRAFORM-04',
-    title: 'Terraform State Recovery',
-    academy: 'terraform',
-    difficulty: 'Production',
-    estimatedTime: '90 mins',
-    overview:
-      'Resolve real-world catastrophic Terraform state emergencies. You will diagnose and remediate 7 critical state corruption scenarios: 1) State drift detection when manual out-of-band changes alter cloud resources, 2) Importing existing untracked cloud resources into state with terraform import, 3) Modifying state safely using terraform state rm and terraform state mv, 4) State migration between local and remote backends, 5) Unlocking a deadlocked state file with terraform force-unlock, 6) Recovering corrupted or deleted state from backup, and 7) Forcing resource recreation using terraform apply -replace.',
-    objectives: [
-      'Detect and reconcile cloud infrastructure drift using terraform plan -refresh-only.',
-      'Import untracked existing cloud resources into Terraform state using terraform import.',
-      'Rename and relocate resource addresses without destroying resources using terraform state mv.',
-      'Remove resources from Terraform management without destroying physical cloud infrastructure using terraform state rm.',
-      'Resolve stalled state locks using terraform force-unlock <LOCK-ID>.',
-      'Recover state after accidental deletion from terraform.tfstate.backup.',
-      'Force targeted resource recreation using terraform apply -replace (tainting).',
+    "id": "terraform-04",
+    "code": "TERRAFORM-04",
+    "title": "Modular Infrastructure Architecture & Custom Modules",
+    "academy": "terraform",
+    "difficulty": "Intermediate",
+    "estimatedTime": "8-12 hours",
+    "technologies": [
+      "Terraform Modules",
+      "Module Inputs / Outputs",
+      "Root Module vs Child Module",
+      "Local Modules",
+      "Module Versioning"
     ],
-    requirements: [
-      'Deep understanding of Terraform state architecture (terraform.tfstate schema).',
-      'Proficiency with terraform state subcommands (list, show, mv, rm, pull, push).',
-      'Knowledge of state locking mechanics and concurrency safety.',
+    "overview": "Design, package, and consume reusable, encapsulated Terraform child modules, establishing clean architectural interfaces, input abstractions, output propagation, and module versioning.",
+    "tags": [
+      "terraform",
+      "modules",
+      "encapsulation",
+      "reusability",
+      "child-modules",
+      "architecture"
     ],
-    startingState: {
-      description:
-        'A project with state drift, an untracked resource in the cloud, a stalled state lock, and a misplaced resource address.',
-      environment: 'Terraform State Surgery Laboratory',
-      startingFiles: {
-        'main.tf': 'terraform {\n  required_version = ">= 1.5.0"\n}\n\nlocals {\n  cluster_name = "primary-cluster"\n}\n\noutput "cluster" {\n  value = locals.cluster_name\n}',
-      },
-    },
-    architecture: {
-      summary:
-        'Terraform State Surgery Lifecycle: Drift Detection -> Import Existing Cloud Resources -> State Relocation (mv) -> Lock Recovery (force-unlock) -> Backup Restoration.',
-      nodes: [
-        { id: 'cloud-reality', name: 'Cloud Provider Reality', role: 'Physical Infrastructure', description: 'Actual running cloud resources (VMs, VPCs, Databases).', technologies: ['Cloud API'], status: 'active' },
-        { id: 'tf-state', name: 'terraform.tfstate', role: 'Source of Truth Mapping', description: 'JSON database mapping HCL code declarations to physical cloud IDs.', technologies: ['State JSON', 'Lock ID'], status: 'degraded' },
-        { id: 'code-hcl', name: 'main.tf Configuration', role: 'Declarative Code', description: 'Git-controlled desired infrastructure state.', technologies: ['HCL'], status: 'healthy' },
-        { id: 'state-backup', name: 'terraform.tfstate.backup', role: 'Disaster Backup', description: 'Previous immutable state snapshot saved before the last mutation.', technologies: ['State Backup'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Modular Infrastructure Architecture & Custom Modules",
+      "academy": "terraform",
+      "difficulty": "Intermediate",
+      "estimatedEffort": "8-12 hours",
+      "technologies": [
+        "Terraform Modules",
+        "Root Module",
+        "Child Modules",
+        "Module Composition"
       ],
-      edges: [
-        { from: 'cloud-reality', to: 'tf-state', label: 'terraform refresh' },
-        { from: 'code-hcl', to: 'tf-state', label: 'terraform plan (diff)' },
-        { from: 'state-backup', to: 'tf-state', label: 'disaster recovery restore' },
-      ],
-      flowDescription:
-        'Identify drift -> terraform import untracked resource -> terraform state mv to rename address -> force-unlock stalled lock -> restore from backup if corrupted.',
+      "shortDescription": "Architect and deploy encapsulated, reusable Terraform child modules with public input contracts, private implementations, and exported outputs."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Detect Out-of-Band State Drift with refresh-only',
-        objective: 'Run refresh-only plan to detect drift between real cloud resources and state.',
-        commandSnippet: 'terraform init\nterraform plan -refresh-only',
-        expectedOutput: 'No changes. Infrastructure matches the configuration.',
-        verificationCriteria: 'refresh-only executes cleanly.',
-        hints: ['terraform plan -refresh-only checks the cloud provider APIs without proposing code changes.'],
-        explanation: 'Drift occurs when humans modify resources directly in the cloud console without updating Terraform code.',
-      },
-      {
-        id: 'task-2',
-        title: 'Simulate Importing an Untracked Cloud Resource',
-        objective: 'Add code block and import existing cloud resource into state.',
-        commandSnippet: 'cat << \'EOF\' >> main.tf\n# Imported Resource representation\noutput "imported_bucket" {\n  value = "arn:aws:s3:::corporate-compliance-vault-2026"\n}\nEOF\nterraform apply -auto-approve',
-        expectedOutput: 'Apply complete!\nOutputs:\nimported_bucket = "arn:aws:s3:::corporate-compliance-vault-2026"',
-        verificationCriteria: 'terraform output imported_bucket returns S3 ARN.',
-        hints: ['terraform import <resource.name> <cloud-id> brings unmanaged resources into state tracking.'],
-        explanation: 'Importing allows organizations to adopt legacy cloud infrastructure into Terraform without recreating resources.',
-      },
-      {
-        id: 'task-3',
-        title: 'Refactor Resource Address with terraform state mv',
-        objective: 'Demonstrate zero-downtime resource refactoring without recreation.',
-        commandSnippet: 'echo "Executing simulated state address refactoring..."\necho "terraform state mv module.old_web.aws_instance.server module.new_web.aws_instance.server"\necho "Successfully moved 1 object(s)."',
-        expectedOutput: 'Successfully moved 1 object(s).',
-        verificationCriteria: 'State refactoring logic completes successfully.',
-        hints: ['Never delete and re-add resources in code when renaming; use terraform state mv to update state addresses.'],
-        explanation: 'If you rename a resource in code without state mv, Terraform will destroy the existing resource and create a new one.',
-      },
-      {
-        id: 'task-4',
-        title: 'Safely Unlink Resource from State with terraform state rm',
-        objective: 'Remove a resource from Terraform management without destroying the cloud resource.',
-        commandSnippet: 'echo "Executing simulated state unlinking..."\necho "terraform state rm aws_security_group.legacy_firewall"\necho "Removed 1 resource(s) from state. Physical cloud resource untouched."',
-        expectedOutput: 'Removed 1 resource(s) from state.',
-        verificationCriteria: 'Simulated state rm executes.',
-        hints: ['state rm deletes the mapping in terraform.tfstate so Terraform forgets about the resource.'],
-        explanation: 'state rm is critical when migrating resources to another Terraform project or retiring Terraform management safely.',
-      },
-      {
-        id: 'task-5',
-        title: 'Simulate Stalled State Lock Removal (force-unlock)',
-        objective: 'Resolve a stalled lock using simulated force-unlock.',
-        commandSnippet: 'LOCK_ID="d8f2a1b9-3c4e-5f6a-7b8c-9d0e1f2a3b4c"\necho "Forcibly unlocking stalled state lock: $LOCK_ID"\necho "terraform force-unlock -force $LOCK_ID"\necho "Lock successfully released. State available for modification."',
-        expectedOutput: 'Lock successfully released. State available for modification.',
-        verificationCriteria: 'Force-unlock simulation succeeds.',
-        hints: ['Always confirm no other engineer or CI pipeline is currently running apply before force-unlocking.'],
-        explanation: 'State locking prevents two concurrent applies from corrupting the state file.',
-      },
+    "scenario": "Your organization has 12 development squads. Each squad is writing their own raw Terraform code to deploy web applications and databases, leading to wildly inconsistent architectures, unapproved firewall configurations, and massive duplication. You have been tasked with building standardized, reusable Terraform child modules.",
+    "problemStatement": "Writing all infrastructure in a monolithic root module makes code unmaintainable and prevents reuse across teams. Platform engineering requires building encapsulated, standardized modules (e.g. web-app module) that application teams can instantiate with 5 lines of code.",
+    "projectObjective": [
+      "Design and construct a reusable child module (modules/containerized-service/)",
+      "Expose a minimal, clean public interface via module variables (variables.tf)",
+      "Encapsulate complex internal resources (networking, volumes, security tags, healthchecks)",
+      "Instantiate the module multiple times from a root module with different configurations",
+      "Propagate internal child module resource attributes through module outputs"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "A modular Terraform codebase where a root module instantiates two distinct environments using an encapsulated child module.",
+      "diagram": "Root Module (main.tf)\n├── module \"frontend\" ──> Source: ./modules/containerized-service\n│   ├── image = \"nginx:alpine\"\n│   └── host_port = 8080\n│\n└── module \"api\" ──> Source: ./modules/containerized-service\n    ├── image = \"node-api:latest\"\n    └── host_port = 3000\n                 │\n                 ▼\n[Encapsulated Child Module (modules/containerized-service/)]\n├── Creates Docker Network\n├── Provisions Container with Hardened Non-Root User\n├── Configures Named Storage Volume\n└── Exports: service_endpoint, container_id"
+    },
+    "requirements": {
+      "functional": [
+        "Root module must instantiate frontend and api services using the same child module",
+        "Both services must run independently with isolated ports and network attachments",
+        "Modifying child module internal implementation must update both services without changing root module inputs"
+      ],
+      "technical": [
+        "Organize child module with dedicated main.tf, variables.tf, and outputs.tf in modules/ directory",
+        "Root module must reference child via source = \"./modules/containerized-service\"",
+        "Execute terraform get or terraform init to load modules"
+      ],
+      "security": [
+        "Child module must enforce default security guardrails (non-root execution, dropped capabilities) that consumers cannot easily bypass"
+      ]
+    },
+    "architecture": {
+      "summary": "Hierarchical module composition architecture separating high-level orchestration (root module) from low-level resource provisioning (child modules).",
+      "diagram": "Root Module Orchestrator ──(Inputs)──> Child Module Abstraction ──(State & Resources)──> Providers",
+      "components": [
+        {
+          "name": "Root Module",
+          "role": "Top-level working directory defining environment targets and module calls",
+          "technologies": [
+            "Terraform Root"
+          ]
+        },
+        {
+          "name": "Child Module",
+          "role": "Reusable, self-contained package of infrastructure resources",
+          "technologies": [
+            "Terraform Child Module"
+          ]
+        },
+        {
+          "name": "Module Output Channel",
+          "role": "Cross-module data pipeline exposing internal resource IDs to root callers",
+          "technologies": [
+            "Module Outputs"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "Docker or Cloud Provider"
+      ],
+      "optional": [
+        "terraform-docs for generating automated module documentation"
+      ],
+      "outOfScope": [
+        "Private Terraform Cloud Module Registry"
+      ]
+    },
+    "functionalRequirements": [
+      "Create child module in modules/containerized-service/",
+      "Child module defines: docker_image, docker_container, and optional docker_volume",
+      "Child module exposes inputs: service_name, image_name, container_port, host_port, environment",
+      "Child module outputs: container_id, network_ip, and public_url",
+      "In root main.tf, instantiate module \"web\" and module \"api\"",
+      "Run terraform init, terraform plan, and terraform apply",
+      "Verify both services function simultaneously on their respective ports"
+    ],
+    "technicalRequirements": [
+      "Verify module state addressing: terraform state list shows module.web.* and module.api.*",
+      "Generate README.md for the child module using terraform-docs or manual markdown"
+    ],
+    "securityRequirements": [
+      "Ensure child module validates port inputs and sets standard security tags"
+    ],
+    "constraints": [
+      "Never define provider blocks inside reusable child modules (providers must be configured in root)",
+      "Do not reference root variables directly from child modules (must be passed explicitly as inputs)"
+    ],
+    "expectedOutcome": "A standardized, modular Terraform codebase establishing DRY reusability, consistent infrastructure standards, and encapsulated complexity.",
+    "deliverables": [
+      "Child module: modules/containerized-service/{main.tf, variables.tf, outputs.tf, README.md}",
+      "Root module: {main.tf, variables.tf, outputs.tf}",
+      "MODULE_ARCHITECTURE_GUIDE.md detailing module design principles and interface specifications"
+    ],
+    "suggestedProjectStructure": "modular-platform/\n├── main.tf (Root)\n├── variables.tf (Root)\n├── outputs.tf (Root)\n├── modules/\n│   └── containerized-service/\n│       ├── main.tf\n│       ├── variables.tf\n│       ├── outputs.tf\n│       └── README.md\n└── MODULE_ARCHITECTURE_GUIDE.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'State File Completely Corrupted (JSON Syntax Error)',
-        symptom: 'terraform plan fails: Error loading state: json: cannot unmarshal string into Go value.',
-        rootCause: 'Interrupted write or improper manual edit corrupted terraform.tfstate.',
-        diagnosticCommand: 'jq . terraform.tfstate',
-        fixCommand: 'Restore from previous backup: cp terraform.tfstate.backup terraform.tfstate.',
-        verification: 'terraform plan runs without JSON errors.',
-        preventativeMeasures: 'Never manually edit terraform.tfstate in text editors; use terraform state subcommands.',
+        "name": "Terraform Modules & Composition",
+        "lessonId": "ch-08",
+        "academyRoute": "/terraform"
       },
       {
-        id: 'fail-2',
-        title: 'Accidental State Deletion in Remote S3 Bucket',
-        symptom: 'Terraform plan attempts to recreate all 400 existing production resources.',
-        rootCause: 'State file was deleted or pointed to wrong S3 key path.',
-        diagnosticCommand: 'terraform state list',
-        fixCommand: 'Enable S3 Versioning on state bucket and restore the previous version.',
-        verification: 'terraform state list displays all existing resources.',
-        preventativeMeasures: 'Mandate S3 Object Versioning and MFA Delete on all Terraform state storage buckets.',
+        "name": "Module Sources & Versioning",
+        "lessonId": "ch-09",
+        "academyRoute": "/terraform"
       },
+      {
+        "name": "HCL Syntax & Resources",
+        "lessonId": "ch-03",
+        "academyRoute": "/terraform"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'State drift detection executed via refresh-only', verificationCommand: 'terraform plan -refresh-only', points: 25 },
-      { id: 'v2', label: 'Resource imported into state tracking successfully', verificationCommand: 'terraform output imported_bucket', points: 25 },
-      { id: 'v3', label: 'Resource address refactored via state mv without recreation', verificationCommand: 'test -f main.tf', points: 25 },
-      { id: 'v4', label: 'Stalled state lock recovery procedure verified', verificationCommand: 'terraform validate', points: 25 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 08: Modules & Code Composition",
+          "route": "/cloudstack/terraform?concept=ch-08"
+        },
+        {
+          "title": "Chapter 09: Module Sources & Registry",
+          "route": "/cloudstack/terraform?concept=ch-09"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Terraform Modules Overview",
+          "url": "https://developer.hashicorp.com/terraform/language/modules"
+        },
+        {
+          "title": "Module Creation Best Practices",
+          "url": "https://developer.hashicorp.com/terraform/language/modules/develop"
+        }
+      ],
+      "referenceMaterial": [
+        "HashiCorp Terraform Standard Module Structure"
+      ],
+      "usefulCommands": [
+        "terraform init",
+        "terraform get -update",
+        "terraform plan",
+        "terraform state list"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Identify common infrastructure patterns suitable for module extraction.",
+      "2. Create the child module directory structure in modules/containerized-service/.",
+      "3. Define the public input interface in modules/containerized-service/variables.tf.",
+      "4. Author resource blocks in modules/containerized-service/main.tf.",
+      "5. Define exported outputs in modules/containerized-service/outputs.tf.",
+      "6. In root main.tf, instantiate the child module for the frontend web service.",
+      "7. In root main.tf, instantiate the child module for the backend API service.",
+      "8. Run terraform init to register the local module sources.",
+      "9. Execute terraform apply and verify both module instances provision correctly.",
+      "10. Author MODULE_ARCHITECTURE_GUIDE.md detailing module design standards."
     ],
-    expectedOutcome:
-      'Mastery of Terraform state surgery: resolving drift, importing existing resources, moving resource addresses, safely unlinking resources, releasing deadlocked state files, and restoring from backup.',
-    scoreMax: 100,
-    tags: ['terraform', 'state-recovery', 'state-mv', 'state-rm', 'force-unlock', 'drift-detection', 'import'],
+    "importantConsiderations": [
+      "Why should provider blocks NEVER be declared inside reusable child modules?",
+      "How does module encapsulation enforce architectural standards across multiple engineering teams?",
+      "What is the difference between a local file module source (./modules/...) and a Git-based module source?"
+    ],
+    "commonPitfalls": [
+      "Defining provider configurations inside child modules, breaking module reusability and inheritance.",
+      "Creating overly generic \"monolithic modules\" with hundreds of variables that defeat the purpose of abstraction.",
+      "Forgetting to run terraform get or terraform init after adding a new module block."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add count or for_each to a module block to deploy multiple module instances from a list."
+      ],
+      "intermediate": [
+        "Publish the module to a private Git repository and reference it via Git tag version (source = \"git::...\")."
+      ],
+      "advanced": [
+        "Implement custom pre-condition and post-condition checks inside the module."
+      ],
+      "expert": [
+        "Write automated integration tests for the module using the native terraform test framework."
+      ]
+    },
+    "completionChecklist": [
+      "Child module created adhering to standard module directory structure",
+      "Child module variables.tf and outputs.tf defined with types and descriptions",
+      "Zero provider blocks inside child module verified",
+      "Root module instantiates child module multiple times",
+      "terraform init successfully registers module sources",
+      "terraform apply provisions both module instances cleanly",
+      "terraform state list confirms module.web and module.api addressing",
+      "MODULE_ARCHITECTURE_GUIDE.md published"
+    ],
+    "objectives": [
+      "Design and construct a reusable child module (modules/containerized-service/)",
+      "Expose a minimal, clean public interface via module variables (variables.tf)",
+      "Encapsulate complex internal resources (networking, volumes, security tags, healthchecks)",
+      "Instantiate the module multiple times from a root module with different configurations",
+      "Propagate internal child module resource attributes through module outputs"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Modular Infrastructure Architecture & Custom Modules",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Modular Infrastructure Architecture & Custom Modules\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create child module in modules/containerized-service/",
+        "objective": "Create child module in modules/containerized-service/",
+        "commandSnippet": "terraform init",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create child module in modules/containerized-service/"
+      },
+      {
+        "id": "task-2",
+        "title": "Child module defines: docker_image, docker_container, and optional docker_volume",
+        "objective": "Child module defines: docker_image, docker_container, and optional docker_volume",
+        "commandSnippet": "terraform get -update",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Child module defines: docker_image, docker_container, and optional docker_volume"
+      },
+      {
+        "id": "task-3",
+        "title": "Child module exposes inputs: service_name, image_name, container_port, host_port, environment",
+        "objective": "Child module exposes inputs: service_name, image_name, container_port, host_port, environment",
+        "commandSnippet": "terraform plan",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Child module exposes inputs: service_name, image_name, container_port, host_port, environment"
+      },
+      {
+        "id": "task-4",
+        "title": "Child module outputs: container_id, network_ip, and public_url",
+        "objective": "Child module outputs: container_id, network_ip, and public_url",
+        "commandSnippet": "terraform state list",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Child module outputs: container_id, network_ip, and public_url"
+      },
+      {
+        "id": "task-5",
+        "title": "In root main.tf, instantiate module \"web\" and module \"api\"",
+        "objective": "In root main.tf, instantiate module \"web\" and module \"api\"",
+        "commandSnippet": "terraform init",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "In root main.tf, instantiate module \"web\" and module \"api\""
+      },
+      {
+        "id": "task-6",
+        "title": "Run terraform init, terraform plan, and terraform apply",
+        "objective": "Run terraform init, terraform plan, and terraform apply",
+        "commandSnippet": "terraform get -update",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run terraform init, terraform plan, and terraform apply"
+      },
+      {
+        "id": "task-7",
+        "title": "Verify both services function simultaneously on their respective ports",
+        "objective": "Verify both services function simultaneously on their respective ports",
+        "commandSnippet": "terraform plan",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify both services function simultaneously on their respective ports"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Defining provider configurations inside child modules, breaking module reusability and inheritance.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Creating overly generic \"monolithic modules\" with hundreds of variables that defeat the purpose of abstraction.",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Child module created adhering to standard module directory structure",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Child module variables.tf and outputs.tf defined with types and descriptions",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Zero provider blocks inside child module verified",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Root module instantiates child module multiple times",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "terraform init successfully registers module sources",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "terraform apply provisions both module instances cleanly",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "terraform state list confirms module.web and module.api addressing",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "MODULE_ARCHITECTURE_GUIDE.md published",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
   },
   {
-    id: 'terraform-05',
-    code: 'TERRAFORM-05',
-    title: 'Terraform CI/CD Pipeline',
-    academy: 'terraform',
-    difficulty: 'Expert',
-    estimatedTime: '120 mins',
-    overview:
-      'Engineer an enterprise-grade automated Continuous Integration and Continuous Delivery (CI/CD) pipeline for Terraform infrastructure. You will implement a GitOps automated pipeline: 1) Automated code formatting checks (terraform fmt -check), 2) Syntax validation (terraform validate), 3) Static security analysis with tfsec/Checkov to detect misconfigurations, 4) Speculative plan generation on pull requests with automated markdown PR comments, 5) Environment protection rules requiring senior SRE manual approval, 6) Automated terraform apply with atomic remote state locking upon merge to main, and 7) Post-deployment drift detection.',
-    objectives: [
-      'Build a complete GitOps CI/CD pipeline for Terraform using GitHub Actions / GitLab CI.',
-      'Enforce automated code formatting, syntax validation, and security scanning gates.',
-      'Generate speculative plans on Pull Requests and post plan diffs as PR comments.',
-      'Implement an approval gate requiring human sign-off before production mutations.',
-      'Automate terraform apply on main branch merge with remote state locking.',
-      'Configure scheduled automated drift detection alerting on out-of-band changes.',
+    "id": "terraform-05",
+    "code": "TERRAFORM-05",
+    "title": "Multi-Environment Infrastructure (Workspaces vs. Directory Separation)",
+    "academy": "terraform",
+    "difficulty": "Intermediate+",
+    "estimatedTime": "10-14 hours",
+    "technologies": [
+      "Terraform Workspaces",
+      "Directory-based Environments",
+      "Environment Isolation",
+      "Backend Key Segregation"
     ],
-    requirements: [
-      'Terraform 1.5+ CLI.',
-      'Understanding of GitOps workflow for Infrastructure as Code.',
-      'Familiarity with CI runner environment variables and security scanners (tfsec, Checkov).',
+    "overview": "Architect and compare the two primary enterprise multi-environment patterns in Terraform: Workspaces vs. Directory-based separation (dev, staging, prod), evaluating blast radius, state isolation, and code reuse.",
+    "tags": [
+      "terraform",
+      "workspaces",
+      "environments",
+      "blast-radius",
+      "directory-structure",
+      "multi-env"
     ],
-    startingState: {
-      description:
-        'A complete Terraform project with infrastructure code, ready for enterprise pipeline automation.',
-      environment: 'Terraform CI/CD Pipeline Runner Host',
-      startingFiles: {
-        'main.tf': 'terraform {\n  required_version = ">= 1.5.0"\n}\n\nlocals {\n  pipeline_name = "Enterprise-Terraform-GitOps-v1.0"\n}\n\noutput "pipeline_status" {\n  value = "${locals.pipeline_name}: Operational"\n}',
-      },
-    },
-    architecture: {
-      summary:
-        'Terraform GitOps CI/CD Pipeline: PR Created -> fmt & validate -> tfsec Security Scan -> terraform plan -> Post Plan Diff to PR -> SRE Approval -> Merge to main -> terraform apply -> Infrastructure Updated.',
-      nodes: [
-        { id: 'git-pr', name: 'Git Pull Request', role: 'IaC Proposed Change', description: 'Triggers speculative execution plan on branch.', technologies: ['Git', 'PR'], status: 'active' },
-        { id: 'ci-linter', name: 'fmt & validate Gate', role: 'Syntax Quality', description: 'Enforces style guide and static block syntax.', technologies: ['terraform fmt', 'terraform validate'], status: 'healthy' },
-        { id: 'tfsec-scan', name: 'tfsec / Checkov Scan', role: 'Security Compliance', description: 'Scans HCL for unencrypted S3 buckets, open 0.0.0.0/0 rules.', technologies: ['tfsec', 'Checkov'], status: 'healthy' },
-        { id: 'plan-comment', name: 'PR Plan Commenter', role: 'Impact Preview', description: 'Publishes plan diff directly on the GitHub PR.', technologies: ['GitHub API'], status: 'healthy' },
-        { id: 'sre-approval', name: 'Senior SRE Approval', role: 'Governance Barrier', description: 'Protects production environment with manual sign-off requirement.', technologies: ['Environment Protection'], status: 'healthy' },
-        { id: 'apply-engine', name: 'Apply Runner (Main)', role: 'State Mutation', description: 'Applies reviewed plan artifact with remote state lock.', technologies: ['terraform apply'], status: 'healthy' },
+    "projectOverview": {
+      "projectName": "Multi-Environment Infrastructure (Workspaces vs. Directory Separation)",
+      "academy": "terraform",
+      "difficulty": "Intermediate+",
+      "estimatedEffort": "10-14 hours",
+      "technologies": [
+        "Terraform Workspaces",
+        "Directory Separation",
+        "Remote State Isolation",
+        "Blast Radius Control"
       ],
-      edges: [
-        { from: 'git-pr', to: 'ci-linter', label: '1. validate code' },
-        { from: 'ci-linter', to: 'tfsec-scan', label: '2. scan security' },
-        { from: 'tfsec-scan', to: 'plan-comment', label: '3. generate plan' },
-        { from: 'plan-comment', to: 'sre-approval', label: '4. review plan diff' },
-        { from: 'sre-approval', to: 'apply-engine', label: '5. approved -> apply' },
-      ],
-      flowDescription:
-        'PR -> fmt & validate -> tfsec -> plan generated -> SRE approves -> merge -> apply with remote state locking -> deployment complete.',
+      "shortDescription": "Construct parallel implementations of Terraform Workspaces and Directory-based environment separation, conducting an architectural evaluation of isolation and blast radius."
     },
-    tasks: [
-      {
-        id: 'task-1',
-        title: 'Author Complete Terraform GitOps Pipeline Manifest',
-        objective: 'Write .github/workflows/terraform.yml defining PR speculative plan and main apply.',
-        commandSnippet: 'mkdir -p .github/workflows\ncat << \'EOF\' > .github/workflows/terraform.yml\nname: Terraform GitOps Pipeline\non:\n  pull_request:\n    branches: [ main ]\n  push:\n    branches: [ main ]\n\njobs:\n  terraform-ci:\n    runs-on: ubuntu-latest\n    steps:\n      - uses: actions/checkout@v4\n      - uses: hashicorp/setup-terraform@v3\n        with:\n          terraform_version: 1.8.0\n\n      - name: Terraform Format Check\n        run: terraform fmt -check\n\n      - name: Terraform Init\n        run: terraform init -backend=false\n\n      - name: Terraform Validate\n        run: terraform validate\n\n      - name: Security Vulnerability Scan\n        run: echo "tfsec scan: 0 security findings. PASSED."\n\n      - name: Terraform Plan\n        if: github.event_name == \'pull_request\'\n        run: terraform plan -no-color\n\n      - name: Terraform Apply\n        if: github.event_name == \'push\' && github.ref == \'refs/heads/main\'\n        run: echo "Applying approved infrastructure mutations..."\nEOF',
-        expectedOutput: '.github/workflows/terraform.yml created successfully.',
-        verificationCriteria: 'Workflow file exists with format, validate, security, plan, and apply steps.',
-        hints: ['Use if: github.event_name conditionals to separate plan on PR from apply on push.'],
-        explanation: 'Speculative plans on PRs provide complete visibility into infrastructure changes before merging.',
-      },
-      {
-        id: 'task-2',
-        title: 'Execute Local Automated Pipeline Simulation',
-        objective: 'Run the entire sequence of CI gates locally and verify zero errors.',
-        commandSnippet: 'terraform fmt -check || terraform fmt\nterraform init\nterraform validate\nterraform plan -no-color\nterraform apply -auto-approve',
-        expectedOutput: 'Apply complete!\nOutputs:\npipeline_status = "Enterprise-Terraform-GitOps-v1.0: Operational"',
-        verificationCriteria: 'terraform output pipeline_status returns expected string.',
-        hints: ['All steps must pass cleanly with exit code 0.'],
-        explanation: 'Local pipeline validation guarantees that remote CI jobs will succeed on first push.',
-      },
-      {
-        id: 'task-3',
-        title: 'Simulate Automated Drift Detection Cron Job',
-        objective: 'Simulate daily cron job running terraform plan -detailed-exitcode to alert on drift.',
-        commandSnippet: 'echo "Running Scheduled 02:00 AM Automated Drift Detection..."\nterraform plan -detailed-exitcode || EXIT_CODE=$?\nif [ "${EXIT_CODE:-0}" -eq 0 ]; then\n  echo "DRIFT REPORT: No infrastructure drift detected. State is synchronized with Cloud.";\nelse\n  echo "DRIFT REPORT: WARNING - Drift detected!";\nfi',
-        expectedOutput: 'DRIFT REPORT: No infrastructure drift detected. State is synchronized with Cloud.',
-        verificationCriteria: 'Drift detection logic executes and reports clean state.',
-        hints: ['-detailed-exitcode returns 0 on no changes, 2 on changes present, and 1 on error.'],
-        explanation: 'Scheduled drift detection alerts SRE teams if manual out-of-band mutations occur outside of GitOps.',
-      },
+    "scenario": "Your organization currently uses a single Terraform state file for all environments. Yesterday, an engineer testing a database change in dev accidentally altered production because both environments shared the same state file. You must re-architect the platform to guarantee absolute state separation between Dev, Staging, and Production.",
+    "problemStatement": "Sharing state files across environments creates catastrophic blast radius risks: a typo in dev can destroy production. Two architectural patterns exist—Terraform Workspaces (single codebase, multiple state keys) vs Directory Separation (isolated folders per environment). You must build and evaluate both models.",
+    "projectObjective": [
+      "Implement Environment Pattern A: Terraform Workspaces (terraform workspace new dev/stage/prod)",
+      "Implement Environment Pattern B: Directory-based separation (environments/dev, environments/staging, environments/prod)",
+      "Deploy distinct infrastructure tiers across both models with isolated state storage",
+      "Evaluate trade-offs in blast radius, configuration drift, code duplication, and CI/CD compatibility in an Architectural Decision Record (ADR)"
     ],
-    failureScenarios: [
+    "whatYouNeedToBuild": {
+      "description": "Two prototype infrastructure repository structures demonstrating Workspaces and Directory-based separation respectively.",
+      "diagram": "Pattern A: Terraform Workspaces (Shared Code, Multi-State)\ncodebase/ ──(terraform.workspace: dev|stage|prod)──> [State: dev.tfstate] | [State: prod.tfstate]\n\nPattern B: Directory Separation (Isolated Code & State, Minimal Blast Radius)\nenvironments/\n├── dev/        ──(Dedicated Backend Key: dev/terraform.tfstate)   ──> [Isolated Dev Cloud]\n├── staging/    ──(Dedicated Backend Key: stage/terraform.tfstate) ──> [Isolated Stage Cloud]\n└── production/ ──(Dedicated Backend Key: prod/terraform.tfstate)  ──> [Isolated Prod Cloud]"
+    },
+    "requirements": {
+      "functional": [
+        "Modifications in the Development environment must have zero impact on Staging or Production",
+        "Each environment must possess an independent state file with dedicated state locking",
+        "Production must enforce stricter configuration parameters (larger sizing, redundancy) than Dev"
+      ],
+      "technical": [
+        "In Workspaces model, use terraform.workspace interpolation for names and sizing lookup maps",
+        "In Directory model, instantiate shared modules from ../../modules/ with environment-specific tfvars",
+        "Demonstrate switching workspaces and inspecting state files"
+      ],
+      "security": [
+        "Directory model must support separate IAM access policies so junior devs lack access to production/"
+      ]
+    },
+    "architecture": {
+      "summary": "Comparative architectural evaluation of multi-environment state management isolating risk domains and blast radius.",
+      "diagram": "Single Workspace (High Blast Radius) VS Segregated Directory Backends (Zero Cross-Environment Blast Radius)",
+      "components": [
+        {
+          "name": "Terraform Workspaces",
+          "role": "Single HCL code tree mapping to distinct state file paths within the same backend",
+          "technologies": [
+            "terraform workspace"
+          ]
+        },
+        {
+          "name": "Directory Separation",
+          "role": "Independent root modules per environment sharing common child modules",
+          "technologies": [
+            "File System"
+          ]
+        },
+        {
+          "name": "State Key Segregation",
+          "role": "Distinct S3/GCS object paths isolating state locks per environment",
+          "technologies": [
+            "Backend Keys"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "Docker or Cloud Provider"
+      ],
+      "optional": [
+        "AWS S3 backend or local backend with multiple directories"
+      ],
+      "outOfScope": [
+        "Terragrunt orchestration tool (covered in DEVOPS-10)"
+      ]
+    },
+    "functionalRequirements": [
+      "Create workspace-pattern/ directory with single main.tf using lookup(var.env_sizing, terraform.workspace)",
+      "Create workspaces: dev, staging, prod; deploy instances in dev and staging",
+      "Create directory-pattern/ with environments/dev and environments/prod sharing modules/service",
+      "Deploy dev and prod in directory pattern; verify state files reside in separate directories",
+      "Simulate state corruption in dev: verify production in directory model is completely unharmed",
+      "Author ADR-002-MULTI-ENVIRONMENT-STRATEGY.md detailing findings"
+    ],
+    "technicalRequirements": [
+      "Demonstrate workspace CLI commands: terraform workspace list, select, new",
+      "Inspect independent state lists in both environments"
+    ],
+    "securityRequirements": [
+      "Audit access control: confirm directory separation allows different AWS IAM roles per folder"
+    ],
+    "constraints": [
+      "Never share a single state file between development and production",
+      "Do not use workspaces for environments that have fundamentally different infrastructure topologies"
+    ],
+    "expectedOutcome": "A comprehensive, evidence-based architectural comparison of Terraform environment separation strategies, equipping your team to implement zero-blast-radius infrastructure.",
+    "deliverables": [
+      "Workspace implementation prototype",
+      "Directory separation implementation prototype",
+      "ADR-002-MULTI-ENVIRONMENT-STRATEGY.md analyzing blast radius, code drift, and CI/CD automation"
+    ],
+    "suggestedProjectStructure": "multi-environment-benchmark/\n├── workspace-model/\n│   ├── main.tf\n│   └── variables.tf\n├── directory-model/\n│   ├── modules/service/\n│   └── environments/\n│       ├── dev/\n│       │   ├── main.tf\n│       │   └── terraform.tfvars\n│       └── prod/\n│           ├── main.tf\n│           └── terraform.tfvars\n└── ADR-002-MULTI-ENVIRONMENT-STRATEGY.md",
+    "requiredConcepts": [
       {
-        id: 'fail-1',
-        title: 'CI Security Gate Fails: Insecure Security Group Rule',
-        symptom: 'tfsec scanner fails pipeline: Port 22 open to 0.0.0.0/0 (world).',
-        rootCause: 'Developer created security group allowing SSH from anywhere.',
-        diagnosticCommand: 'grep -rn "0.0.0.0/0" .',
-        fixCommand: 'Restrict CIDR block to company VPN subnet (e.g., 198.51.100.0/24).',
-        verification: 'tfsec scan passes with zero high/critical warnings.',
-        preventativeMeasures: 'Mandate security linters in pre-commit git hooks and CI gates.',
+        "name": "Terraform Workspaces",
+        "lessonId": "ch-11",
+        "academyRoute": "/terraform"
       },
       {
-        id: 'fail-2',
-        title: 'Stale Plan Artifact Failure During Apply',
-        symptom: 'terraform apply fails: Resource already exists or state serial mismatch.',
-        rootCause: 'Main branch moved forward with another PR merge while this PR was in review.',
-        diagnosticCommand: 'git log origin/main..HEAD',
-        fixCommand: 'Rebase PR branch on main and re-generate speculative plan.',
-        verification: 'Apply executes with up-to-date state serial.',
-        preventativeMeasures: 'Require branches to be up to date before merging in GitHub repository settings.',
+        "name": "Multi-Environment Architecture",
+        "lessonId": "ch-12",
+        "academyRoute": "/terraform"
       },
+      {
+        "name": "Terraform State Management",
+        "lessonId": "ch-07",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform Modules",
+        "lessonId": "ch-08",
+        "academyRoute": "/terraform"
+      }
     ],
-    validationChecks: [
-      { id: 'v1', label: 'Terraform GitOps workflow manifest (.github/workflows/terraform.yml) created', verificationCommand: 'test -f .github/workflows/terraform.yml', points: 30 },
-      { id: 'v2', label: 'All pipeline stages (fmt, validate, plan, apply) execute successfully', verificationCommand: 'terraform output pipeline_status | grep -q "Operational"', points: 35 },
-      { id: 'v3', label: 'Automated drift detection procedure verified with detailed-exitcode', verificationCommand: 'grep -q "Enterprise-Terraform" main.tf', points: 35 },
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 11: Terraform Workspaces",
+          "route": "/cloudstack/terraform?concept=ch-11"
+        },
+        {
+          "title": "Chapter 12: Multi-Environment Architectures",
+          "route": "/cloudstack/terraform?concept=ch-12"
+        },
+        {
+          "title": "Chapter 07: Terraform State & Backends",
+          "route": "/cloudstack/terraform?concept=ch-07"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "When to use Multiple Workspaces",
+          "url": "https://developer.hashicorp.com/terraform/language/state/workspaces#when-to-use-multiple-workspaces"
+        },
+        {
+          "title": "Terraform Recommended Practices",
+          "url": "https://developer.hashicorp.com/terraform/cloud-docs/recommended-practices"
+        }
+      ],
+      "referenceMaterial": [
+        "Terraform Up & Running: Chapter 3 - How to Manage Terraform State"
+      ],
+      "usefulCommands": [
+        "terraform workspace new dev",
+        "terraform workspace select prod",
+        "terraform workspace list",
+        "terraform workspace show"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Review enterprise multi-environment requirements and blast radius considerations.",
+      "2. Build Prototype 1 using Terraform Workspaces and terraform.workspace interpolation.",
+      "3. Test deploying dev and staging in Prototype 1; observe state file behavior.",
+      "4. Build Prototype 2 using Directory Separation with environments/dev and environments/prod.",
+      "5. Extract common infrastructure into a shared modules/service directory.",
+      "6. Deploy dev and prod in Prototype 2 and verify separate state files.",
+      "7. Compare how CI/CD pipelines authenticate and execute against both patterns.",
+      "8. Evaluate RBAC capabilities: can junior engineers be blocked from prod in both models?",
+      "9. Compile pros, cons, and recommendations into ADR-002.",
+      "10. Present findings in ADR-002-MULTI-ENVIRONMENT-STRATEGY.md."
     ],
-    expectedOutcome:
-      'An enterprise-grade Terraform GitOps CI/CD delivery pipeline automating formatting checks, static security scanning, speculative plan comments on PRs, SRE approval gates, and scheduled drift detection.',
-    scoreMax: 100,
-    tags: ['terraform', 'ci-cd', 'gitops', 'github-actions', 'drift-detection', 'tfsec', 'automation'],
+    "importantConsiderations": [
+      "Why does HashiCorp explicitly advise against using Workspaces to separate Dev from Production?",
+      "How does directory separation provide physical file separation for IAM credential isolation in CI/CD?",
+      "What are the code duplication trade-offs of directory separation, and how do shared modules mitigate them?"
+    ],
+    "commonPitfalls": [
+      "Forgetting which workspace is active and running terraform apply thinking you are in dev when in prod.",
+      "Using workspaces when dev and prod require fundamentally different resources (e.g. single instance vs multi-AZ cluster).",
+      "Copy-pasting 500 lines of resource code between dev and prod folders instead of using shared modules."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Configure customized shell prompt displaying current active Terraform workspace."
+      ],
+      "intermediate": [
+        "Implement automated workspace cleanup script deleting ephemeral dev branches."
+      ],
+      "advanced": [
+        "Configure remote S3 backends with distinct DynamoDB state lock tables per environment."
+      ],
+      "expert": [
+        "Evaluate Terragrunt DRY architecture as an alternative to pure directory separation."
+      ]
+    },
+    "completionChecklist": [
+      "Prototype 1 (Workspaces) created and tested across dev and prod",
+      "Prototype 2 (Directory Separation) created and tested across dev and prod",
+      "Shared child module implemented eliminating duplication in Directory model",
+      "Independent state files verified for all environments",
+      "Blast radius simulation demonstrates zero cross-environment contamination",
+      "IAM access isolation evaluated across both approaches",
+      "ADR-002-MULTI-ENVIRONMENT-STRATEGY.md authored with trade-off matrix"
+    ],
+    "objectives": [
+      "Implement Environment Pattern A: Terraform Workspaces (terraform workspace new dev/stage/prod)",
+      "Implement Environment Pattern B: Directory-based separation (environments/dev, environments/staging, environments/prod)",
+      "Deploy distinct infrastructure tiers across both models with isolated state storage",
+      "Evaluate trade-offs in blast radius, configuration drift, code duplication, and CI/CD compatibility in an Architectural Decision Record (ADR)"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Multi-Environment Infrastructure (Workspaces vs. Directory Separation)",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Multi-Environment Infrastructure (Workspaces vs. Directory Separation)\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Create workspace-pattern/ directory with single main.tf using lookup(var.env_sizing, terraform.workspace)",
+        "objective": "Create workspace-pattern/ directory with single main.tf using lookup(var.env_sizing, terraform.workspace)",
+        "commandSnippet": "terraform workspace new dev",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create workspace-pattern/ directory with single main.tf using lookup(var.env_sizing, terraform.workspace)"
+      },
+      {
+        "id": "task-2",
+        "title": "Create workspaces: dev, staging, prod; deploy instances in dev and staging",
+        "objective": "Create workspaces: dev, staging, prod; deploy instances in dev and staging",
+        "commandSnippet": "terraform workspace select prod",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create workspaces: dev, staging, prod; deploy instances in dev and staging"
+      },
+      {
+        "id": "task-3",
+        "title": "Create directory-pattern/ with environments/dev and environments/prod sharing modules/service",
+        "objective": "Create directory-pattern/ with environments/dev and environments/prod sharing modules/service",
+        "commandSnippet": "terraform workspace list",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create directory-pattern/ with environments/dev and environments/prod sharing modules/service"
+      },
+      {
+        "id": "task-4",
+        "title": "Deploy dev and prod in directory pattern; verify state files reside in separate directories",
+        "objective": "Deploy dev and prod in directory pattern; verify state files reside in separate directories",
+        "commandSnippet": "terraform workspace show",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy dev and prod in directory pattern; verify state files reside in separate directories"
+      },
+      {
+        "id": "task-5",
+        "title": "Simulate state corruption in dev: verify production in directory model is completely unharmed",
+        "objective": "Simulate state corruption in dev: verify production in directory model is completely unharmed",
+        "commandSnippet": "terraform workspace new dev",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Simulate state corruption in dev: verify production in directory model is completely unharmed"
+      },
+      {
+        "id": "task-6",
+        "title": "Author ADR-002-MULTI-ENVIRONMENT-STRATEGY.md detailing findings",
+        "objective": "Author ADR-002-MULTI-ENVIRONMENT-STRATEGY.md detailing findings",
+        "commandSnippet": "terraform workspace select prod",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Author ADR-002-MULTI-ENVIRONMENT-STRATEGY.md detailing findings"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Forgetting which workspace is active and running terraform apply thinking you are in dev when in prod.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Using workspaces when dev and prod require fundamentally different resources (e.g. single instance vs multi-AZ cluster).",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Prototype 1 (Workspaces) created and tested across dev and prod",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-2",
+        "label": "Prototype 2 (Directory Separation) created and tested across dev and prod",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-3",
+        "label": "Shared child module implemented eliminating duplication in Directory model",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-4",
+        "label": "Independent state files verified for all environments",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-5",
+        "label": "Blast radius simulation demonstrates zero cross-environment contamination",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-6",
+        "label": "IAM access isolation evaluated across both approaches",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-7",
+        "label": "ADR-002-MULTI-ENVIRONMENT-STRATEGY.md authored with trade-off matrix",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      }
+    ],
+    "scoreMax": 100
   },
+  {
+    "id": "terraform-06",
+    "code": "TERRAFORM-06",
+    "title": "Remote State Management, Locking & Team Collaboration",
+    "academy": "terraform",
+    "difficulty": "Advanced",
+    "estimatedTime": "10-14 hours",
+    "technologies": [
+      "Remote State Backends",
+      "State Locking",
+      "S3 & DynamoDB",
+      "State Migration",
+      "State Surgery (state rm / mv / import)"
+    ],
+    "overview": "Design, configure, migrate, and operate enterprise remote state backends featuring distributed state locking, encryption at rest, team collaboration guardrails, and surgical state operations (mv, rm, import).",
+    "tags": [
+      "terraform",
+      "remote-state",
+      "s3-backend",
+      "state-locking",
+      "dynamodb",
+      "state-surgery"
+    ],
+    "projectOverview": {
+      "projectName": "Remote State Management, Locking & Team Collaboration",
+      "academy": "terraform",
+      "difficulty": "Advanced",
+      "estimatedEffort": "10-14 hours",
+      "technologies": [
+        "Remote Backends",
+        "State Locking",
+        "State Migration",
+        "State Surgery"
+      ],
+      "shortDescription": "Migrate local state to an enterprise remote backend with distributed state locking, and perform live state surgery (import, move, remove)."
+    },
+    "scenario": "Two engineers on your team ran \"terraform apply\" at the exact same moment from their laptops. Because state was stored locally without locking, their changes collided, overwriting each other's resource IDs and leaving 4 orphaned cloud resources. You must migrate the team to an encrypted remote backend with distributed state locking.",
+    "problemStatement": "Local state files cannot be shared safely across a team: they lack state locking (causing race conditions), expose sensitive secrets in plaintext on developer laptops, and prevent collaborative CI/CD automation. An enterprise remote backend with locking is mandatory.",
+    "projectObjective": [
+      "Configure an enterprise remote backend with state locking (AWS S3 + DynamoDB or LocalStack / Terraform Cloud)",
+      "Execute a zero-loss state migration from local terraform.tfstate to the remote backend",
+      "Demonstrate distributed state locking preventing concurrent execution conflicts",
+      "Perform surgical state refactoring using terraform state mv, terraform state rm, and terraform import"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "An enterprise remote state architecture managing state snapshots with distributed locking and state surgery capabilities.",
+      "diagram": "Engineer 1 (terraform apply) ───┐\n                                  │ (Acquires Lock)\n                                  ▼\n                    [DynamoDB Lock Table: tf-state-locks]\n                                  ▲ (LOCK ACTIVE: LockID: 4a2b9e...)\n                                  │\nEngineer 2 (terraform apply) ────┴──> BLOCKED! \"Error: Error acquiring the state lock\"\n                                  │\n                                  ▼ (Lock Released upon completion)\n                    [S3 Bucket: tf-state-bucket]\n                    └── Encrypted Remote State (AES-256 / KMS, Versioning Enabled)"
+    },
+    "requirements": {
+      "functional": [
+        "Local state must be migrated to the remote backend without recreating any existing infrastructure",
+        "Concurrent execution of terraform apply must be rejected by the state locking mechanism",
+        "Existing unmanaged resources must be successfully imported into the state using terraform import"
+      ],
+      "technical": [
+        "Configure backend \"s3\" with bucket, key, region, and dynamodb_table",
+        "Execute terraform init -migrate-state",
+        "Use terraform state mv to rename resources without destroying and recreating them"
+      ],
+      "security": [
+        "Enforce server-side encryption (SSE-S3 or KMS) on the state bucket",
+        "Enable S3 bucket versioning to allow rolling back corrupted state snapshots"
+      ]
+    },
+    "architecture": {
+      "summary": "Centralized state management architecture decoupling local CLI execution from remote state storage and atomic distributed lock tables.",
+      "diagram": "Terraform CLI Client ──(Acquire Lock)──> Lock Database (DynamoDB) ──(Read/Write State)──> Encrypted Bucket (S3)",
+      "components": [
+        {
+          "name": "Remote State Store (S3)",
+          "role": "Encrypted object storage bucket holding versioned state snapshots",
+          "technologies": [
+            "AWS S3 / MinIO"
+          ]
+        },
+        {
+          "name": "Distributed Lock Table",
+          "role": "NoSQL table maintaining atomic lease tokens during plan/apply operations",
+          "technologies": [
+            "DynamoDB"
+          ]
+        },
+        {
+          "name": "State Surgery Engine",
+          "role": "Plumbing CLI commands (mv, rm, import) modifying internal state JSON safely",
+          "technologies": [
+            "Terraform CLI"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "AWS account or LocalStack (S3 + DynamoDB)",
+        "Docker"
+      ],
+      "optional": [
+        "MinIO for self-hosted S3-compatible testing"
+      ],
+      "outOfScope": [
+        "Third-party commercial state backends (Spacelift/Scalr)"
+      ]
+    },
+    "functionalRequirements": [
+      "Initialize and apply basic infrastructure using default local backend",
+      "Provision backend infrastructure: S3 bucket with versioning and DynamoDB lock table",
+      "Add backend \"s3\" block to configuration and run terraform init -migrate-state",
+      "Verify local terraform.tfstate is empty and remote state is populated",
+      "Simulate lock collision: start a long-running apply in terminal 1; attempt apply in terminal 2 and verify lock error",
+      "Perform state surgery: rename a resource in HCL and use terraform state mv to align state without destroying",
+      "Import an existing unmanaged resource into state using terraform import"
+    ],
+    "technicalRequirements": [
+      "Verify bucket versioning records every state change: aws s3api list-object-versions",
+      "Demonstrate emergency lock release using terraform force-unlock <LOCK_ID>"
+    ],
+    "securityRequirements": [
+      "Verify public access block is enabled on the state S3 bucket (BlockPublicAcls, BlockPublicPolicy)",
+      "Confirm TLS 1.2+ is enforced in bucket policy"
+    ],
+    "constraints": [
+      "Do not manually edit terraform.tfstate JSON in a text editor (always use state CLI commands)",
+      "Never run terraform force-unlock unless you have confirmed the other process has terminated"
+    ],
+    "expectedOutcome": "A rock-solid remote state infrastructure with zero-loss migration, active state locking, and verified state surgery capabilities.",
+    "deliverables": [
+      "Backend provisioning Terraform code (backend-infra/)",
+      "Main configuration with remote backend block",
+      "REMOTE_STATE_OPERATIONS_MANUAL.md detailing migration, lock troubleshooting, and state surgery procedures"
+    ],
+    "suggestedProjectStructure": "remote-state-platform/\n├── backend-setup/\n│   ├── main.tf (Creates S3 + DynamoDB)\n│   └── outputs.tf\n├── app-infra/\n│   ├── backend.tf\n│   ├── main.tf\n│   └── variables.tf\n└── REMOTE_STATE_OPERATIONS_MANUAL.md",
+    "requiredConcepts": [
+      {
+        "name": "Terraform State Management",
+        "lessonId": "ch-07",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Remote State & Backends",
+        "lessonId": "ch-10",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "State Locking & Concurrency",
+        "lessonId": "ch-10",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "State Surgery & Import",
+        "lessonId": "ch-14",
+        "academyRoute": "/terraform"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 07: Terraform State Core",
+          "route": "/cloudstack/terraform?concept=ch-07"
+        },
+        {
+          "title": "Chapter 10: Remote Backends & State Locking",
+          "route": "/cloudstack/terraform?concept=ch-10"
+        },
+        {
+          "title": "Chapter 14: State Surgery (mv, rm, import)",
+          "route": "/cloudstack/terraform?concept=ch-14"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "S3 Backend Configuration",
+          "url": "https://developer.hashicorp.com/terraform/language/settings/backends/s3"
+        },
+        {
+          "title": "Command: state mv",
+          "url": "https://developer.hashicorp.com/terraform/cli/commands/state/mv"
+        },
+        {
+          "title": "Command: import",
+          "url": "https://developer.hashicorp.com/terraform/cli/commands/import"
+        }
+      ],
+      "referenceMaterial": [
+        "HashiCorp Terraform State Locking Technical Specification"
+      ],
+      "usefulCommands": [
+        "terraform init -migrate-state",
+        "terraform state list",
+        "terraform state mv docker_container.old docker_container.new",
+        "terraform state rm docker_container.obsolete",
+        "terraform import docker_container.existing <container_id>",
+        "terraform force-unlock <lock_id>"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Create and apply resources with local state to establish the baseline.",
+      "2. Provision an S3 bucket with versioning and encryption, plus a DynamoDB table with LockID primary key.",
+      "3. Add the backend \"s3\" configuration block to the application Terraform code.",
+      "4. Execute terraform init -migrate-state; confirm migration when prompted.",
+      "5. Inspect the S3 bucket to verify the state object is created.",
+      "6. Open two terminal windows; initiate apply in Terminal 1 and immediately run plan in Terminal 2.",
+      "7. Confirm Terminal 2 is rejected with an active state lock error.",
+      "8. Refactor a resource name in main.tf and execute terraform state mv to update state without destruction.",
+      "9. Launch an unmanaged container via docker run and bring it into Terraform management via terraform import.",
+      "10. Author REMOTE_STATE_OPERATIONS_MANUAL.md."
+    ],
+    "importantConsiderations": [
+      "Why is DynamoDB state locking critical even if the S3 bucket has versioning enabled?",
+      "What are the dangers of editing the raw terraform.tfstate JSON file manually?",
+      "When is terraform force-unlock justified, and what precautions must be taken before running it?"
+    ],
+    "commonPitfalls": [
+      "Creating the backend S3 bucket and DynamoDB table inside the same Terraform configuration that uses them as a backend (chicken-and-egg problem).",
+      "Forgetting LockID (String) as the partition key on the DynamoDB table, causing state locking to fail.",
+      "Running terraform state rm without realizing it only deletes the state pointer, leaving real cloud resources running and orphaned."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Inspect the S3 bucket versioning history after 3 consecutive apply operations."
+      ],
+      "intermediate": [
+        "Configure cross-region replication (CRR) on the state S3 bucket for disaster recovery."
+      ],
+      "advanced": [
+        "Use terraform_remote_state data source to consume outputs from another independent state file."
+      ],
+      "expert": [
+        "Set up automated state drift detection alerting using AWS EventBridge and SNS."
+      ]
+    },
+    "completionChecklist": [
+      "Remote state bucket and DynamoDB lock table provisioned",
+      "Local state successfully migrated to remote backend via -migrate-state",
+      "Concurrent execution test confirms state locking blocks simultaneous apply",
+      "terraform state mv renames resource without recreation",
+      "terraform import imports existing unmanaged resource cleanly",
+      "Bucket encryption and versioning confirmed active",
+      "REMOTE_STATE_OPERATIONS_MANUAL.md published"
+    ],
+    "objectives": [
+      "Configure an enterprise remote backend with state locking (AWS S3 + DynamoDB or LocalStack / Terraform Cloud)",
+      "Execute a zero-loss state migration from local terraform.tfstate to the remote backend",
+      "Demonstrate distributed state locking preventing concurrent execution conflicts",
+      "Perform surgical state refactoring using terraform state mv, terraform state rm, and terraform import"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Remote State Management, Locking & Team Collaboration",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Remote State Management, Locking & Team Collaboration\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Initialize and apply basic infrastructure using default local backend",
+        "objective": "Initialize and apply basic infrastructure using default local backend",
+        "commandSnippet": "terraform init -migrate-state",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Initialize and apply basic infrastructure using default local backend"
+      },
+      {
+        "id": "task-2",
+        "title": "Provision backend infrastructure: S3 bucket with versioning and DynamoDB lock table",
+        "objective": "Provision backend infrastructure: S3 bucket with versioning and DynamoDB lock table",
+        "commandSnippet": "terraform state list",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Provision backend infrastructure: S3 bucket with versioning and DynamoDB lock table"
+      },
+      {
+        "id": "task-3",
+        "title": "Add backend \"s3\" block to configuration and run terraform init -migrate-state",
+        "objective": "Add backend \"s3\" block to configuration and run terraform init -migrate-state",
+        "commandSnippet": "terraform state mv docker_container.old docker_container.new",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Add backend \"s3\" block to configuration and run terraform init -migrate-state"
+      },
+      {
+        "id": "task-4",
+        "title": "Verify local terraform.tfstate is empty and remote state is populated",
+        "objective": "Verify local terraform.tfstate is empty and remote state is populated",
+        "commandSnippet": "terraform state rm docker_container.obsolete",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Verify local terraform.tfstate is empty and remote state is populated"
+      },
+      {
+        "id": "task-5",
+        "title": "Simulate lock collision: start a long-running apply in terminal 1; attempt apply in terminal 2 and verify lock error",
+        "objective": "Simulate lock collision: start a long-running apply in terminal 1; attempt apply in terminal 2 and verify lock error",
+        "commandSnippet": "terraform import docker_container.existing <container_id>",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Simulate lock collision: start a long-running apply in terminal 1; attempt apply in terminal 2 and verify lock error"
+      },
+      {
+        "id": "task-6",
+        "title": "Perform state surgery: rename a resource in HCL and use terraform state mv to align state without destroying",
+        "objective": "Perform state surgery: rename a resource in HCL and use terraform state mv to align state without destroying",
+        "commandSnippet": "terraform force-unlock <lock_id>",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Perform state surgery: rename a resource in HCL and use terraform state mv to align state without destroying"
+      },
+      {
+        "id": "task-7",
+        "title": "Import an existing unmanaged resource into state using terraform import",
+        "objective": "Import an existing unmanaged resource into state using terraform import",
+        "commandSnippet": "terraform init -migrate-state",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Import an existing unmanaged resource into state using terraform import"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Creating the backend S3 bucket and DynamoDB table inside the same Terraform configuration that uses them as a backend (chicken-and-egg problem).",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Forgetting LockID (String) as the partition key on the DynamoDB table, causing state locking to fail.",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Remote state bucket and DynamoDB lock table provisioned",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-2",
+        "label": "Local state successfully migrated to remote backend via -migrate-state",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-3",
+        "label": "Concurrent execution test confirms state locking blocks simultaneous apply",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-4",
+        "label": "terraform state mv renames resource without recreation",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-5",
+        "label": "terraform import imports existing unmanaged resource cleanly",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-6",
+        "label": "Bucket encryption and versioning confirmed active",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-7",
+        "label": "REMOTE_STATE_OPERATIONS_MANUAL.md published",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "terraform-07",
+    "code": "TERRAFORM-07",
+    "title": "Infrastructure Security, Policy-as-Code & Compliance",
+    "academy": "terraform",
+    "difficulty": "Advanced+",
+    "estimatedTime": "12-16 hours",
+    "technologies": [
+      "Policy-as-Code (OPA / Checkov)",
+      "Tfsec / Trivy",
+      "Secrets Management (Vault)",
+      "KMS Encryption",
+      "CIS Benchmarks"
+    ],
+    "overview": "Implement enterprise infrastructure security and compliance guardrails in Terraform using Policy-as-Code (Checkov / Open Policy Agent), automated static analysis, encrypted secrets injection via HashiCorp Vault, and CIS cloud compliance benchmarks.",
+    "tags": [
+      "terraform",
+      "security",
+      "policy-as-code",
+      "checkov",
+      "vault",
+      "cis-benchmarks",
+      "compliance"
+    ],
+    "projectOverview": {
+      "projectName": "Infrastructure Security, Policy-as-Code & Compliance",
+      "academy": "terraform",
+      "difficulty": "Advanced+",
+      "estimatedEffort": "12-16 hours",
+      "technologies": [
+        "Checkov",
+        "Open Policy Agent (OPA)",
+        "Trivy IaC",
+        "HashiCorp Vault",
+        "CIS Benchmarks"
+      ],
+      "shortDescription": "Enforce enterprise security guardrails on Terraform code using Policy-as-Code (Checkov), secret retrieval from HashiCorp Vault, and automated CIS compliance scanning."
+    },
+    "scenario": "Your security auditor discovered that multiple developer pull requests provisioned cloud storage buckets with public read access and security groups with 0.0.0.0/0 on SSH port 22. Your platform team must establish automated Policy-as-Code gates that automatically scan Terraform code and block non-compliant infrastructure from ever being deployed.",
+    "problemStatement": "Manual security reviews cannot keep pace with fast cloud deployments. Without automated Policy-as-Code guardrails, insecure configurations (unencrypted storage, public database ports, missing access logs) inevitably slip into production.",
+    "projectObjective": [
+      "Integrate Checkov and Trivy IaC static analysis into the Terraform development workflow",
+      "Enforce CIS Cloud Benchmark rules (e.g. S3 buckets must have encryption, versioning, and public access blocks)",
+      "Write custom Policy-as-Code rules (Python or Rego) enforcing organizational naming and tagging standards",
+      "Eliminate hardcoded credentials by injecting dynamic secrets from HashiCorp Vault or AWS Secrets Manager",
+      "Automate policy gating in CI to reject pull requests that violate compliance policies"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "An automated security and compliance architecture that evaluates Terraform plans against security policies and injects credentials dynamically.",
+      "diagram": "Terraform Manifest / Plan\n           │\n           ▼\n[Policy-as-Code Engine (Checkov & OPA)]\n├── Check 1: CKV_AWS_18: S3 bucket must have access logging enabled ──> PASS\n├── Check 2: CKV_AWS_21: S3 bucket must have versioning enabled ──> PASS\n├── Check 3: CKV_AWS_24: Security group port 22 not open to 0.0.0.0/0 ──> PASS\n└── Check 4: Custom Rule: Mandatory tags (Owner, Environment, CostCenter) ──> PASS\n           │\n           ▼ (Compliant!)\n[HashiCorp Vault Secret Injection] ──(Dynamic DB Creds)──> terraform apply"
+    },
+    "requirements": {
+      "functional": [
+        "Checkov must scan the Terraform codebase and flag any violations of CIS Security Benchmarks",
+        "Configurations with unencrypted storage, public databases, or wildcard ingress must fail the scan",
+        "Database credentials must be retrieved dynamically from Vault without being stored in *.tfvars"
+      ],
+      "technical": [
+        "Configure Checkov CLI with --framework terraform --check CKV_...",
+        "Write custom check in custom_checks/ checking for mandatory tags",
+        "Configure vault provider to read secrets via data \"vault_generic_secret\""
+      ],
+      "security": [
+        "Zero plaintext secrets in Terraform code or version-controlled files",
+        "Enforce encryption-at-rest (KMS) and encryption-in-transit (TLS 1.2+) on all resources"
+      ]
+    },
+    "architecture": {
+      "summary": "Security governance architecture integrating shift-left static analysis, policy-as-code guardrails, and dynamic credential leasing.",
+      "diagram": "Developer HCL ──> Policy Scanner (Checkov) ──> Secrets Broker (Vault) ──> Compliant Infrastructure",
+      "components": [
+        {
+          "name": "Policy-as-Code Scanner (Checkov)",
+          "role": "Static analysis engine scanning HCL against 1,000+ cloud security benchmarks",
+          "technologies": [
+            "Checkov / Python"
+          ]
+        },
+        {
+          "name": "Custom Rego/Python Policies",
+          "role": "Proprietary enterprise compliance rules enforcing internal tagging and topology standards",
+          "technologies": [
+            "OPA / Rego"
+          ]
+        },
+        {
+          "name": "HashiCorp Vault",
+          "role": "Centralized secrets engine generating short-lived dynamic cloud and database credentials",
+          "technologies": [
+            "Vault"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "Checkov CLI or Trivy",
+        "Docker for local Vault testing"
+      ],
+      "optional": [
+        "Open Policy Agent (OPA) with Conftest"
+      ],
+      "outOfScope": [
+        "Physical PCI-DSS hardware on-premise inspections"
+      ]
+    },
+    "functionalRequirements": [
+      "Author Terraform code with intentional security anti-patterns (unencrypted bucket, open port 22)",
+      "Run checkov -d . and verify that security violations are flagged with specific CKV rule IDs",
+      "Remediate each violation: add server-side encryption, enable versioning, restrict CIDR blocks",
+      "Re-run checkov -d . and confirm 100% compliance pass",
+      "Author custom policy custom_checks/mandatory_tags.py enforcing CostCenter tag",
+      "Run Vault container locally; configure vault provider in Terraform to fetch database password dynamically"
+    ],
+    "technicalRequirements": [
+      "Export Checkov results in JUnit XML or JSON format for CI integration",
+      "Verify Vault dynamic secret retrieval using terraform plan"
+    ],
+    "securityRequirements": [
+      "Ensure state file permissions are restricted when secrets are consumed"
+    ],
+    "constraints": [
+      "Do not disable security checks using inline #checkov:skip comments without written justification",
+      "Never commit Vault tokens or root keys to version control"
+    ],
+    "expectedOutcome": "A certified, compliant Terraform infrastructure codebase verified against CIS benchmarks with automated policy gating and dynamic secrets management.",
+    "deliverables": [
+      "Hardened, compliant Terraform configuration files",
+      "Custom Policy-as-Code rule files",
+      "Local Vault configuration script",
+      "SECURITY_COMPLIANCE_AUDIT_REPORT.md detailing initial vulnerability findings, remediation steps, and final scan clean bill of health"
+    ],
+    "suggestedProjectStructure": "secure-terraform/\n├── main.tf\n├── variables.tf\n├── outputs.tf\n├── custom_checks/\n│   └── check_mandatory_tags.py\n├── scripts/\n│   ├── run_security_scan.sh\n│   └── setup_local_vault.sh\n└── SECURITY_COMPLIANCE_AUDIT_REPORT.md",
+    "requiredConcepts": [
+      {
+        "name": "Terraform Security & Secrets",
+        "lessonId": "ch-15",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Infrastructure as Code Security",
+        "lessonId": "ch-01",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform Best Practices",
+        "lessonId": "ch-13",
+        "academyRoute": "/terraform"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 15: Terraform Security & Secrets",
+          "route": "/cloudstack/terraform?concept=ch-15"
+        },
+        {
+          "title": "Chapter 13: Best Practices & Code Smells",
+          "route": "/cloudstack/terraform?concept=ch-13"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Checkov Documentation",
+          "url": "https://www.checkov.io/1.Welcome/Quick%20Start.html"
+        },
+        {
+          "title": "Vault Provider for Terraform",
+          "url": "https://registry.terraform.io/providers/hashicorp/vault/latest/docs"
+        }
+      ],
+      "referenceMaterial": [
+        "CIS Amazon Web Services Foundations Benchmark v1.4.0"
+      ],
+      "usefulCommands": [
+        "checkov -d .",
+        "checkov -f main.tf --framework terraform",
+        "trivy config .",
+        "vault kv get -format=json secret/database"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Review CIS benchmark requirements for compute, storage, and networking resources.",
+      "2. Install Checkov CLI (pip install checkov).",
+      "3. Intentionally author vulnerable infrastructure in main.tf to establish baseline test.",
+      "4. Execute checkov -d . and document the failing checks.",
+      "5. Systematically remediate each finding: attach encryption, block public access, restrict security groups.",
+      "6. Re-run Checkov and verify zero failed checks.",
+      "7. Author a custom Python/YAML policy enforcing company-specific CostCenter and Owner tags.",
+      "8. Launch a local HashiCorp Vault instance and populate test database credentials.",
+      "9. Configure the Vault provider in Terraform to inject the credential dynamically at plan/apply time.",
+      "10. Compile findings into SECURITY_COMPLIANCE_AUDIT_REPORT.md."
+    ],
+    "importantConsiderations": [
+      "Why is scanning Terraform code (shift-left) more cost-effective than remediating vulnerabilities after cloud deployment?",
+      "How does dynamic secret leasing in Vault prevent credential theft compared to long-lived static passwords?",
+      "When is it appropriate to suppress a Checkov security check using an inline skip comment?"
+    ],
+    "commonPitfalls": [
+      "Committing Vault root tokens or secret IDs into provider configuration blocks in main.tf.",
+      "Relying solely on runtime cloud security scanners rather than pre-deployment Policy-as-Code in CI.",
+      "Skipping security checks indiscriminately without recording an architectural justification."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Generate an HTML security report from Checkov scan results."
+      ],
+      "intermediate": [
+        "Integrate Checkov as a pre-commit hook on developer workstations."
+      ],
+      "advanced": [
+        "Implement Open Policy Agent (OPA) Rego rules using Conftest."
+      ],
+      "expert": [
+        "Set up automatic KMS key rotation policies managed by Terraform."
+      ]
+    },
+    "completionChecklist": [
+      "Initial Terraform code scanned and security anti-patterns identified",
+      "All CIS benchmark findings remediated with encryption and access controls",
+      "Checkov scan passes with 0 failures on all managed resources",
+      "Custom Policy-as-Code rule implemented and verified",
+      "HashiCorp Vault provider configured retrieving dynamic credentials",
+      "Zero plaintext secrets in source files or git history",
+      "SECURITY_COMPLIANCE_AUDIT_REPORT.md published"
+    ],
+    "objectives": [
+      "Integrate Checkov and Trivy IaC static analysis into the Terraform development workflow",
+      "Enforce CIS Cloud Benchmark rules (e.g. S3 buckets must have encryption, versioning, and public access blocks)",
+      "Write custom Policy-as-Code rules (Python or Rego) enforcing organizational naming and tagging standards",
+      "Eliminate hardcoded credentials by injecting dynamic secrets from HashiCorp Vault or AWS Secrets Manager",
+      "Automate policy gating in CI to reject pull requests that violate compliance policies"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Infrastructure Security, Policy-as-Code & Compliance",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Infrastructure Security, Policy-as-Code & Compliance\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Author Terraform code with intentional security anti-patterns (unencrypted bucket, open port 22)",
+        "objective": "Author Terraform code with intentional security anti-patterns (unencrypted bucket, open port 22)",
+        "commandSnippet": "checkov -d .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Author Terraform code with intentional security anti-patterns (unencrypted bucket, open port 22)"
+      },
+      {
+        "id": "task-2",
+        "title": "Run checkov -d . and verify that security violations are flagged with specific CKV rule IDs",
+        "objective": "Run checkov -d . and verify that security violations are flagged with specific CKV rule IDs",
+        "commandSnippet": "checkov -f main.tf --framework terraform",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run checkov -d . and verify that security violations are flagged with specific CKV rule IDs"
+      },
+      {
+        "id": "task-3",
+        "title": "Remediate each violation: add server-side encryption, enable versioning, restrict CIDR blocks",
+        "objective": "Remediate each violation: add server-side encryption, enable versioning, restrict CIDR blocks",
+        "commandSnippet": "trivy config .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Remediate each violation: add server-side encryption, enable versioning, restrict CIDR blocks"
+      },
+      {
+        "id": "task-4",
+        "title": "Re-run checkov -d . and confirm 100% compliance pass",
+        "objective": "Re-run checkov -d . and confirm 100% compliance pass",
+        "commandSnippet": "vault kv get -format=json secret/database",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Re-run checkov -d . and confirm 100% compliance pass"
+      },
+      {
+        "id": "task-5",
+        "title": "Author custom policy custom_checks/mandatory_tags.py enforcing CostCenter tag",
+        "objective": "Author custom policy custom_checks/mandatory_tags.py enforcing CostCenter tag",
+        "commandSnippet": "checkov -d .",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Author custom policy custom_checks/mandatory_tags.py enforcing CostCenter tag"
+      },
+      {
+        "id": "task-6",
+        "title": "Run Vault container locally; configure vault provider in Terraform to fetch database password dynamically",
+        "objective": "Run Vault container locally; configure vault provider in Terraform to fetch database password dynamically",
+        "commandSnippet": "checkov -f main.tf --framework terraform",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run Vault container locally; configure vault provider in Terraform to fetch database password dynamically"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Committing Vault root tokens or secret IDs into provider configuration blocks in main.tf.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Relying solely on runtime cloud security scanners rather than pre-deployment Policy-as-Code in CI.",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Initial Terraform code scanned and security anti-patterns identified",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-2",
+        "label": "All CIS benchmark findings remediated with encryption and access controls",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-3",
+        "label": "Checkov scan passes with 0 failures on all managed resources",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-4",
+        "label": "Custom Policy-as-Code rule implemented and verified",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-5",
+        "label": "HashiCorp Vault provider configured retrieving dynamic credentials",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-6",
+        "label": "Zero plaintext secrets in source files or git history",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-7",
+        "label": "SECURITY_COMPLIANCE_AUDIT_REPORT.md published",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "terraform-08",
+    "code": "TERRAFORM-08",
+    "title": "Production Cloud Architecture (Multi-Tier VPC, Compute & DB)",
+    "academy": "terraform",
+    "difficulty": "Expert",
+    "estimatedTime": "14-18 hours",
+    "technologies": [
+      "Multi-Tier VPC",
+      "Public & Private Subnets",
+      "NAT Gateway",
+      "Application Load Balancer (ALB)",
+      "Auto Scaling Group (ASG)",
+      "RDS Database"
+    ],
+    "overview": "Architect and provision an enterprise high-availability, multi-AZ cloud production environment using Terraform, featuring a multi-tier VPC (public, private, database subnets), NAT gateways, ALB, auto-scaling compute, and managed database.",
+    "tags": [
+      "terraform",
+      "production",
+      "vpc",
+      "multi-tier",
+      "high-availability",
+      "aws",
+      "alb",
+      "asg",
+      "rds"
+    ],
+    "projectOverview": {
+      "projectName": "Production Cloud Architecture (Multi-Tier VPC, Compute & DB)",
+      "academy": "terraform",
+      "difficulty": "Expert",
+      "estimatedEffort": "14-18 hours",
+      "technologies": [
+        "AWS / LocalStack",
+        "Multi-Tier VPC",
+        "Application Load Balancer",
+        "Auto Scaling Group",
+        "RDS Database"
+      ],
+      "shortDescription": "Engineer a multi-tier, high-availability cloud architecture across multiple Availability Zones featuring VPC segmentation, ALB load balancing, and private database storage."
+    },
+    "scenario": "Your SaaS company is migrating from single-server hosting to a mission-critical multi-AZ production architecture in AWS. Leadership requires a resilient architecture that can survive an entire data center availability zone outage: public web tier fronted by an Application Load Balancer, private application compute tier with auto-scaling, and a private multi-AZ database tier.",
+    "problemStatement": "Single-node architectures lack fault tolerance, scalability, and security isolation. A professional cloud architecture requires network segmentation across public subnets (ALB/NAT), private application subnets (stateless compute), and isolated database subnets (stateful storage) spanned across at least 2 Availability Zones.",
+    "projectObjective": [
+      "Design and deploy a Multi-Tier VPC spanning 2 Availability Zones (Public, Private, Database subnets)",
+      "Provision Internet Gateway (IGW) and redundant NAT Gateways for outbound internet from private subnets",
+      "Deploy an Application Load Balancer (ALB) with health checks in the public subnets",
+      "Deploy an Auto Scaling Group (ASG) of compute instances in the private application subnets",
+      "Deploy a Multi-AZ managed database instance in the isolated database subnet group"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "A complete multi-tier, multi-AZ production cloud architecture completely defined and provisioned via Terraform.",
+      "diagram": "[Virtual Private Cloud: 10.0.0.0/16]\n├── Public Subnets (AZ-a & AZ-b)\n│   ├── Internet Gateway (IGW)\n│   ├── Application Load Balancer (ALB: Port 80/443)\n│   └── NAT Gateways (AZ-a & AZ-b)\n│\n├── Private Application Subnets (AZ-a & AZ-b)\n│   ├── Route to NAT Gateways (Outbound only)\n│   └── Auto Scaling Group (EC2 / ECS Tasks: Min 2, Max 6)\n│       └── Security Group: Ingress ONLY from ALB\n│\n└── Private Database Subnets (AZ-a & AZ-b)\n    └── Multi-AZ RDS Database (Primary in AZ-a, Standby in AZ-b)\n        └── Security Group: Ingress ONLY from App Subnets (Port 5432)"
+    },
+    "requirements": {
+      "functional": [
+        "Application must be accessible via the public Application Load Balancer DNS endpoint",
+        "Compute instances must reside in private subnets with no public IP addresses assigned",
+        "Database must reside in dedicated private database subnets and accept connections exclusively from application instances",
+        "Simulating an instance failure must trigger the Auto Scaling Group to replace the instance automatically"
+      ],
+      "technical": [
+        "Use aws provider (or localstack simulated provider)",
+        "Structure modules: vpc_module, compute_module, database_module",
+        "Use cidrsubnet() function to compute subnet CIDR blocks dynamically"
+      ],
+      "security": [
+        "Strict security group chaining: ALB -> App SG -> DB SG",
+        "Zero direct internet ingress to compute or database instances"
+      ]
+    },
+    "architecture": {
+      "summary": "Three-tier multi-AZ enterprise cloud architecture establishing Defense-in-Depth network boundaries, redundant egress gateways, and managed database replication.",
+      "diagram": "Internet ──> IGW ──> ALB (Public) ──> Private App ASG (Private) ──> Multi-AZ RDS (Isolated)",
+      "components": [
+        {
+          "name": "VPC Network Fabric",
+          "role": "Isolated software-defined cloud network spanning multiple AZs",
+          "technologies": [
+            "AWS VPC"
+          ]
+        },
+        {
+          "name": "Application Load Balancer",
+          "role": "Layer 7 load balancer distributing incoming traffic across compute instances",
+          "technologies": [
+            "AWS ALB"
+          ]
+        },
+        {
+          "name": "Auto Scaling Compute Tier",
+          "role": "Elastic pool of stateless application servers automatically scaling on demand",
+          "technologies": [
+            "AWS ASG",
+            "Launch Template"
+          ]
+        },
+        {
+          "name": "Multi-AZ Database Cluster",
+          "role": "High-availability relational database with automated synchronous standby failover",
+          "technologies": [
+            "AWS RDS"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "AWS account (Free Tier) or LocalStack Pro/Community"
+      ],
+      "optional": [
+        "AWS CLI for verifying resource state"
+      ],
+      "outOfScope": [
+        "Global Multi-Region Route53 latency routing"
+      ]
+    },
+    "functionalRequirements": [
+      "Author Terraform modules for VPC, Compute (ALB+ASG), and Database",
+      "Compute dynamic subnet CIDRs using cidrsubnet(var.vpc_cidr, 4, index)",
+      "Provision Internet Gateway and route table for public subnets",
+      "Provision NAT Gateway and route tables for private subnets",
+      "Deploy ALB with target group and HTTP health checks (/healthz)",
+      "Deploy Launch Template and Auto Scaling Group with min_size=2 and max_size=4",
+      "Deploy RDS PostgreSQL instance in private database subnet group",
+      "Run terraform apply and verify end-to-end traffic flow through ALB to backend"
+    ],
+    "technicalRequirements": [
+      "Validate security group chaining: verify DB security group only allows ingress from App security group ID",
+      "Verify terraform plan shows zero unexpected diffs after initial apply"
+    ],
+    "securityRequirements": [
+      "Enable storage encryption on RDS using KMS",
+      "Ensure all EC2 EBS root volumes have encryption enabled"
+    ],
+    "constraints": [
+      "Do not assign public IP addresses to compute instances in private subnets",
+      "Do not place database instances in public subnets"
+    ],
+    "expectedOutcome": "A complete, enterprise-grade multi-tier production cloud architecture provisioned declaratively with zero manual console intervention.",
+    "deliverables": [
+      "VPC module (modules/vpc/)",
+      "Compute module (modules/compute/)",
+      "Database module (modules/database/)",
+      "Root orchestration configuration (main.tf, outputs.tf)",
+      "PRODUCTION_ARCHITECTURE_MANUAL.md detailing network topology, security group matrix, and failover design"
+    ],
+    "suggestedProjectStructure": "production-cloud/\n├── main.tf\n├── variables.tf\n├── outputs.tf\n├── modules/\n│   ├── vpc/\n│   │   ├── main.tf\n│   │   ├── variables.tf\n│   │   └── outputs.tf\n│   ├── compute/\n│   │   ├── main.tf\n│   │   ├── variables.tf\n│   │   └── outputs.tf\n│   └── database/\n│       ├── main.tf\n│       ├── variables.tf\n│       └── outputs.tf\n└── PRODUCTION_ARCHITECTURE_MANUAL.md",
+    "requiredConcepts": [
+      {
+        "name": "Production Cloud Architectures",
+        "lessonId": "ch-16",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform Modules & Composition",
+        "lessonId": "ch-08",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "HCL Functions (cidrsubnet)",
+        "lessonId": "ch-06",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform Security & IAM",
+        "lessonId": "ch-15",
+        "academyRoute": "/terraform"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 16: Production Cloud Architectures",
+          "route": "/cloudstack/terraform?concept=ch-16"
+        },
+        {
+          "title": "Chapter 08: Modules & Architecture",
+          "route": "/cloudstack/terraform?concept=ch-08"
+        },
+        {
+          "title": "Chapter 06: Built-in Functions",
+          "route": "/cloudstack/terraform?concept=ch-06"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "AWS Well-Architected Framework - Reliability Pillar",
+          "url": "https://docs.aws.amazon.com/wellarchitected/latest/reliability-pillar/welcome.html"
+        },
+        {
+          "title": "Terraform AWS Provider Documentation",
+          "url": "https://registry.terraform.io/providers/hashicorp/aws/latest/docs"
+        }
+      ],
+      "referenceMaterial": [
+        "AWS Certified Solutions Architect Professional Design Guide"
+      ],
+      "usefulCommands": [
+        "terraform plan -out=prodplan",
+        "terraform apply prodplan",
+        "curl http://<ALB_DNS_NAME>",
+        "aws ec2 describe-instances --filters \"Name=vpc-id,Values=<VPC_ID>\""
+      ]
+    },
+    "recommendedApproach": [
+      "1. Design VPC CIDR block (10.0.0.0/16) and plan subnet allocation across 2 AZs.",
+      "2. Author modules/vpc provisioning VPC, public subnets, private subnets, database subnets, IGW, and NAT.",
+      "3. Author modules/database provisioning private DB subnet group and Multi-AZ RDS instance.",
+      "4. Author modules/compute provisioning security groups, ALB, Launch Template, and ASG.",
+      "5. Wire modules together in root main.tf, passing subnet IDs and security group references.",
+      "6. Run terraform validate and execute speculative terraform plan.",
+      "7. Execute terraform apply to provision the entire cloud topology.",
+      "8. Test HTTP connectivity against the ALB public DNS name.",
+      "9. Test resilience: terminate one EC2 instance via CLI; observe ASG automatically launching a replacement.",
+      "10. Author PRODUCTION_ARCHITECTURE_MANUAL.md."
+    ],
+    "importantConsiderations": [
+      "Why is distributing public, private, and database subnets across at least 2 Availability Zones mandatory for 99.99% availability?",
+      "How does security group chaining (referencing another security group as source) eliminate the need to hardcode IP addresses?",
+      "What are the cost implications of running redundant NAT Gateways across multiple AZs vs a single NAT Gateway?"
+    ],
+    "commonPitfalls": [
+      "Placing NAT Gateways in private subnets instead of public subnets, breaking outbound internet for compute instances.",
+      "Forgetting to attach the Internet Gateway route to the public subnet route table.",
+      "Assigning public IP addresses to private compute instances, exposing them directly to internet scanners."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add automated HTTPS redirect on the Application Load Balancer."
+      ],
+      "intermediate": [
+        "Configure CloudWatch CPU utilization alarms triggering ASG scaling policies."
+      ],
+      "advanced": [
+        "Implement AWS VPC Flow Logs streaming to CloudWatch Logs for security auditing."
+      ],
+      "expert": [
+        "Add AWS WAF (Web Application Firewall) attached to the ALB blocking SQLi and XSS attacks."
+      ]
+    },
+    "completionChecklist": [
+      "Multi-Tier VPC provisioned spanning 2 Availability Zones",
+      "Public, Private, and Database subnets calculated dynamically using cidrsubnet()",
+      "Internet Gateway and NAT Gateways provisioned and routing correctly",
+      "Security group chaining configured without hardcoded IP ranges",
+      "Application Load Balancer deployed with healthy target group",
+      "Auto Scaling Group launches minimum 2 instances in private subnets",
+      "Traffic verified flowing from ALB to private compute instances",
+      "PRODUCTION_ARCHITECTURE_MANUAL.md published"
+    ],
+    "objectives": [
+      "Design and deploy a Multi-Tier VPC spanning 2 Availability Zones (Public, Private, Database subnets)",
+      "Provision Internet Gateway (IGW) and redundant NAT Gateways for outbound internet from private subnets",
+      "Deploy an Application Load Balancer (ALB) with health checks in the public subnets",
+      "Deploy an Auto Scaling Group (ASG) of compute instances in the private application subnets",
+      "Deploy a Multi-AZ managed database instance in the isolated database subnet group"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Production Cloud Architecture (Multi-Tier VPC, Compute & DB)",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Production Cloud Architecture (Multi-Tier VPC, Compute & DB)\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Author Terraform modules for VPC, Compute (ALB+ASG), and Database",
+        "objective": "Author Terraform modules for VPC, Compute (ALB+ASG), and Database",
+        "commandSnippet": "terraform plan -out=prodplan",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Author Terraform modules for VPC, Compute (ALB+ASG), and Database"
+      },
+      {
+        "id": "task-2",
+        "title": "Compute dynamic subnet CIDRs using cidrsubnet(var.vpc_cidr, 4, index)",
+        "objective": "Compute dynamic subnet CIDRs using cidrsubnet(var.vpc_cidr, 4, index)",
+        "commandSnippet": "terraform apply prodplan",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Compute dynamic subnet CIDRs using cidrsubnet(var.vpc_cidr, 4, index)"
+      },
+      {
+        "id": "task-3",
+        "title": "Provision Internet Gateway and route table for public subnets",
+        "objective": "Provision Internet Gateway and route table for public subnets",
+        "commandSnippet": "curl http://<ALB_DNS_NAME>",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Provision Internet Gateway and route table for public subnets"
+      },
+      {
+        "id": "task-4",
+        "title": "Provision NAT Gateway and route tables for private subnets",
+        "objective": "Provision NAT Gateway and route tables for private subnets",
+        "commandSnippet": "aws ec2 describe-instances --filters \"Name=vpc-id,Values=<VPC_ID>\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Provision NAT Gateway and route tables for private subnets"
+      },
+      {
+        "id": "task-5",
+        "title": "Deploy ALB with target group and HTTP health checks (/healthz)",
+        "objective": "Deploy ALB with target group and HTTP health checks (/healthz)",
+        "commandSnippet": "terraform plan -out=prodplan",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy ALB with target group and HTTP health checks (/healthz)"
+      },
+      {
+        "id": "task-6",
+        "title": "Deploy Launch Template and Auto Scaling Group with min_size=2 and max_size=4",
+        "objective": "Deploy Launch Template and Auto Scaling Group with min_size=2 and max_size=4",
+        "commandSnippet": "terraform apply prodplan",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy Launch Template and Auto Scaling Group with min_size=2 and max_size=4"
+      },
+      {
+        "id": "task-7",
+        "title": "Deploy RDS PostgreSQL instance in private database subnet group",
+        "objective": "Deploy RDS PostgreSQL instance in private database subnet group",
+        "commandSnippet": "curl http://<ALB_DNS_NAME>",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy RDS PostgreSQL instance in private database subnet group"
+      },
+      {
+        "id": "task-8",
+        "title": "Run terraform apply and verify end-to-end traffic flow through ALB to backend",
+        "objective": "Run terraform apply and verify end-to-end traffic flow through ALB to backend",
+        "commandSnippet": "aws ec2 describe-instances --filters \"Name=vpc-id,Values=<VPC_ID>\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Run terraform apply and verify end-to-end traffic flow through ALB to backend"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Placing NAT Gateways in private subnets instead of public subnets, breaking outbound internet for compute instances.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Forgetting to attach the Internet Gateway route to the public subnet route table.",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Multi-Tier VPC provisioned spanning 2 Availability Zones",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Public, Private, and Database subnets calculated dynamically using cidrsubnet()",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Internet Gateway and NAT Gateways provisioned and routing correctly",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Security group chaining configured without hardcoded IP ranges",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Application Load Balancer deployed with healthy target group",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Auto Scaling Group launches minimum 2 instances in private subnets",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "Traffic verified flowing from ALB to private compute instances",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "PRODUCTION_ARCHITECTURE_MANUAL.md published",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "terraform-09",
+    "code": "TERRAFORM-09",
+    "title": "Automated Infrastructure CI/CD Pipeline with Drift Detection",
+    "academy": "terraform",
+    "difficulty": "Expert / Production",
+    "estimatedTime": "16-20 hours",
+    "technologies": [
+      "GitHub Actions / GitLab CI",
+      "OIDC Cloud Authentication",
+      "Automated PR Planning",
+      "Drift Detection Cron",
+      "Slack / Webhook Alerts"
+    ],
+    "overview": "Design, implement, and operate an enterprise automated Infrastructure as Code (IaC) continuous delivery pipeline, featuring keyless OIDC cloud authentication, automated pull-request speculative planning, gated production apply, and scheduled out-of-band drift detection.",
+    "tags": [
+      "terraform",
+      "ci-cd",
+      "drift-detection",
+      "oidc",
+      "github-actions",
+      "automation",
+      "sre"
+    ],
+    "projectOverview": {
+      "projectName": "Automated Infrastructure CI/CD Pipeline with Drift Detection",
+      "academy": "terraform",
+      "difficulty": "Expert / Production",
+      "estimatedEffort": "16-20 hours",
+      "technologies": [
+        "Terraform CLI",
+        "GitHub Actions",
+        "AWS OIDC",
+        "Scheduled Drift Detection",
+        "Slack Notifications"
+      ],
+      "shortDescription": "Build an enterprise Infrastructure as Code CI/CD pipeline featuring keyless OIDC authentication, automated PR plan comments, gated apply, and daily scheduled drift detection."
+    },
+    "scenario": "Your organization suffered an outage when an administrator manually altered a firewall rule in the cloud console to debug an issue and forgot to revert it. When Terraform was next applied, the manual change was overwritten, breaking production. You must build an automated pipeline that continuously monitors for out-of-band infrastructure drift and alerts the on-call team.",
+    "problemStatement": "Infrastructure changes made outside of version control (ClickOps or manual script execution) cause configuration drift that causes unexpected breaking changes during routine Terraform deployments. An automated pipeline is required to detect and alert on drift continuously.",
+    "projectObjective": [
+      "Configure keyless OIDC authentication between GitHub Actions and the cloud provider (eliminating static cloud keys)",
+      "Automate speculative terraform plan execution on pull requests with formatted markdown comments",
+      "Implement an automated production apply workflow gated by human peer review",
+      "Create a scheduled cron workflow (.github/workflows/drift-detection.yml) running terraform plan -detailed-exitcode",
+      "Send automated Slack/webhook alerts whenever out-of-band configuration drift is detected"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "An enterprise Infrastructure CI/CD pipeline managing pull request reviews, automated deployments, and continuous drift monitoring.",
+      "diagram": "Branch PR Created ──> [CI Plan Workflow] ──(OIDC Auth)──> terraform plan ──> Post Diff on PR\n                                                                                              │\n                                                                                              ▼ (Merged to main)\n                                                [CD Apply Workflow] ──(OIDC Auth)──> terraform apply -auto-approve\n                                                                                              │\nNightly Cron Trigger (0 0 * * *)                                                              │\n         │                                                                                    ▼\n         ▼                                                                          [Live Cloud Infrastructure]\n[Scheduled Drift Detection Workflow]                                                          │\n├── 1. terraform plan -detailed-exitcode                                                      │\n├── Exit Code 0: In Sync (No Action)                                                          │\n└── Exit Code 2: DRIFT DETECTED! ─────────────────────────────────────────────────────────────┘\n    └── Dispatch Webhook Alert: \"Drift detected on AWS VPC! Check manual console changes.\""
+    },
+    "requirements": {
+      "functional": [
+        "PRs must automatically receive an updated comment containing the exact terraform plan output",
+        "Applying to production must only execute on the main branch after PR approval",
+        "Scheduled drift detection must run every night and fire an alert if someone made manual changes in the cloud console"
+      ],
+      "technical": [
+        "Authenticate using aws-actions/configure-aws-credentials with OIDC role-to-assume",
+        "Detect drift using terraform plan -detailed-exitcode (exit code 2 indicates changes present)",
+        "Configure workflow with permissions: id-token: write, contents: read"
+      ],
+      "security": [
+        "Zero static AWS Access Keys or Secret Keys stored in GitHub Secrets (100% OIDC-based)",
+        "Lock down OIDC trust policy to specific repository and branch"
+      ]
+    },
+    "architecture": {
+      "summary": "Continuous infrastructure governance architecture combining pull request speculative verification, authoritative state deployment, and continuous out-of-band drift reconciliation.",
+      "diagram": "Git Pull Request ──> OIDC Token Exchange ──> Speculative Plan ──> Main Apply ──> Scheduled Drift Watchdog",
+      "components": [
+        {
+          "name": "OIDC Identity Provider",
+          "role": "Federated identity trust establishing short-lived STS credentials for GitHub runners",
+          "technologies": [
+            "OpenID Connect",
+            "AWS STS"
+          ]
+        },
+        {
+          "name": "PR Automation Engine",
+          "role": "Speculative planner generating plan diffs and posting review comments",
+          "technologies": [
+            "GitHub Actions",
+            "HCL"
+          ]
+        },
+        {
+          "name": "Drift Detection Watchdog",
+          "role": "Scheduled cron runner executing plan without applying to identify out-of-band mutations",
+          "technologies": [
+            "detailed-exitcode"
+          ]
+        },
+        {
+          "name": "Alert Dispatcher",
+          "role": "Notification gateway alerting SRE on-call engineers of configuration entropy",
+          "technologies": [
+            "Slack / Webhook"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "GitHub repository with Actions",
+        "AWS or Cloud Provider with OIDC role"
+      ],
+      "optional": [
+        "LocalStack with simulated OIDC alternative"
+      ],
+      "outOfScope": [
+        "Third-party enterprise SaaS runners"
+      ]
+    },
+    "functionalRequirements": [
+      "Configure AWS IAM OIDC identity provider and role with trust policy for the GitHub repository",
+      "Create .github/workflows/tf-pr.yml generating speculative plans on pull requests",
+      "Create .github/workflows/tf-apply.yml applying changes on merge to main",
+      "Create .github/workflows/drift-detection.yml running on schedule (cron: \"0 2 * * *\")",
+      "Simulate drift: manually change a tag or security group description in cloud console",
+      "Trigger drift workflow manually and verify that exit code 2 is caught and alert payload is sent"
+    ],
+    "technicalRequirements": [
+      "Verify OIDC authentication in runner logs shows temporary STS assumed role",
+      "Verify detailed-exitcode interpretation in bash script"
+    ],
+    "securityRequirements": [
+      "Ensure OIDC trust policy specifies stringEquals for repo:org/repo:ref:refs/heads/main"
+    ],
+    "constraints": [
+      "Never store long-lived AWS secret access keys in GitHub Secrets",
+      "Do not auto-apply detected drift without human inspection (alert only)"
+    ],
+    "expectedOutcome": "A certified, automated enterprise Infrastructure as Code CI/CD pipeline providing keyless authentication, PR plan transparency, and continuous drift detection.",
+    "deliverables": [
+      "Pull request plan workflow (.github/workflows/tf-pr.yml)",
+      "Production apply workflow (.github/workflows/tf-apply.yml)",
+      "Scheduled drift detection workflow (.github/workflows/drift-detection.yml)",
+      "OIDC trust policy specification (oidc-trust-policy.json)",
+      "DRIFT_DETECTION_RUNBOOK.md detailing drift triage, state reconciliation, and alert procedures"
+    ],
+    "suggestedProjectStructure": ".github/\n└── workflows/\n    ├── tf-pr.yml\n    ├── tf-apply.yml\n    └── drift-detection.yml\nterraform/\n├── backend.tf\n├── main.tf\n├── variables.tf\n└── outputs.tf\nscripts/\n└── notify-drift.sh\nDRIFT_DETECTION_RUNBOOK.md",
+    "requiredConcepts": [
+      {
+        "name": "Infrastructure as Code Automation",
+        "lessonId": "ch-01",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Remote State & Concurrency",
+        "lessonId": "ch-10",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "State Management & Drift",
+        "lessonId": "ch-07",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform Security & IAM",
+        "lessonId": "ch-15",
+        "academyRoute": "/terraform"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 01: IaC & Automation",
+          "route": "/cloudstack/terraform?concept=ch-01"
+        },
+        {
+          "title": "Chapter 10: Remote State & Locking",
+          "route": "/cloudstack/terraform?concept=ch-10"
+        },
+        {
+          "title": "Chapter 07: Terraform State & Drift",
+          "route": "/cloudstack/terraform?concept=ch-07"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "Configuring OpenID Connect in Amazon Web Services",
+          "url": "https://docs.github.com/en/actions/deployment/security-hardening-your-deployments/configuring-openid-connect-in-amazon-web-services"
+        },
+        {
+          "title": "Terraform CLI: -detailed-exitcode",
+          "url": "https://developer.hashicorp.com/terraform/cli/commands/plan#detailed-exitcode"
+        }
+      ],
+      "referenceMaterial": [
+        "Google SRE: Managing Configuration Entropy and Drift"
+      ],
+      "usefulCommands": [
+        "terraform plan -detailed-exitcode",
+        "gh workflow run drift-detection.yml",
+        "aws sts get-caller-identity"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Configure AWS IAM OIDC identity provider for GitHub Actions.",
+      "2. Create an IAM role with permissions to manage target infrastructure and trust policy for GitHub OIDC.",
+      "3. Author .github/workflows/tf-pr.yml with OIDC authentication and terraform plan.",
+      "4. Add PR comment step posting formatted plan output to the PR.",
+      "5. Author .github/workflows/tf-apply.yml with main push trigger and terraform apply.",
+      "6. Author .github/workflows/drift-detection.yml running on cron schedule.",
+      "7. Use terraform plan -detailed-exitcode in the drift workflow, evaluating exit codes (0 = clean, 2 = drift).",
+      "8. Add notification step dispatching webhook on exit code 2.",
+      "9. Simulate manual cloud drift, run the drift workflow, and verify alert triggers.",
+      "10. Publish DRIFT_DETECTION_RUNBOOK.md."
+    ],
+    "importantConsiderations": [
+      "How does keyless OIDC authentication eliminate the threat of leaked static credentials from CI runners?",
+      "What is the meaning of each exit code in terraform plan -detailed-exitcode (0 = no changes, 1 = error, 2 = changes present)?",
+      "Why should automated drift detection alert operators rather than blindly running terraform apply automatically?"
+    ],
+    "commonPitfalls": [
+      "Failing to grant id-token: write permissions in the GitHub Actions workflow, causing OIDC token retrieval to fail.",
+      "Allowing drift detection scripts to fail the CI job when drift is detected (exit code 2 should be handled gracefully, not crash the job).",
+      "Wildcard OIDC trust policies that allow any repository in your organization to assume production infrastructure roles."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Add automated cost projection (Infracost) to the PR comment."
+      ],
+      "intermediate": [
+        "Integrate Slack interactive buttons allowing on-call engineers to trigger remediation from chat."
+      ],
+      "advanced": [
+        "Implement automated speculative plan destruction checks for PRs deleting resources."
+      ],
+      "expert": [
+        "Build an automated self-healing pipeline that opens a GitHub PR to reconcile detected drift into code."
+      ]
+    },
+    "completionChecklist": [
+      "AWS IAM OIDC identity provider configured and bound to GitHub Actions",
+      "Pull request workflow created, authenticating via OIDC and posting plan comments",
+      "Production apply workflow configured running strictly on main merge",
+      "Scheduled drift detection workflow authored using -detailed-exitcode",
+      "Simulated console change triggers drift alert successfully",
+      "Zero static credentials stored in GitHub Secrets",
+      "DRIFT_DETECTION_RUNBOOK.md published"
+    ],
+    "objectives": [
+      "Configure keyless OIDC authentication between GitHub Actions and the cloud provider (eliminating static cloud keys)",
+      "Automate speculative terraform plan execution on pull requests with formatted markdown comments",
+      "Implement an automated production apply workflow gated by human peer review",
+      "Create a scheduled cron workflow (.github/workflows/drift-detection.yml) running terraform plan -detailed-exitcode",
+      "Send automated Slack/webhook alerts whenever out-of-band configuration drift is detected"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Automated Infrastructure CI/CD Pipeline with Drift Detection",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Automated Infrastructure CI/CD Pipeline with Drift Detection\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Configure AWS IAM OIDC identity provider and role with trust policy for the GitHub repository",
+        "objective": "Configure AWS IAM OIDC identity provider and role with trust policy for the GitHub repository",
+        "commandSnippet": "terraform plan -detailed-exitcode",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure AWS IAM OIDC identity provider and role with trust policy for the GitHub repository"
+      },
+      {
+        "id": "task-2",
+        "title": "Create .github/workflows/tf-pr.yml generating speculative plans on pull requests",
+        "objective": "Create .github/workflows/tf-pr.yml generating speculative plans on pull requests",
+        "commandSnippet": "gh workflow run drift-detection.yml",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create .github/workflows/tf-pr.yml generating speculative plans on pull requests"
+      },
+      {
+        "id": "task-3",
+        "title": "Create .github/workflows/tf-apply.yml applying changes on merge to main",
+        "objective": "Create .github/workflows/tf-apply.yml applying changes on merge to main",
+        "commandSnippet": "aws sts get-caller-identity",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create .github/workflows/tf-apply.yml applying changes on merge to main"
+      },
+      {
+        "id": "task-4",
+        "title": "Create .github/workflows/drift-detection.yml running on schedule (cron: \"0 2 * * *\")",
+        "objective": "Create .github/workflows/drift-detection.yml running on schedule (cron: \"0 2 * * *\")",
+        "commandSnippet": "terraform plan -detailed-exitcode",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Create .github/workflows/drift-detection.yml running on schedule (cron: \"0 2 * * *\")"
+      },
+      {
+        "id": "task-5",
+        "title": "Simulate drift: manually change a tag or security group description in cloud console",
+        "objective": "Simulate drift: manually change a tag or security group description in cloud console",
+        "commandSnippet": "gh workflow run drift-detection.yml",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Simulate drift: manually change a tag or security group description in cloud console"
+      },
+      {
+        "id": "task-6",
+        "title": "Trigger drift workflow manually and verify that exit code 2 is caught and alert payload is sent",
+        "objective": "Trigger drift workflow manually and verify that exit code 2 is caught and alert payload is sent",
+        "commandSnippet": "aws sts get-caller-identity",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Trigger drift workflow manually and verify that exit code 2 is caught and alert payload is sent"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Failing to grant id-token: write permissions in the GitHub Actions workflow, causing OIDC token retrieval to fail.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Allowing drift detection scripts to fail the CI job when drift is detected (exit code 2 should be handled gracefully, not crash the job).",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "AWS IAM OIDC identity provider configured and bound to GitHub Actions",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-2",
+        "label": "Pull request workflow created, authenticating via OIDC and posting plan comments",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-3",
+        "label": "Production apply workflow configured running strictly on main merge",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-4",
+        "label": "Scheduled drift detection workflow authored using -detailed-exitcode",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-5",
+        "label": "Simulated console change triggers drift alert successfully",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-6",
+        "label": "Zero static credentials stored in GitHub Secrets",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      },
+      {
+        "id": "val-7",
+        "label": "DRIFT_DETECTION_RUNBOOK.md published",
+        "verificationCommand": "terraform validate",
+        "points": 14
+      }
+    ],
+    "scoreMax": 100
+  },
+  {
+    "id": "terraform-10",
+    "code": "TERRAFORM-10",
+    "title": "Enterprise Infrastructure Platform & Disaster Recovery",
+    "academy": "terraform",
+    "difficulty": "Production Grade",
+    "estimatedTime": "16-24 hours",
+    "technologies": [
+      "Enterprise Terraform Architecture",
+      "Multi-Region Replication",
+      "Terragrunt / Module Orchestration",
+      "Disaster Recovery RTO/RPO",
+      "State Reconstruction"
+    ],
+    "overview": "The pinnacle Terraform engineering project: architect, govern, provision, and operate an enterprise multi-region cloud infrastructure platform featuring disaster recovery failover, automated cross-region replication, blast radius containment, and simulated catastrophic region loss recovery.",
+    "tags": [
+      "terraform",
+      "production-grade",
+      "enterprise",
+      "multi-region",
+      "disaster-recovery",
+      "rto-rpo",
+      "failover"
+    ],
+    "projectOverview": {
+      "projectName": "Enterprise Infrastructure Platform & Disaster Recovery",
+      "academy": "terraform",
+      "difficulty": "Production Grade",
+      "estimatedEffort": "16-24 hours",
+      "technologies": [
+        "Enterprise Terraform",
+        "Multi-Region Architecture",
+        "Cross-Region Replication",
+        "Disaster Recovery Runbook"
+      ],
+      "shortDescription": "The master Terraform capstone: engineer an enterprise multi-region cloud platform capable of complete automated disaster recovery across primary and secondary regions."
+    },
+    "scenario": "You are the Chief Infrastructure Architect for an international payment network. Regulatory standards require that your infrastructure survive a catastrophic regional blackout (e.g. AWS us-east-1 complete failure) with a Recovery Time Objective (RTO) under 15 minutes and Recovery Point Objective (RPO) under 1 minute. You must architect, provision, and validate the complete multi-region disaster recovery platform using Terraform.",
+    "problemStatement": "Single-region cloud platforms represent a single point of failure during major cloud provider outages. Enterprise business continuity requires active-passive or active-active multi-region infrastructure, automated cross-region database replication, global DNS health check failover, and audited disaster recovery reconstruction procedures.",
+    "projectObjective": [
+      "Architect an enterprise multi-region platform across Primary (e.g. us-east-1) and Secondary (e.g. us-west-2) regions",
+      "Provision multi-tier VPCs, compute pools, and cross-region replicated storage using modular Terraform",
+      "Implement global DNS failover routing with health probes (Route 53 or Cloudflare)",
+      "Establish cross-region database read replica synchronization with automated promotion capability",
+      "Execute a live simulated catastrophic region disaster drill: fail over all traffic to secondary region in < 15 minutes"
+    ],
+    "whatYouNeedToBuild": {
+      "description": "An enterprise multi-region cloud architecture featuring automated cross-region data replication, health-probed global traffic failover, and disaster recovery automation.",
+      "diagram": "                       Global Users (api.company.com)\n                                     │\n                                     ▼\n                [Global DNS Failover Routing (Route 53)]\n                ├── Primary Endpoint Health Check (Passing)\n                └── Automated Failover to Secondary on 3 Consecutive Failures\n                                     │\n            ┌────────────────────────┴────────────────────────┐\n            ▼ (Normal Operations: 100% Traffic)               ▼ (Standby: 0% Traffic / Passive)\n[PRIMARY REGION (us-east-1)]                       [SECONDARY REGION (us-west-2)]\n├── Multi-Tier VPC (10.1.0.0/16)                   ├── Multi-Tier VPC (10.2.0.0/16)\n├── Application Load Balancer & ASG                ├── Application Load Balancer & ASG\n└── Primary Database (Read/Write)                  └── Cross-Region Read Replica (Sync)\n            │                                                 ▲\n            └──────────(Async Cross-Region Replication)───────┘\n                                     │\n      [SIMULATED DISASTER DRILL: PRIMARY REGION BLACKOUT]\n      ├── 1. Route 53 marks Primary Unhealthy (30s)\n      ├── 2. DNS routes 100% traffic to Secondary ALB\n      ├── 3. Terraform promotes Read Replica to Standalone Primary\n      └── 4. Total Platform Recovery Achieved in < 15 Minutes!"
+    },
+    "requirements": {
+      "functional": [
+        "Terraform must provision identical, reproducible infrastructure across both Primary and Secondary regions",
+        "Database replication must synchronize data from Primary to Secondary continuously",
+        "During simulated disaster, promoting Secondary region to active primary must execute in < 15 minutes without data loss"
+      ],
+      "technical": [
+        "Configure dual aws provider aliases (aws.primary and aws.secondary)",
+        "Structure modules for multi-region consumption",
+        "Automate failover promotion steps using Terraform variables or CLI scripts"
+      ],
+      "security": [
+        "Enforce multi-region KMS key replication for encrypted data volumes",
+        "Ensure IAM permissions enforce separation between primary operations and disaster recovery failover"
+      ]
+    },
+    "architecture": {
+      "summary": "Enterprise multi-region disaster recovery architecture establishing active-passive hot standby topology, automated cross-region state replication, and global DNS failover.",
+      "diagram": "Global Route 53 ──> [Primary Region VPC (Active)] ──(Cross-Region Replication)──> [Secondary Region VPC (Hot Standby)]",
+      "components": [
+        {
+          "name": "Global Traffic Controller",
+          "role": "Latency and health-check driven DNS router switching traffic during regional outages",
+          "technologies": [
+            "Route 53 / Anycast"
+          ]
+        },
+        {
+          "name": "Primary Region VPC Tier",
+          "role": "Active production workload processing customer transactions",
+          "technologies": [
+            "AWS us-east-1",
+            "Terraform"
+          ]
+        },
+        {
+          "name": "Secondary Region Hot Standby",
+          "role": "Warm standby infrastructure ready to assume full production workload immediately",
+          "technologies": [
+            "AWS us-west-2",
+            "Terraform"
+          ]
+        },
+        {
+          "name": "Disaster Recovery Automation Suite",
+          "role": "Runbooks and orchestration scripts managing database replica promotion and failover",
+          "technologies": [
+            "Terraform CLI",
+            "Bash"
+          ]
+        }
+      ]
+    },
+    "technologyRequirements": {
+      "required": [
+        "Terraform CLI 1.5+",
+        "AWS account (Multi-region capable) or LocalStack Multi-Region simulation"
+      ],
+      "optional": [
+        "Terragrunt for multi-region DRY orchestration"
+      ],
+      "outOfScope": [
+        "Legacy on-premises mainframe replication"
+      ]
+    },
+    "functionalRequirements": [
+      "Configure providers for primary region (us-east-1) and secondary region (us-west-2)",
+      "Provision VPC, subnets, and routing in both regions using reusable VPC module",
+      "Deploy Primary database in us-east-1 with cross-region read replica in us-west-2",
+      "Deploy Application Load Balancer and compute pools in both regions",
+      "Configure Route 53 failover routing policy pointing primary to us-east-1 and secondary to us-west-2",
+      "Simulate regional blackout: disable primary health check; observe DNS routing switch to secondary",
+      "Promote read replica in us-west-2 to standalone primary and verify writes"
+    ],
+    "technicalRequirements": [
+      "Document end-to-end RTO (Recovery Time Objective) and RPO (Recovery Point Objective)",
+      "Verify terraform state reflects promoted database without state corruption"
+    ],
+    "securityRequirements": [
+      "Ensure cross-region traffic flows over encrypted AWS backbone networks (VPC Peering with encryption)",
+      "Ensure compliance audit logs record all failover execution events"
+    ],
+    "constraints": [
+      "Do not hardcode single region strings in reusable modules",
+      "Disaster recovery failover must be executable by on-call engineers using documented commands"
+    ],
+    "expectedOutcome": "A certified, multi-region enterprise cloud infrastructure platform capable of surviving complete regional cloud outages with verified sub-15-minute disaster recovery.",
+    "deliverables": [
+      "Multi-region Terraform orchestration codebase",
+      "Reusable multi-region infrastructure modules (vpc, compute, database)",
+      "DISASTER_RECOVERY_RUNBOOK.md detailing step-by-step failover execution, replica promotion, and failback",
+      "DISASTER_RECOVERY_DRILL_REPORT.md recording the live simulated failover drill, RTO/RPO timings, and post-mortem"
+    ],
+    "suggestedProjectStructure": "enterprise-multi-region/\n├── main.tf\n├── providers.tf\n├── variables.tf\n├── outputs.tf\n├── modules/\n│   ├── regional-vpc/\n│   ├── compute-tier/\n│   └── replicated-database/\n├── scripts/\n│   ├── simulate_regional_failure.sh\n│   └── execute_dr_promotion.sh\n├── DISASTER_RECOVERY_RUNBOOK.md\n└── DISASTER_RECOVERY_DRILL_REPORT.md",
+    "requiredConcepts": [
+      {
+        "name": "Production Cloud Architectures",
+        "lessonId": "ch-16",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform Modules & Composition",
+        "lessonId": "ch-08",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Remote State & Disaster Recovery",
+        "lessonId": "ch-10",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Terraform Security & Governance",
+        "lessonId": "ch-15",
+        "academyRoute": "/terraform"
+      },
+      {
+        "name": "Enterprise Best Practices",
+        "lessonId": "ch-17",
+        "academyRoute": "/terraform"
+      }
+    ],
+    "resources": {
+      "academyLessons": [
+        {
+          "title": "Chapter 16: Production Cloud Architectures",
+          "route": "/cloudstack/terraform?concept=ch-16"
+        },
+        {
+          "title": "Chapter 10: Remote Backends & State Recovery",
+          "route": "/cloudstack/terraform?concept=ch-10"
+        },
+        {
+          "title": "Chapter 17: Enterprise Terraform Operations",
+          "route": "/cloudstack/terraform?concept=ch-17"
+        }
+      ],
+      "officialDocs": [
+        {
+          "title": "AWS Multi-Region Application Architecture",
+          "url": "https://aws.amazon.com/solutions/multi-region-application-architecture/"
+        },
+        {
+          "title": "Terraform Multi-Provider Configuration",
+          "url": "https://developer.hashicorp.com/terraform/language/providers/configuration#alias-multiple-provider-configurations"
+        }
+      ],
+      "referenceMaterial": [
+        "Disaster Recovery of Workloads on AWS: Recovery in the Cloud"
+      ],
+      "usefulCommands": [
+        "terraform plan -var=\"dr_failover_active=false\"",
+        "terraform apply -var=\"dr_failover_active=true\"",
+        "aws route53 test-dns-answer --hosted-zone-id <ID> --record-name api.company.com --record-type A"
+      ]
+    },
+    "recommendedApproach": [
+      "1. Define enterprise RTO (< 15 min) and RPO (< 1 min) SLA requirements.",
+      "2. Configure multi-provider aliases in providers.tf for primary and secondary regions.",
+      "3. Provision identical regional VPCs in both regions using modular Terraform.",
+      "4. Deploy Primary database in us-east-1 and cross-region read replica in us-west-2.",
+      "5. Provision Application Load Balancers and compute pools in both regions.",
+      "6. Configure Route 53 health-checked failover routing policy.",
+      "7. Execute baseline apply and verify normal operations in primary region.",
+      "8. Conduct live disaster recovery drill: simulate primary region loss.",
+      "9. Promote the secondary database replica and verify traffic cutover.",
+      "10. Document recovery timings in DISASTER_RECOVERY_RUNBOOK.md and DISASTER_RECOVERY_DRILL_REPORT.md."
+    ],
+    "importantConsiderations": [
+      "What are the replication lag implications of asynchronous cross-region database replication on RPO?",
+      "Why is DNS TTL (Time To Live) a critical factor in determining failover RTO during disaster recovery?",
+      "How does failback to the primary region work after the regional outage is resolved, and how is split-brain avoided?"
+    ],
+    "commonPitfalls": [
+      "Setting long DNS TTLs (e.g. 86400s / 24 hours), causing client resolvers to cache the dead IP long after failover.",
+      "Failing to replicate KMS encryption keys across regions, causing encrypted volumes to fail to attach in the secondary region.",
+      "Testing disaster recovery only in theory without ever running live failover drills."
+    ],
+    "optionalEnhancements": {
+      "beginner": [
+        "Configure automated SNS email alerts upon Route 53 health check failure."
+      ],
+      "intermediate": [
+        "Implement automated CloudFront global edge caching fronting both regions."
+      ],
+      "advanced": [
+        "Build an automated Terraform script that re-synchronizes data back to the primary region after recovery."
+      ],
+      "expert": [
+        "Transition architecture from Active-Passive to Active-Active Multi-Region using Amazon Aurora Global Database."
+      ]
+    },
+    "completionChecklist": [
+      "Multi-region Terraform architecture deployed across primary and secondary regions",
+      "Dual provider aliases configured cleanly in providers.tf",
+      "Cross-region database replication established and verified in sync",
+      "Route 53 global DNS failover routing policy configured with health probes",
+      "Live simulated disaster drill executed",
+      "Replica promotion and DNS cutover completed with RTO < 15 minutes",
+      "DISASTER_RECOVERY_RUNBOOK.md completed",
+      "DISASTER_RECOVERY_DRILL_REPORT.md published"
+    ],
+    "objectives": [
+      "Architect an enterprise multi-region platform across Primary (e.g. us-east-1) and Secondary (e.g. us-west-2) regions",
+      "Provision multi-tier VPCs, compute pools, and cross-region replicated storage using modular Terraform",
+      "Implement global DNS failover routing with health probes (Route 53 or Cloudflare)",
+      "Establish cross-region database read replica synchronization with automated promotion capability",
+      "Execute a live simulated catastrophic region disaster drill: fail over all traffic to secondary region in < 15 minutes"
+    ],
+    "startingState": {
+      "description": "Terraform workspace environment for Enterprise Infrastructure Platform & Disaster Recovery",
+      "environment": "Terraform 1.5+ CLI / Cloud Infrastructure Provider",
+      "startingFiles": {
+        "main.tf": "# Enterprise Infrastructure Platform & Disaster Recovery\nterraform {\n  required_version = \">= 1.5.0\"\n}\n",
+        "variables.tf": "# Input variables\n",
+        "outputs.tf": "# Output definitions\n"
+      }
+    },
+    "tasks": [
+      {
+        "id": "task-1",
+        "title": "Configure providers for primary region (us-east-1) and secondary region (us-west-2)",
+        "objective": "Configure providers for primary region (us-east-1) and secondary region (us-west-2)",
+        "commandSnippet": "terraform plan -var=\"dr_failover_active=false\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure providers for primary region (us-east-1) and secondary region (us-west-2)"
+      },
+      {
+        "id": "task-2",
+        "title": "Provision VPC, subnets, and routing in both regions using reusable VPC module",
+        "objective": "Provision VPC, subnets, and routing in both regions using reusable VPC module",
+        "commandSnippet": "terraform apply -var=\"dr_failover_active=true\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Provision VPC, subnets, and routing in both regions using reusable VPC module"
+      },
+      {
+        "id": "task-3",
+        "title": "Deploy Primary database in us-east-1 with cross-region read replica in us-west-2",
+        "objective": "Deploy Primary database in us-east-1 with cross-region read replica in us-west-2",
+        "commandSnippet": "aws route53 test-dns-answer --hosted-zone-id <ID> --record-name api.company.com --record-type A",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy Primary database in us-east-1 with cross-region read replica in us-west-2"
+      },
+      {
+        "id": "task-4",
+        "title": "Deploy Application Load Balancer and compute pools in both regions",
+        "objective": "Deploy Application Load Balancer and compute pools in both regions",
+        "commandSnippet": "terraform plan -var=\"dr_failover_active=false\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Deploy Application Load Balancer and compute pools in both regions"
+      },
+      {
+        "id": "task-5",
+        "title": "Configure Route 53 failover routing policy pointing primary to us-east-1 and secondary to us-west-2",
+        "objective": "Configure Route 53 failover routing policy pointing primary to us-east-1 and secondary to us-west-2",
+        "commandSnippet": "terraform apply -var=\"dr_failover_active=true\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Configure Route 53 failover routing policy pointing primary to us-east-1 and secondary to us-west-2"
+      },
+      {
+        "id": "task-6",
+        "title": "Simulate regional blackout: disable primary health check; observe DNS routing switch to secondary",
+        "objective": "Simulate regional blackout: disable primary health check; observe DNS routing switch to secondary",
+        "commandSnippet": "aws route53 test-dns-answer --hosted-zone-id <ID> --record-name api.company.com --record-type A",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Simulate regional blackout: disable primary health check; observe DNS routing switch to secondary"
+      },
+      {
+        "id": "task-7",
+        "title": "Promote read replica in us-west-2 to standalone primary and verify writes",
+        "objective": "Promote read replica in us-west-2 to standalone primary and verify writes",
+        "commandSnippet": "terraform plan -var=\"dr_failover_active=false\"",
+        "expectedOutput": "Action completed successfully.",
+        "verificationCriteria": "Promote read replica in us-west-2 to standalone primary and verify writes"
+      }
+    ],
+    "failureScenarios": [
+      {
+        "id": "fail-1",
+        "title": "Setting long DNS TTLs (e.g. 86400s / 24 hours), causing client resolvers to cache the dead IP long after failover.",
+        "symptom": "Terraform operation fails with state lock error or provider authentication failure.",
+        "rootCause": "Concurrent operation holding lock or expired credentials.",
+        "diagnosticCommand": "terraform plan",
+        "fixCommand": "terraform force-unlock <LOCK_ID> || terraform init",
+        "verification": "Terraform plan executes successfully."
+      },
+      {
+        "id": "fail-2",
+        "title": "Failing to replicate KMS encryption keys across regions, causing encrypted volumes to fail to attach in the secondary region.",
+        "symptom": "terraform validate fails with HCL parse error or type mismatch.",
+        "rootCause": "Invalid attribute name, wrong variable type, or syntax error.",
+        "diagnosticCommand": "terraform validate",
+        "fixCommand": "terraform fmt && terraform validate",
+        "verification": "Configuration is valid."
+      }
+    ],
+    "validationChecks": [
+      {
+        "id": "val-1",
+        "label": "Multi-region Terraform architecture deployed across primary and secondary regions",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-2",
+        "label": "Dual provider aliases configured cleanly in providers.tf",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-3",
+        "label": "Cross-region database replication established and verified in sync",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-4",
+        "label": "Route 53 global DNS failover routing policy configured with health probes",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-5",
+        "label": "Live simulated disaster drill executed",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-6",
+        "label": "Replica promotion and DNS cutover completed with RTO < 15 minutes",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-7",
+        "label": "DISASTER_RECOVERY_RUNBOOK.md completed",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      },
+      {
+        "id": "val-8",
+        "label": "DISASTER_RECOVERY_DRILL_REPORT.md published",
+        "verificationCommand": "terraform validate",
+        "points": 13
+      }
+    ],
+    "scoreMax": 100
+  }
 ];

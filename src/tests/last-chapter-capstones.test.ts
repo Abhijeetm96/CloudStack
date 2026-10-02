@@ -19,11 +19,11 @@ import { TERRAFORM_CAPSTONES } from '../platform/capstones/data/terraformCapston
 import { KUBERNETES_CAPSTONES } from '../platform/capstones/data/kubernetesCapstones';
 
 describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', () => {
-  it('Section 1 (Git): Last chapter is Chapter 35 and has 4 rich capstones', () => {
+  it('Section 1 (Git): Last chapter is Chapter 35 and has 10 rich capstones', () => {
     const lastChapter = GIT_35_CHAPTERS[GIT_35_CHAPTERS.length - 1];
     expect(lastChapter.id).toBe('ch-35');
     expect(parseInt(lastChapter.number, 10)).toBe(35);
-    expect(GIT_CAPSTONES.length).toBe(4);
+    expect(GIT_CAPSTONES.length).toBe(10);
 
     GIT_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
@@ -36,10 +36,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     });
   });
 
-  it('Section 2 (Linux): Last chapter is Chapter 30 and has 5 rich capstones', () => {
+  it('Section 2 (Linux): Last chapter is Chapter 30 and has 10 rich capstones', () => {
     const lastChapter = LINUX_30_CHAPTERS[LINUX_30_CHAPTERS.length - 1];
     expect(lastChapter.number).toBe('30');
-    expect(LINUX_CAPSTONES.length).toBe(5);
+    expect(LINUX_CAPSTONES.length).toBe(10);
 
     LINUX_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
@@ -52,10 +52,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     });
   });
 
-  it('Section 3 (Docker): Last chapter is Chapter 68 and has 5 rich capstones', () => {
+  it('Section 3 (Docker): Last chapter is Chapter 68 and has 10 rich capstones', () => {
     const lastChapter = ALL_DOCKER_CHAPTERS[ALL_DOCKER_CHAPTERS.length - 1];
     expect(lastChapter.number).toBe(68);
-    expect(DOCKER_CAPSTONES.length).toBe(5);
+    expect(DOCKER_CAPSTONES.length).toBe(10);
 
     DOCKER_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
@@ -68,10 +68,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     });
   });
 
-  it('Section 4 (DevOps): Last chapter is Chapter 29 and has 5 rich capstones', () => {
+  it('Section 4 (DevOps): Last chapter is Chapter 29 and has 10 rich capstones', () => {
     const lastChapter = DEVOPS_29_CHAPTERS[DEVOPS_29_CHAPTERS.length - 1];
     expect(lastChapter.number).toBe(29);
-    expect(DEVOPS_CAPSTONES.length).toBe(5);
+    expect(DEVOPS_CAPSTONES.length).toBe(10);
 
     DEVOPS_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
@@ -84,10 +84,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     });
   });
 
-  it('Section 5 (Terraform): Last chapter is Chapter 50 and has 5 rich capstones', () => {
+  it('Section 5 (Terraform): Last chapter is Chapter 50 and has 10 rich capstones', () => {
     const lastChapter = ALL_TERRAFORM_CHAPTERS[ALL_TERRAFORM_CHAPTERS.length - 1];
     expect(lastChapter.number).toBe(50);
-    expect(TERRAFORM_CAPSTONES.length).toBe(5);
+    expect(TERRAFORM_CAPSTONES.length).toBe(10);
 
     TERRAFORM_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
@@ -100,10 +100,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     });
   });
 
-  it('Section 6 (Kubernetes): Last chapter is Chapter 15 and has 6 rich capstones', () => {
+  it('Section 6 (Kubernetes): Last chapter is Chapter 15 and has 10 rich capstones', () => {
     const lastChapter = KUBE_CHAPTERS[KUBE_CHAPTERS.length - 1];
     expect(lastChapter.number).toBe(15);
-    expect(KUBERNETES_CAPSTONES.length).toBe(6);
+    expect(KUBERNETES_CAPSTONES.length).toBe(10);
 
     KUBERNETES_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();

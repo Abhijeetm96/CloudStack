@@ -1,16 +1,14 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Rocket,
   Search,
   CheckCircle2,
   Trophy,
-  Filter,
-  Sparkles,
   Layers,
   ArrowRight,
   Clock,
   Flame,
   Award,
+  BookOpen,
 } from 'lucide-react';
 import {
   ALL_CAPSTONES,
@@ -18,7 +16,7 @@ import {
   TOTAL_CAPSTONE_PROJECTS,
 } from './data';
 import { CapstoneProject, CapstoneAcademy, CapstoneDifficulty } from './types';
-import { getAllCapstoneProgress, getCapstoneCompletionStats } from './capstoneProgress';
+import { getAllCapstoneBriefProgress, getCapstoneCompletionStats } from './capstoneProgress';
 import { StandardCapstoneRunnerModal } from './StandardCapstoneRunnerModal';
 import './capstone.css';
 
@@ -37,14 +35,13 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
   const [activeProject, setActiveProject] = useState<CapstoneProject | null>(null);
   const [progressVersion, setProgressVersion] = useState(0);
 
-  const allProgress = useMemo(() => {
-    // re-evaluate when progressVersion bumps
-    return getAllCapstoneProgress();
+  const allBriefProgress = useMemo(() => {
+    return getAllCapstoneBriefProgress();
   }, [progressVersion]);
 
   const stats = useMemo(() => {
     return getCapstoneCompletionStats(ALL_CAPSTONES.map((p) => p.id));
-  }, [allProgress]);
+  }, [allBriefProgress]);
 
   const filteredProjects = useMemo(() => {
     let result = ALL_CAPSTONES;
@@ -131,7 +128,7 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
               letterSpacing: '0.05em',
             }}
           >
-            <Trophy size={14} /> Official Capstone Project System
+            <Trophy size={14} /> Production Engineering Capstone Hub
           </div>
           <h1
             style={{
@@ -155,7 +152,7 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
               lineHeight: '1.6',
             }}
           >
-            31 exhaustive, production-grade hands-on capstones spanning Git, Linux, Docker, DevOps, Terraform, and Kubernetes, culminating in the Ultimate Cross-Academy Production Platform. Complete tasks, inspect architectures, recover from catastrophic failures, and earn your mastery score.
+            61 production-grade engineering capstones spanning Git, Linux, Docker, DevOps, Terraform, and Kubernetes, culminating in the Ultimate Cross-Academy Production Platform. Explore realistic project briefs, follow recommended architectures, and track your completion milestones independently in your local development environment.
           </p>
         </div>
 
@@ -239,13 +236,13 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
               color: '#f59e0b',
             }}
           >
-            <Award size={22} />
+            <Clock size={22} />
           </div>
           <div>
             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f59e0b' }}>
-              {stats.totalScore} pts
+              {stats.inProgress}
             </div>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Earned Score</div>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>In Progress Projects</div>
           </div>
         </div>
 
@@ -266,9 +263,9 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
           </div>
           <div>
             <div style={{ fontSize: '1.4rem', fontWeight: 900, color: '#f43f5e' }}>
-              6 + 1
+              6 × 10 + 1
             </div>
-            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Academies + Final Platform</div>
+            <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>60 Academy + 1 Master Platform</div>
           </div>
         </div>
       </div>
@@ -290,7 +287,7 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
           <input
             type="text"
             className="capstone-search-input"
-            placeholder="Search all 31 capstones by keyword, title, tag, or code (e.g. K8S-04, LINUX-02)..."
+            placeholder="Search all 61 capstones by keyword, title, tag, or code (e.g. K8S-10, GIT-05, TERRAFORM-08)..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
@@ -298,54 +295,29 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
 
         {/* Academy Filter Pills */}
         <div className="capstone-pill-group">
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'all' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('all')}
-          >
-            All Academies ({TOTAL_CAPSTONE_PROJECTS})
-          </button>
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'git' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('git')}
-          >
-            Git ({CAPSTONE_COUNTS_BY_ACADEMY.git})
-          </button>
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'linux' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('linux')}
-          >
-            Linux ({CAPSTONE_COUNTS_BY_ACADEMY.linux})
-          </button>
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'docker' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('docker')}
-          >
-            Docker ({CAPSTONE_COUNTS_BY_ACADEMY.docker})
-          </button>
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'devops' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('devops')}
-          >
-            DevOps ({CAPSTONE_COUNTS_BY_ACADEMY.devops})
-          </button>
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'terraform' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('terraform')}
-          >
-            Terraform ({CAPSTONE_COUNTS_BY_ACADEMY.terraform})
-          </button>
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'kubernetes' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('kubernetes')}
-          >
-            Kubernetes ({CAPSTONE_COUNTS_BY_ACADEMY.kubernetes})
-          </button>
-          <button
-            className={`capstone-filter-pill ${selectedAcademy === 'cross-academy' ? 'active' : ''}`}
-            onClick={() => setSelectedAcademy('cross-academy')}
-          >
-            👑 Ultimate Capstone (1)
-          </button>
+          <span style={{ fontSize: '0.8rem', color: '#64748b', alignSelf: 'center', marginRight: '0.25rem' }}>
+            Academy:
+          </span>
+          {(
+            [
+              { id: 'all', label: `All Academies (${TOTAL_CAPSTONE_PROJECTS})` },
+              { id: 'git', label: `Git (${CAPSTONE_COUNTS_BY_ACADEMY.git})` },
+              { id: 'linux', label: `Linux (${CAPSTONE_COUNTS_BY_ACADEMY.linux})` },
+              { id: 'docker', label: `Docker (${CAPSTONE_COUNTS_BY_ACADEMY.docker})` },
+              { id: 'devops', label: `DevOps (${CAPSTONE_COUNTS_BY_ACADEMY.devops})` },
+              { id: 'terraform', label: `Terraform (${CAPSTONE_COUNTS_BY_ACADEMY.terraform})` },
+              { id: 'kubernetes', label: `Kubernetes (${CAPSTONE_COUNTS_BY_ACADEMY.kubernetes})` },
+              { id: 'cross-academy', label: `Master Platform (1)` },
+            ] as const
+          ).map((item) => (
+            <button
+              key={item.id}
+              className={`capstone-filter-pill ${selectedAcademy === item.id ? 'active' : ''}`}
+              onClick={() => setSelectedAcademy(item.id as CapstoneAcademy | 'all')}
+            >
+              {item.label}
+            </button>
+          ))}
         </div>
 
         {/* Difficulty Filter Pills */}
@@ -373,9 +345,14 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
       {/* Projects Grid */}
       <div className="capstones-card-grid">
         {filteredProjects.map((project) => {
-          const isCompleted = allProgress[project.id]?.completed;
-          const userScore = allProgress[project.id]?.score || 0;
+          const brief = allBriefProgress[project.id];
+          const status = brief?.status || 'not_started';
+          const isCompleted = status === 'completed';
+          const isInProgress = status === 'in_progress';
+          const checkedCount = brief?.checkedChecklistIndices?.length || 0;
+          const totalChecklist = project.completionChecklist?.length || 10;
           const badge = getAcademyBadge(project.academy);
+          const techs = project.technologies || project.projectOverview?.technologies || [];
 
           return (
             <div
@@ -397,19 +374,60 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
                   >
                     {badge.label}
                   </span>
-                  <span
-                    style={{
-                      background: `${getDifficultyColor(project.difficulty)}18`,
-                      color: getDifficultyColor(project.difficulty),
-                      fontSize: '0.75rem',
-                      fontWeight: 700,
-                      padding: '0.2rem 0.5rem',
-                      borderRadius: '999px',
-                      textTransform: 'uppercase',
-                    }}
-                  >
-                    {project.difficulty}
-                  </span>
+
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+                    {isCompleted && (
+                      <span
+                        style={{
+                          background: 'rgba(16, 185, 129, 0.15)',
+                          color: '#10b981',
+                          border: '1px solid rgba(16, 185, 129, 0.35)',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '6px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                        }}
+                      >
+                        <CheckCircle2 size={11} /> Done
+                      </span>
+                    )}
+
+                    {isInProgress && (
+                      <span
+                        style={{
+                          background: 'rgba(56, 189, 248, 0.15)',
+                          color: '#38bdf8',
+                          border: '1px solid rgba(56, 189, 248, 0.35)',
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '6px',
+                          display: 'inline-flex',
+                          alignItems: 'center',
+                          gap: '0.25rem',
+                        }}
+                      >
+                        <Clock size={11} /> In Progress
+                      </span>
+                    )}
+
+                    <span
+                      style={{
+                        background: `${getDifficultyColor(project.difficulty)}18`,
+                        color: getDifficultyColor(project.difficulty),
+                        fontSize: '0.75rem',
+                        fontWeight: 700,
+                        padding: '0.2rem 0.5rem',
+                        borderRadius: '999px',
+                        textTransform: 'uppercase',
+                      }}
+                    >
+                      {project.difficulty}
+                    </span>
+                  </div>
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'baseline', gap: '0.5rem', marginBottom: '0.35rem' }}>
@@ -426,22 +444,48 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
                     color: '#94a3b8',
                     fontSize: '0.85rem',
                     lineHeight: '1.5',
-                    margin: '0 0 1rem 0',
+                    margin: '0 0 0.85rem 0',
                     display: '-webkit-box',
                     WebkitLineClamp: 3,
                     WebkitBoxOrient: 'vertical',
                     overflow: 'hidden',
                   }}
                 >
-                  {project.overview}
+                  {project.projectOverview?.shortDescription || project.overview}
                 </p>
+
+                {/* Technologies tags */}
+                {techs.length > 0 && (
+                  <div style={{ display: 'flex', gap: '0.35rem', flexWrap: 'wrap', marginBottom: '0.85rem' }}>
+                    {techs.slice(0, 4).map((tech) => (
+                      <span
+                        key={tech}
+                        style={{
+                          background: 'rgba(30, 41, 59, 0.6)',
+                          color: '#94a3b8',
+                          fontSize: '0.72rem',
+                          padding: '0.15rem 0.45rem',
+                          borderRadius: '4px',
+                          border: '1px solid rgba(71, 85, 105, 0.4)',
+                        }}
+                      >
+                        {tech}
+                      </span>
+                    ))}
+                    {techs.length > 4 && (
+                      <span style={{ fontSize: '0.7rem', color: '#64748b', alignSelf: 'center' }}>
+                        +{techs.length - 4} more
+                      </span>
+                    )}
+                  </div>
+                )}
 
                 {/* Key stats row */}
                 <div
                   style={{
                     display: 'flex',
                     alignItems: 'center',
-                    gap: '1rem',
+                    gap: '0.85rem',
                     fontSize: '0.78rem',
                     color: '#64748b',
                     marginBottom: '1rem',
@@ -451,9 +495,9 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
                     <Clock size={12} /> {project.estimatedTime}
                   </span>
                   <span>•</span>
-                  <span>{project.tasks.length} Step Challenges</span>
+                  <span>{checkedCount} / {totalChecklist} self-checks</span>
                   <span>•</span>
-                  <span>{project.failureScenarios.length} Failure Scenarios</span>
+                  <span>22 Specs Brief</span>
                 </div>
               </div>
 
@@ -463,28 +507,19 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'center',
-                  paddingTop: '1rem',
+                  paddingTop: '0.85rem',
                   borderTop: '1px solid rgba(51, 65, 85, 0.5)',
                 }}
               >
-                <div>
+                <div style={{ fontSize: '0.8rem', color: isCompleted ? '#10b981' : isInProgress ? '#38bdf8' : '#64748b' }}>
                   {isCompleted ? (
-                    <span
-                      style={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '0.3rem',
-                        color: '#10b981',
-                        fontWeight: 700,
-                        fontSize: '0.8rem',
-                      }}
-                    >
-                      <CheckCircle2 size={15} /> Completed ({userScore} pts)
+                    <span style={{ display: 'flex', alignItems: 'center', gap: '0.3rem', fontWeight: 700 }}>
+                      <CheckCircle2 size={14} /> Completed
                     </span>
+                  ) : isInProgress ? (
+                    <span>In Progress ({checkedCount} checked)</span>
                   ) : (
-                    <span style={{ fontSize: '0.8rem', color: '#64748b' }}>
-                      Reward: <strong style={{ color: '#f59e0b' }}>{project.scoreMax} pts</strong>
-                    </span>
+                    <span>Not Started</span>
                   )}
                 </div>
 
@@ -508,7 +543,7 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
                     transition: 'all 0.2s ease',
                   }}
                 >
-                  {isCompleted ? 'Review Project' : 'Launch Project'} <ArrowRight size={13} />
+                  {isCompleted ? 'Review Brief' : 'Open Project Brief'} <ArrowRight size={13} />
                 </button>
               </div>
             </div>
@@ -535,7 +570,7 @@ export const StandardCapstoneHubView: React.FC<StandardCapstoneHubViewProps> = (
         </div>
       )}
 
-      {/* Interactive Project Runner Modal */}
+      {/* Project Brief Viewer Modal */}
       {activeProject && (
         <StandardCapstoneRunnerModal
           project={activeProject}

@@ -27,15 +27,15 @@ export const ALL_CAPSTONES: CapstoneProject[] = [
   ULTIMATE_CAPSTONE,
 ];
 
-export const TOTAL_CAPSTONE_PROJECTS = ALL_CAPSTONES.length; // Exactly 31
+export const TOTAL_CAPSTONE_PROJECTS = ALL_CAPSTONES.length; // Exactly 61
 
 export const CAPSTONE_COUNTS_BY_ACADEMY: Record<CapstoneAcademy, number> = {
-  git: GIT_CAPSTONES.length, // 4
-  linux: LINUX_CAPSTONES.length, // 5
-  docker: DOCKER_CAPSTONES.length, // 5
-  devops: DEVOPS_CAPSTONES.length, // 5
-  terraform: TERRAFORM_CAPSTONES.length, // 5
-  kubernetes: KUBERNETES_CAPSTONES.length, // 6
+  git: GIT_CAPSTONES.length, // 10
+  linux: LINUX_CAPSTONES.length, // 10
+  docker: DOCKER_CAPSTONES.length, // 10
+  devops: DEVOPS_CAPSTONES.length, // 10
+  terraform: TERRAFORM_CAPSTONES.length, // 10
+  kubernetes: KUBERNETES_CAPSTONES.length, // 10
   'cross-academy': 1, // 1
 };
 
