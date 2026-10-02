@@ -158,6 +158,7 @@ export interface UniversalConcept {
     whyItHappens: string;
     fix: string;
   }[];
+  safeRecovery?: { failureScenario: string; quickFix: string; rootCauseAnalysis?: string } | string;
 
   // Level 5: Practice & Sandbox
   sandbox: {

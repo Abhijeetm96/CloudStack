@@ -120,9 +120,9 @@ describe('Git Academy 35 Chapters Complete Academy Curriculum Audit', () => {
       // 6. Practice & Reference
       expect(concept.challenge.title).toBeTruthy();
       expect(concept.challenge.objective).toBeTruthy();
-      expect(concept.commonMistakes.length).toBeGreaterThan(0);
+      expect(concept.commonMistakes?.length).toBeGreaterThan(0);
       expect(concept.safeRecovery).toBeDefined();
-      expect(concept.reference.commonErrors.length).toBeGreaterThan(0);
+      expect(concept.reference.commonErrors?.length).toBeGreaterThan(0);
     }
   });
 
