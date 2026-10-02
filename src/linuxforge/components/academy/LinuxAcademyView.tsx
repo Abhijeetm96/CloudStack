@@ -84,11 +84,12 @@ export const LinuxAcademyView: React.FC<LinuxAcademyViewProps> = ({ onSwitchToSu
     return LINUX_15_TOPICS.map((t, idx) => {
       const IconComponent = getLinuxChapterIcon(t.number, t.iconName);
       const formattedNum = String(idx + 1).padStart(2, '0');
+      const isCapstoneChapter = idx === 29 || t.number === '30';
 
       return {
         id: t.id,
         number: formattedNum,
-        title: t.title,
+        title: isCapstoneChapter ? `${t.title} 🏆 CAPSTONES` : t.title,
         icon: IconComponent,
         concepts: t.concepts.map((c) => ({
           id: c.id,
