@@ -1,21 +1,7 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useDocker } from '../../context/DockerContext';
-import { ALL_DOCKER_CHAPTERS, ALL_DOCKER_LESSONS, getDockerLessonById } from '../../data';
-import { DockerSubchapterLesson } from '../../types/dockerCurriculumTypes';
-import { DockForgeProgressStore } from '../../progress/dockerProgress';
-import { DockerLessonView } from '../../../components/docker/DockerLessonView';
-import { DockerConceptView } from '../../../components/docker/DockerConceptView';
-import { DockerContainerSimulator } from '../../../components/docker/DockerContainerSimulator';
-import { DockerImageSimulator } from '../../../components/docker/DockerImageSimulator';
-import { DockerNetworkSimulator } from '../../../components/docker/DockerNetworkSimulator';
-import { DockerVolumeSimulator } from '../../../components/docker/DockerVolumeSimulator';
-import { DockerComposeSimulator } from '../../../components/docker/DockerComposeSimulator';
-import { DockerBuildSimulator } from '../../../components/docker/DockerBuildSimulator';
-import { DockerSecuritySimulator } from '../../../components/docker/DockerSecuritySimulator';
-import { DockerDebugSimulator } from '../../../components/docker/DockerDebugSimulator';
-import { DockerTerminal } from '../../../components/docker/DockerTerminal';
-import { DockerSearchModal } from '../search/DockerSearchModal';
-
+import { DOCKER_14_TOPICS } from '../../data/unifiedDockerData';
+import { UniversalTeachingShell } from '../simulators/UniversalTeachingShell';
 import {
   StandardAcademySidebar,
   StandardTopicItem,
@@ -52,47 +38,64 @@ import {
   ScrollText,
   Network,
   RefreshCw,
-  Bug,
-  Shield
 } from 'lucide-react';
 
-type StudioTab =
-  | 'lesson'
-  | 'concept'
-  | 'container'
-  | 'image'
-  | 'network'
-  | 'volume'
-  | 'compose'
-  | 'build'
-  | 'security'
-  | 'debug'
-  | 'terminal';
+const DOCKER_TOPIC_ICONS: Record<string, LucideIcon> = {
+  Box,
+  Cpu,
+  Download,
+  Play,
+  Database,
+  Package,
+  Hammer,
+  Cloud,
+  Sliders,
+  Activity,
+  Terminal,
+  Shield: ShieldCheck,
+  Workflow,
+  Zap,
+};
+
+function getDockerConceptIcon(command: string = '', title: string = '', id: string = ''): LucideIcon {
+  const c = command.toLowerCase();
+  const t = title.toLowerCase();
+
+  if (c.includes('build') || c.includes('buildx') || t.includes('dockerfile')) return Hammer;
+  if (c.includes('run') || c.includes('start') || t.includes('running')) return Play;
+  if (c.includes('stop') || c.includes('kill') || c.includes(' rm ') || c.includes(' rmi ')) return XCircle;
+  if (c.includes('compose') || t.includes('multi-container')) return Layers;
+  if (c.includes('volume') || t.includes('volume') || t.includes('storage') || t.includes('persistence')) return Database;
+  if (c.includes('network') || t.includes('network') || t.includes('port')) return Network;
+  if (c.includes('logs') || t.includes('log')) return ScrollText;
+  if (c.includes('inspect') || t.includes('inspect')) return Search;
+  if (c.includes('exec') || c.includes('attach') || t.includes('shell')) return TerminalSquare;
+  if (c.includes('ps') || t.includes('process')) return ListOrdered;
+  if (c.includes('stats') || c.includes('top') || t.includes('resource') || t.includes('metrics')) return BarChart2;
+  if (c.includes('pull') || t.includes('pull')) return Download;
+  if (c.includes('push') || t.includes('registry') || t.includes('hub')) return UploadCloud;
+  if (t.includes('security') || t.includes('scan') || t.includes('trivy') || t.includes('hardening')) return ShieldCheck;
+  if (t.includes('swarm') || t.includes('kubernetes') || t.includes('orchestration')) return Boxes;
+  if (t.includes('image') || c.includes('image')) return Package;
+  if (t.includes('restart')) return RefreshCw;
+  if (t.includes('cpu') || t.includes('cgroup') || t.includes('namespace')) return Cpu;
+  if (t.includes('dockerfile') || t.includes('syntax')) return FileCode;
+  return Container;
+}
 
 export const DockerAcademyView: React.FC = () => {
-  const { setMode } = useDocker();
+  const {
+    activeTopicId,
+    setActiveTopicId,
+    activeConceptId,
+    setActiveConceptId,
+    currentConcept,
+    completedConceptIds,
+    markConceptComplete,
+    executeCommand,
+    setMode,
+  } = useDocker();
 
-  // Progress store
-  const progressStore = DockForgeProgressStore.getInstance();
-  const [completedLessonIds, setCompletedLessonIds] = useState<string[]>(() => {
-    return progressStore.getState().completedLessons;
-  });
-
-  useEffect(() => {
-    return progressStore.subscribe((state) => {
-      setCompletedLessonIds(state.completedLessons);
-    });
-  }, [progressStore]);
-
-  // Active lesson selection
-  const [activeLessonId, setActiveLessonId] = useState<string>(() => {
-    const saved = progressStore.getState().lastVisitedLesson;
-    if (saved && getDockerLessonById(saved)) return saved;
-    return ALL_DOCKER_LESSONS[0]?.id || 'dk01-01-what-is-a-container';
-  });
-
-  const [activeStudioTab, setActiveStudioTab] = useState<StudioTab>('lesson');
-  const [showSearchModal, setShowSearchModal] = useState(false);
   const [showMobileTopicsDrawer, setShowMobileTopicsDrawer] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
@@ -101,54 +104,46 @@ export const DockerAcademyView: React.FC = () => {
     setTimeout(() => setToastMessage((curr) => (curr === msg ? null : curr)), 2500);
   };
 
-  const currentLesson: DockerSubchapterLesson = useMemo(() => {
-    return getDockerLessonById(activeLessonId) || ALL_DOCKER_LESSONS[0];
-  }, [activeLessonId]);
-
-  // Convert 68 chapters to StandardTopicItem for StandardAcademySidebar
+  // Convert topics to StandardTopicItem list for StandardAcademySidebar
   const sidebarTopics: StandardTopicItem[] = useMemo(() => {
-    return ALL_DOCKER_CHAPTERS.map((ch) => ({
-      id: ch.id,
-      number: String(ch.number).padStart(2, '0'),
-      title: ch.title,
-      icon: Container,
-      concepts: ch.lessons.map((lesson) => ({
-        id: lesson.id,
-        command: lesson.syntax.split('\n')[0] || `docker ${lesson.subchapterTitle.toLowerCase()}`,
-        title: lesson.subchapterTitle,
-        shortDesc: lesson.definition,
-        subChapterNumber: lesson.subchapterNumber,
-        icon: Container,
-      })),
-    }));
+    return DOCKER_14_TOPICS.map((t) => {
+      const IconComponent = DOCKER_TOPIC_ICONS[t.iconName] || Container;
+      return {
+        id: t.id,
+        number: t.number,
+        title: t.title,
+        icon: IconComponent,
+        concepts: t.concepts.map((c) => ({
+          id: c.id,
+          command: c.command,
+          title: c.title,
+          shortDesc: c.shortDesc,
+          icon: getDockerConceptIcon(c.command, c.title, c.id),
+        })),
+      };
+    });
   }, []);
 
-  // Linear previous / next navigation across 1,038 lessons
-  const currentIdx = ALL_DOCKER_LESSONS.findIndex((l) => l.id === activeLessonId);
-  const prevLesson = currentIdx > 0 ? ALL_DOCKER_LESSONS[currentIdx - 1] : null;
-  const nextLesson = currentIdx >= 0 && currentIdx < ALL_DOCKER_LESSONS.length - 1 ? ALL_DOCKER_LESSONS[currentIdx + 1] : null;
+  // Flattened concepts array for linear Previous / Next navigation
+  const allConceptsFlat = useMemo(() => {
+    return DOCKER_14_TOPICS.flatMap((t) =>
+      t.concepts.map((c) => ({ ...c, topicId: t.id }))
+    );
+  }, []);
 
-  const handleSelectLesson = (lessonId: string) => {
-    setActiveLessonId(lessonId);
-    progressStore.setLastVisitedLesson(lessonId);
-    setActiveStudioTab('lesson');
-  };
+  const currentConceptIdx = allConceptsFlat.findIndex((c) => c.id === activeConceptId);
+  const prevConcept = currentConceptIdx > 0 ? allConceptsFlat[currentConceptIdx - 1] : null;
+  const nextConcept =
+    currentConceptIdx >= 0 && currentConceptIdx < allConceptsFlat.length - 1
+      ? allConceptsFlat[currentConceptIdx + 1]
+      : null;
 
-  const handleToggleComplete = (id: string) => {
-    const isNowDone = progressStore.toggleLessonComplete(id);
-    showToast(isNowDone ? 'Lesson completed! Great job!' : 'Lesson marked as uncompleted.');
-  };
-
-  const handleOpenSimulatorFromLesson = (simType: string) => {
-    if (simType === 'container') setActiveStudioTab('container');
-    else if (simType === 'image') setActiveStudioTab('image');
-    else if (simType === 'network') setActiveStudioTab('network');
-    else if (simType === 'volume') setActiveStudioTab('volume');
-    else if (simType === 'compose') setActiveStudioTab('compose');
-    else if (simType === 'security') setActiveStudioTab('security');
-    else if (simType === 'build') setActiveStudioTab('build');
-    else if (simType === 'debug') setActiveStudioTab('debug');
-    else setActiveStudioTab('terminal');
+  const handleSelectConcept = (cId: string) => {
+    setActiveConceptId(cId);
+    const parentTopic = DOCKER_14_TOPICS.find((t) => t.concepts.some((c) => c.id === cId));
+    if (parentTopic) {
+      setActiveTopicId(parentTopic.id);
+    }
   };
 
   return (
@@ -170,9 +165,9 @@ export const DockerAcademyView: React.FC = () => {
       <aside
         className="academy-sidebar-desktop"
         style={{
-          width: '260px',
-          minWidth: '260px',
-          maxWidth: '260px',
+          width: '240px',
+          minWidth: '240px',
+          maxWidth: '240px',
           background: 'var(--bg-surface)',
           borderRight: '1px solid var(--border-color)',
           display: 'flex',
@@ -186,18 +181,18 @@ export const DockerAcademyView: React.FC = () => {
       >
         <StandardAcademySidebar
           title="Docker Academy"
-          subtitle="68 Chapters • 1,038 Lessons"
+          subtitle="14 Topics • Your Docker Journey"
           icon={Container}
           accentColor="#38bdf8"
           topics={sidebarTopics}
-          activeConceptId={activeLessonId}
-          completedConceptIds={completedLessonIds}
-          onSelectConcept={handleSelectLesson}
+          activeConceptId={activeConceptId}
+          completedConceptIds={completedConceptIds}
+          onSelectConcept={handleSelectConcept}
         />
       </aside>
 
       {/* ================================================================ */}
-      {/* COLUMN 2: CENTER MAIN STAGE (Studio & 35-Item Lesson View)       */}
+      {/* COLUMN 2: CENTER MAIN STAGE (Concept Teaching Experience)       */}
       {/* ================================================================ */}
       <main
         className="academy-center-main"
@@ -247,170 +242,34 @@ export const DockerAcademyView: React.FC = () => {
           >
             <Container size={15} />
             <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-              68 Chapters • {currentLesson.subchapterTitle}
+              Topics (14) • {currentConcept.title}
             </span>
             <ChevronDown size={13} />
           </button>
 
+          {/* Quick Universe Catalog Shortcut on Mobile */}
           <button
-            onClick={() => setShowSearchModal(true)}
+            onClick={() => setMode('universe')}
             style={{
               display: 'flex',
               alignItems: 'center',
               gap: '0.35rem',
-              background: 'rgba(56, 189, 248, 0.1)',
-              border: '1px solid rgba(56, 189, 248, 0.25)',
+              background: 'rgba(245, 158, 11, 0.12)',
+              border: '1px solid rgba(245, 158, 11, 0.3)',
               borderRadius: '8px',
               padding: '0.35rem 0.65rem',
-              color: '#38bdf8',
+              color: '#f59e0b',
               fontSize: '0.76rem',
               fontWeight: 700,
               cursor: 'pointer',
             }}
           >
-            <Search size={13} />
-            <span>Search (⌘K)</span>
+            <Sparkles size={13} />
+            <span>42 Concepts</span>
           </button>
         </div>
 
-        {/* Studio Top Control Strip (Switch between Lesson, Concept, and 8 Simulators) */}
-        <div className="bg-slate-900 border-b border-slate-800 px-4 py-1.5 flex items-center justify-between shrink-0 overflow-x-auto gap-2">
-          <div className="flex items-center gap-1 font-mono text-xs overflow-x-auto py-0.5">
-            <button
-              onClick={() => setActiveStudioTab('lesson')}
-              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'lesson'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <FileCode className="w-3.5 h-3.5" /> Lesson Curriculum
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('concept')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'concept'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Cpu className="w-3.5 h-3.5" /> Concept Model
-            </button>
-
-            <span className="text-slate-700 mx-1">|</span>
-
-            <button
-              onClick={() => setActiveStudioTab('container')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'container'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Play className="w-3.5 h-3.5" /> Container Simulator
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('image')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'image'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Package className="w-3.5 h-3.5" /> Image & Layers
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('network')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'network'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Network className="w-3.5 h-3.5" /> Networks & DNS
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('volume')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'volume'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Database className="w-3.5 h-3.5" /> Volumes & Mounts
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('compose')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'compose'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" /> Compose
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('security')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'security'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" /> Security
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('build')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'build'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Hammer className="w-3.5 h-3.5" /> BuildKit
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('debug')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'debug'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Bug className="w-3.5 h-3.5" /> SRE Debugging
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('terminal')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'terminal'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Terminal className="w-3.5 h-3.5" /> CLI Terminal
-            </button>
-          </div>
-
-          <button
-            onClick={() => setShowSearchModal(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded cursor-pointer shrink-0"
-          >
-            <Search className="w-3.5 h-3.5 text-blue-400" />
-            <span>Search</span>
-            <kbd className="px-1 py-0.2 bg-slate-900 rounded text-[10px] text-slate-400">⌘K</kbd>
-          </button>
-        </div>
-
-        {/* Center Dynamic Content Area */}
+        {/* Center Canvas Body */}
         <div
           style={{
             flex: '1 1 0%',
@@ -422,88 +281,25 @@ export const DockerAcademyView: React.FC = () => {
             flexDirection: 'column',
           }}
         >
-          {activeStudioTab === 'lesson' && (
-            <DockerLessonView
-              lesson={currentLesson}
-              isCompleted={completedLessonIds.includes(activeLessonId)}
-              onToggleComplete={handleToggleComplete}
-              onOpenSimulator={handleOpenSimulatorFromLesson}
-              onNextLesson={nextLesson ? () => handleSelectLesson(nextLesson.id) : undefined}
-              onPrevLesson={prevLesson ? () => handleSelectLesson(prevLesson.id) : undefined}
-            />
-          )}
-
-          {activeStudioTab === 'concept' && (
-            <div className="flex-1 p-6 overflow-y-auto">
-              <DockerConceptView
-                lesson={currentLesson}
-                onOpenSimulator={() => handleOpenSimulatorFromLesson(currentLesson.recommendedSimulator || 'container')}
-              />
-            </div>
-          )}
-
-          {activeStudioTab === 'container' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerContainerSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'image' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerImageSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'network' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerNetworkSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'volume' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerVolumeSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'compose' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerComposeSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'build' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerBuildSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'security' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerSecuritySimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'debug' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerDebugSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'terminal' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerTerminal />
-            </div>
-          )}
+          <UniversalTeachingShell
+            concept={currentConcept}
+            completedConceptIds={completedConceptIds}
+            markConceptComplete={markConceptComplete}
+            executeCommand={executeCommand}
+            showToast={showToast}
+            prevConcept={prevConcept}
+            nextConcept={nextConcept}
+            onSelectConcept={handleSelectConcept}
+          />
         </div>
 
-        {/* Standard Pinned Bottom Bar (Matching Git, K8s, Linux, Terraform Academies) */}
+        {/* Standard Pinned Bottom Bar (Matching Git Academy) */}
         <StandardAcademyBottomBar
-          prevConcept={prevLesson ? { id: prevLesson.id, title: prevLesson.subchapterTitle } : null}
-          nextConcept={nextLesson ? { id: nextLesson.id, title: nextLesson.subchapterTitle } : null}
-          onNavigate={handleSelectLesson}
-          isCompleted={completedLessonIds.includes(activeLessonId)}
-          onToggleComplete={() => handleToggleComplete(activeLessonId)}
+          prevConcept={prevConcept}
+          nextConcept={nextConcept}
+          onNavigate={handleSelectConcept}
+          isCompleted={completedConceptIds.includes(activeConceptId)}
+          onToggleComplete={() => markConceptComplete(activeConceptId)}
           accentGradient="linear-gradient(135deg, rgba(14, 165, 233, 0.45) 0%, rgba(2, 132, 199, 0.45) 100%)"
           accentColor="#38bdf8"
         />
@@ -550,14 +346,14 @@ export const DockerAcademyView: React.FC = () => {
           >
             <StandardAcademySidebar
               title="Docker Academy"
-              subtitle="68 Chapters • 1,038 Lessons"
+              subtitle="14 Topics • Your Docker Journey"
               icon={Container}
               accentColor="#38bdf8"
               topics={sidebarTopics}
-              activeConceptId={activeLessonId}
-              completedConceptIds={completedLessonIds}
+              activeConceptId={activeConceptId}
+              completedConceptIds={completedConceptIds}
               onSelectConcept={(id) => {
-                handleSelectLesson(id);
+                handleSelectConcept(id);
                 setShowMobileTopicsDrawer(false);
               }}
               isDrawer={true}
@@ -566,13 +362,6 @@ export const DockerAcademyView: React.FC = () => {
           </div>
         </div>
       )}
-
-      {/* ⌘K Universal Search Modal */}
-      <DockerSearchModal
-        isOpen={showSearchModal}
-        onClose={() => setShowSearchModal(false)}
-        onSelectLesson={(lesson) => handleSelectLesson(lesson.id)}
-      />
     </div>
   );
 };
