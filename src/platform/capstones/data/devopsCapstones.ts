@@ -3412,51 +3412,58 @@ export const DEVOPS_CAPSTONES: CapstoneProject[] = [
   {
     "id": "devops-10",
     "code": "DEVOPS-10",
-    "title": "End-to-End Enterprise DevOps Platform Architecture",
+    "title": "Production Grade CI/CD Platform",
     "academy": "devops",
-    "difficulty": "Production Grade",
-    "estimatedTime": "16-24 hours",
+    "difficulty": "Expert / Production",
+    "estimatedTime": "20-30 hours",
     "technologies": [
-      "GitOps (Argo CD)",
-      "Infrastructure as Code (Terraform)",
-      "Kubernetes / Containers",
-      "DevSecOps",
-      "Observability (Prometheus/Grafana)",
-      "Disaster Recovery"
+      "Git",
+      "Jenkins",
+      "Docker",
+      "Terraform",
+      "Kubernetes",
+      "Prometheus",
+      "Grafana"
     ],
-    "overview": "The pinnacle DevOps engineering project: architect, build, automate, and operate an end-to-end enterprise platform combining Infrastructure as Code, automated DevSecOps CI pipelines, GitOps continuous delivery, multi-cluster Kubernetes orchestration, full-stack observability, and automated disaster recovery.",
+    "overview": "Design and implement an end-to-end CI/CD platform that builds, tests, secures, and deploys a containerized application to Kubernetes using infrastructure as code.",
     "tags": [
       "devops",
       "production-grade",
-      "gitops",
-      "enterprise",
+      "jenkins",
+      "ci-cd",
       "terraform",
       "kubernetes",
-      "argo-cd",
-      "devsecops"
+      "docker",
+      "prometheus",
+      "grafana"
     ],
     "projectOverview": {
-      "projectName": "End-to-End Enterprise DevOps Platform Architecture",
+      "projectName": "Production Grade CI/CD Platform",
       "academy": "devops",
-      "difficulty": "Production Grade",
-      "estimatedEffort": "16-24 hours",
+      "difficulty": "Expert / Production",
+      "estimatedEffort": "20-30 hours",
       "technologies": [
-        "GitOps (Argo CD)",
+        "Git",
+        "Jenkins",
+        "Docker",
         "Terraform",
         "Kubernetes",
-        "GitHub Actions",
-        "Prometheus & Grafana"
+        "Prometheus",
+        "Grafana"
       ],
-      "shortDescription": "The master DevOps capstone: architect an enterprise-grade platform integrating IaC provisioning, secure CI pipelines, GitOps continuous delivery, and full-stack observability."
+      "shortDescription": "Build a complete CI/CD platform with automated testing, security scanning, infrastructure provisioning and deployment to Kubernetes."
     },
-    "scenario": "You have been hired as Principal Platform Architect for a global fintech enterprise migrating from legacy virtual machines to a modern cloud-native platform. You must architect and deliver the entire end-to-end engineering ecosystem: cloud infrastructure provisioned via Terraform, automated DevSecOps CI pipelines compiling signed container images, GitOps continuous delivery via Argo CD, and full-stack SRE observability.",
-    "problemStatement": "Modern enterprise engineering demands seamless integration across the entire DevOps lifecycle. Fragmented pipelines, manual infrastructure steps, and disconnected monitoring cause deployment friction, security vulnerabilities, and prolonged downtime. A unified, fully automated platform is required.",
+    "scenario": "You have joined a platform engineering team at a growing company. The development teams need a standardized, secure and automated CI/CD platform to build, test and deploy their applications to Kubernetes across multiple environments.",
+    "problemStatement": "Currently, deployments are manual, inconsistent and error-prone. Infrastructure is created manually, there is no automated testing or security scanning, and deployments take hours. The organization wants a fully automated, production-grade CI/CD platform.",
     "projectObjective": [
-      "Provision cloud infrastructure and Kubernetes cluster foundations using Infrastructure as Code (Terraform)",
-      "Implement an automated DevSecOps CI pipeline (GitHub Actions) executing linting, unit testing, SAST, SCA, and signed container publishing",
-      "Deploy and configure GitOps continuous delivery (Argo CD) synchronizing application manifests from a dedicated GitOps repository",
-      "Implement an SRE observability suite (Prometheus, Grafana, Alertmanager) monitoring cluster and application health",
-      "Execute a disaster recovery drill: simulate complete cluster deletion and reconstruct the entire platform from code in under 20 minutes"
+      "Implement an end-to-end CI/CD workflow",
+      "Automate testing and security scanning",
+      "Build and push Docker images",
+      "Provision infrastructure using Terraform",
+      "Deploy to Kubernetes automatically",
+      "Implement monitoring and alerting",
+      "Support multiple environments",
+      "Follow best practices for security and reliability"
     ],
     "whatYouNeedToBuild": {
       "description": "A complete, production-grade enterprise DevOps platform spanning infrastructure provisioning, continuous integration, GitOps continuous delivery, and observability.",
@@ -3464,18 +3471,29 @@ export const DEVOPS_CAPSTONES: CapstoneProject[] = [
     },
     "requirements": {
       "functional": [
-        "Pushing a code change to the application repository must automatically build, scan, sign, and update the GitOps repository",
-        "Argo CD must automatically reconcile and deploy the new image digest to the Kubernetes cluster within 60 seconds",
-        "In the event of total cluster loss, the platform must be entirely reproducible via terraform apply and GitOps sync in < 20 minutes"
+        "Automate build, test and deployment process",
+        "Deploy to multiple environments",
+        "Provision infrastructure automatically",
+        "Implement monitoring and alerting",
+        "Support rollback mechanism"
       ],
       "technical": [
-        "Use Terraform for infrastructure provisioning (VPC, compute/cluster resources)",
-        "Use GitHub Actions for CI and Argo CD / Flux for GitOps CD",
-        "Implement zero-downtime rolling updates with readiness and liveness probes"
+        "Use Jenkins for CI/CD",
+        "Build and push Docker images",
+        "Use Terraform for infrastructure provisioning",
+        "Deploy to Kubernetes",
+        "Implement automated testing",
+        "Implement security scanning",
+        "Use monitoring and logging"
       ],
       "security": [
-        "Enforce SLSA Level 3 supply chain security: all images cryptographically signed with Cosign",
-        "Enforce Kubernetes Pod Security Standards (restricted profile)"
+        "Scan images for vulnerabilities",
+        "Do not store secrets in code",
+        "Use secure communication (TLS)",
+        "Implement RBAC in Kubernetes",
+        "Use least privilege access",
+        "Secure Kubernetes configurations",
+        "Implement image signing or verification"
       ]
     },
     "architecture": {
@@ -3539,21 +3557,29 @@ export const DEVOPS_CAPSTONES: CapstoneProject[] = [
       ]
     },
     "functionalRequirements": [
-      "Provision local or cloud Kubernetes cluster using Terraform IaC scripts",
-      "Deploy Argo CD controller into the cluster and configure GitOps application definition",
-      "Configure application CI pipeline building, scanning, and signing container images",
-      "Configure automated GitOps manifest update upon successful image publication",
-      "Observe Argo CD synchronizing and rolling out the new deployment",
-      "Execute continuous load test during deployment to verify zero dropped requests",
-      "Simulate disaster: destroy cluster and recreate from Terraform + GitOps in under 20 minutes"
+      "Automate build, test and deployment process",
+      "Deploy to multiple environments",
+      "Provision infrastructure automatically",
+      "Implement monitoring and alerting",
+      "Support rollback mechanism"
     ],
     "technicalRequirements": [
-      "Document end-to-end lead time from git commit to live production rollout",
-      "Verify Argo CD self-healing: manually delete a pod or deployment and observe automated restoration"
+      "Use Jenkins for CI/CD",
+      "Build and push Docker images",
+      "Use Terraform for infrastructure provisioning",
+      "Deploy to Kubernetes",
+      "Implement automated testing",
+      "Implement security scanning",
+      "Use monitoring and logging"
     ],
     "securityRequirements": [
-      "Kubernetes workloads must run with runAsNonRoot: true and readOnlyRootFilesystem: true",
-      "Zero plaintext secrets stored in the GitOps manifest repository"
+      "Scan images for vulnerabilities",
+      "Do not store secrets in code",
+      "Use secure communication (TLS)",
+      "Implement RBAC in Kubernetes",
+      "Use least privilege access",
+      "Secure Kubernetes configurations",
+      "Implement image signing or verification"
     ],
     "constraints": [
       "Never execute kubectl apply manually for production workloads (all changes must flow through GitOps)",

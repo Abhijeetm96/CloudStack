@@ -197,3 +197,101 @@ export const RoadmapOfficialIcon: React.FC<TechIconProps> = ({ size = 20, classN
     <circle cx="12" cy="12" r="1.5" fill="#fff" />
   </svg>
 );
+
+/**
+ * Official Jenkins Logo: Butler with hat and suit
+ */
+export const JenkinsOfficialIcon: React.FC<TechIconProps> = ({ size = 20, className, style }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 32 32"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={{ flexShrink: 0, ...style }}
+  >
+    <rect width="32" height="32" rx="6" fill="#D33833" fillOpacity="0.15" />
+    {/* Hat */}
+    <ellipse cx="16" cy="7" rx="7" ry="2.2" fill="#1E293B" />
+    <path d="M11 7C11 4.5 13 3 16 3C19 3 21 4.5 21 7H11Z" fill="#1E293B" />
+    <rect x="11" y="6" width="10" height="1.5" fill="#DC2626" />
+    {/* Face */}
+    <circle cx="16" cy="12.5" r="4.5" fill="#FCE0C7" />
+    {/* Hair side */}
+    <path d="M11.5 10C11.5 10 11 12 11.5 13.5C12 12.5 12 10.5 12.5 10H11.5Z" fill="#CBD5E1" />
+    {/* Mustache */}
+    <path d="M13.5 14.2C14.5 13.5 15.5 14 16 14.5C16.5 14 17.5 13.5 18.5 14.2C17.5 15.2 16 15.5 16 15.5C16 15.5 14.5 15.2 13.5 14.2Z" fill="#CBD5E1" />
+    {/* Suit Jacket */}
+    <path d="M10 27C10 20 12.5 17 16 17C19.5 17 22 20 22 27H10Z" fill="#1E293B" />
+    {/* White Shirt Collar */}
+    <polygon points="16,21 14,17 18,17" fill="#FFFFFF" />
+    {/* Red Bow Tie */}
+    <polygon points="14,18 16,19 14,20" fill="#DC2626" />
+    <polygon points="18,18 16,19 18,20" fill="#DC2626" />
+    <circle cx="16" cy="19" r="0.8" fill="#B91C1C" />
+  </svg>
+);
+
+/**
+ * Official Prometheus Logo: Flame / Torch
+ */
+export const PrometheusOfficialIcon: React.FC<TechIconProps> = ({ size = 20, className, style }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={{ flexShrink: 0, ...style }}
+  >
+    <rect width="24" height="24" rx="5" fill="#E6522C" fillOpacity="0.15" />
+    <circle cx="12" cy="12" r="8.5" stroke="#E6522C" strokeWidth="1.2" fill="none" />
+    {/* Flame shapes */}
+    <path
+      d="M12 5.5C12 5.5 9 9.5 9 13C9 14.7 10.3 16 12 16C13.7 16 15 14.7 15 13C15 9.5 12 5.5 12 5.5Z"
+      fill="#E6522C"
+    />
+    <path
+      d="M12 9C12 9 10.5 11.5 10.5 13.5C10.5 14.3 11.2 15 12 15C12.8 15 13.5 14.3 13.5 13.5C13.5 11.5 12 9 12 9Z"
+      fill="#FFA726"
+    />
+    <circle cx="12" cy="18" r="1.2" fill="#E6522C" />
+  </svg>
+);
+
+/**
+ * Official Grafana Logo: Vibrant Orange Spiral
+ */
+export const GrafanaOfficialIcon: React.FC<TechIconProps> = ({ size = 20, className, style }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={className}
+    style={{ flexShrink: 0, ...style }}
+  >
+    <rect width="24" height="24" rx="5" fill="#F46800" fillOpacity="0.15" />
+    {/* Swirl flower */}
+    <circle cx="12" cy="12" r="3.2" fill="#F46800" />
+    <path
+      d="M12 4C14.5 4 16.8 5 18.4 6.6C17.5 8.2 15.5 9.5 13.5 9.8C12.8 6.5 12.3 5 12 4Z"
+      fill="#FFA726"
+    />
+    <path
+      d="M20 12C20 14.5 19 16.8 17.4 18.4C15.8 17.5 14.5 15.5 14.2 13.5C17.5 12.8 19 12.3 20 12Z"
+      fill="#FF7043"
+    />
+    <path
+      d="M12 20C9.5 20 7.2 19 5.6 17.4C6.5 15.8 8.5 14.5 10.5 14.2C11.2 17.5 11.7 19 12 20Z"
+      fill="#F46800"
+    />
+    <path
+      d="M4 12C4 9.5 5 7.2 6.6 5.6C8.2 6.5 9.5 8.5 9.8 10.5C6.5 11.2 5 11.7 4 12Z"
+      fill="#FFB74D"
+    />
+  </svg>
+);
