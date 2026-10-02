@@ -10,6 +10,7 @@ import {
   TOTAL_DEVOPS_TOPICS,
 } from '../data/devopsCurriculumData';
 import { useApp } from '../../context/AppContext';
+import { StandardCapstoneHubView } from '../../platform/capstones/StandardCapstoneHubView';
 import {
   Terminal,
   Container,
@@ -83,8 +84,8 @@ const PIPELINE_STAGES: PipelineStage[] = [
 export const DevOpsAcademyMasterView: React.FC = () => {
   const { setMode } = useApp();
 
-  // Primary Views: 'command-center' (dual-pane) | 'pipeline' (lifecycle) | 'matrix' (all 29 chapters)
-  const [viewMode, setViewMode] = useState<'command-center' | 'pipeline' | 'matrix'>('command-center');
+  // Primary Views: 'command-center' (dual-pane) | 'pipeline' (lifecycle) | 'matrix' (all 29 chapters) | 'capstones' (5 projects)
+  const [viewMode, setViewMode] = useState<'command-center' | 'pipeline' | 'matrix' | 'capstones'>('command-center');
   const [activeTrackId, setActiveTrackId] = useState<string>('track-foundation');
   const [categoryFilter, setCategoryFilter] = useState<DevOpsTrackCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -329,6 +330,27 @@ export const DevOpsAcademyMasterView: React.FC = () => {
             >
               <BookOpen size={13} />
               <span>All 29 Chapters</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('capstones')}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '7px',
+                border: 'none',
+                background: viewMode === 'capstones' ? 'rgba(236, 72, 153, 0.25)' : 'transparent',
+                color: viewMode === 'capstones' ? '#f472b6' : '#94a3b8',
+                fontWeight: 800,
+                fontSize: '0.76rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Award size={13} />
+              <span>Capstones (5 Projects)</span>
             </button>
           </div>
         </div>
@@ -1180,6 +1202,15 @@ export const DevOpsAcademyMasterView: React.FC = () => {
               })}
             </div>
           </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* 5.5 CAPSTONE PROJECTS SYSTEM                                    */}
+      {/* ================================================================ */}
+      {viewMode === 'capstones' && (
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          <StandardCapstoneHubView initialAcademy="devops" />
         </div>
       )}
 
