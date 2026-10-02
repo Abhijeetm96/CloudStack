@@ -160,7 +160,6 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
           {[
             { id: 'lesson', label: 'Curriculum', icon: BookOpen },
             { id: 'universe', label: '694 Concepts', icon: Sparkles },
-            { id: 'capstones', label: 'Capstones (5)', icon: Award },
             { id: 'simulator', label: 'Execution Engine', icon: Play },
             { id: 'failure', label: 'Failure Arena', icon: AlertTriangle },
             { id: 'graph', label: 'DAG Graph', icon: GitBranch },

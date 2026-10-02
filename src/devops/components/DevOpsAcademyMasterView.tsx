@@ -336,29 +336,9 @@ export const DevOpsAcademyMasterView: React.FC = () => {
               <span>All 29 Chapters</span>
             </button>
 
-            <button
-              onClick={() => setViewMode('capstones')}
-              style={{
-                padding: '0.4rem 0.85rem',
-                borderRadius: '7px',
-                border: 'none',
-                background: viewMode === 'capstones' ? 'rgba(236, 72, 153, 0.25)' : 'transparent',
-                color: viewMode === 'capstones' ? '#f472b6' : '#94a3b8',
-                fontWeight: 800,
-                fontSize: '0.76rem',
-                cursor: 'pointer',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.35rem',
-                transition: 'all 0.15s ease',
-              }}
-            >
-              <Award size={13} />
-              <span>Capstones (5 Projects)</span>
-            </button>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
       {/* ================================================================ */}
       {/* 2. INTERACTIVE DEVOPS LIFECYCLE PIPELINE RIBBON                  */}
