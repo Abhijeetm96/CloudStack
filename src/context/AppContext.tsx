@@ -11,6 +11,7 @@ export type ViewMode =
   | 'kubernetes'
   | 'docker'
   | 'linuxforge'
+  | 'terraform'
   | 'dashboard'
   | 'roadmap'
   | 'first10'
