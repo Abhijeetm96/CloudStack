@@ -2,8 +2,10 @@
 export interface DockForgeProgressV1 {
   version: 1;
   completedLessons: string[];
-  completedTopics: string[];
+  completedChapters: number[];
+  completedExercises: string[];
   challengeResults: Record<string, { passed: boolean; score: number; completedAt: string }>;
+  quizResults: Record<string, { passed: boolean; selectedIndex: number; timestamp: string }>;
   simulatorProgress: Record<string, { completedSteps: number[]; lastState: string }>;
   lastVisitedLesson: string;
   lessonNotes: Record<string, string>;
@@ -20,10 +22,12 @@ export class DockForgeProgressStore {
   private state: DockForgeProgressV1 = {
     version: 1,
     completedLessons: [],
-    completedTopics: [],
+    completedChapters: [],
+    completedExercises: [],
     challengeResults: {},
+    quizResults: {},
     simulatorProgress: {},
-    lastVisitedLesson: 'c-what-are-containers',
+    lastVisitedLesson: 'dk01-01-what-is-a-container',
     lessonNotes: {},
     lessonAttempts: {},
     updatedAt: new Date().toISOString(),
@@ -141,6 +145,41 @@ export class DockForgeProgressStore {
       this.recordAttempt(lessonId);
       this.save();
     }
+  }
+
+  public recordQuiz(lessonId: string, passed: boolean, selectedIndex: number): void {
+    this.state.quizResults = {
+      ...this.state.quizResults,
+      [lessonId]: {
+        passed,
+        selectedIndex,
+        timestamp: new Date().toISOString(),
+      },
+    };
+    if (passed) {
+      this.markLessonComplete(lessonId);
+    }
+    this.save();
+  }
+
+  public recordExercise(lessonId: string): void {
+    if (!this.state.completedExercises.includes(lessonId)) {
+      this.state.completedExercises = [...this.state.completedExercises, lessonId];
+      this.save();
+    }
+  }
+
+  public markChapterComplete(chapterNumber: number): void {
+    if (!this.state.completedChapters.includes(chapterNumber)) {
+      this.state.completedChapters = [...this.state.completedChapters, chapterNumber];
+      this.save();
+    }
+  }
+
+  public getOverallProgress(totalLessons: number = 1038): { completedLessons: number; totalLessons: number; percent: number } {
+    const completed = this.state.completedLessons.length;
+    const percent = Math.min(100, Math.round((completed / totalLessons) * 100));
+    return { completedLessons: completed, totalLessons, percent };
   }
 
   public recordAttempt(lessonId: string): void {
