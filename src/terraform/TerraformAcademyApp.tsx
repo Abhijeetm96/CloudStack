@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import {
   Layers, Search, CheckCircle2, Play, GitBranch, Database, Terminal,
-  AlertTriangle, BookOpen, RotateCcw, Home, Sparkles
+  AlertTriangle, BookOpen, RotateCcw, Home, Sparkles, Award
 } from 'lucide-react';
+import { StandardCapstoneHubView } from '../platform/capstones/StandardCapstoneHubView';
 import { ALL_TERRAFORM_LESSONS, getTerraformLessonById, getNextTerraformLesson, getPrevTerraformLesson } from './data';
 import { TerraformLessonView } from './components/TerraformLessonView';
 import { TerraformSidebar } from './components/TerraformSidebar';
@@ -37,7 +38,7 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
     return ALL_TERRAFORM_LESSONS[0]?.id || 'ch01-01-what-is-infrastructure';
   });
 
-  const [activeStudioView, setActiveStudioView] = useState<'lesson' | 'universe' | 'simulator' | 'failure' | 'graph' | 'state' | 'terminal'>('lesson');
+  const [activeStudioView, setActiveStudioView] = useState<'lesson' | 'universe' | 'simulator' | 'failure' | 'graph' | 'state' | 'terminal' | 'capstones'>('lesson');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -159,6 +160,7 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
           {[
             { id: 'lesson', label: 'Curriculum', icon: BookOpen },
             { id: 'universe', label: '694 Concepts', icon: Sparkles },
+            { id: 'capstones', label: 'Capstones (5)', icon: Award },
             { id: 'simulator', label: 'Execution Engine', icon: Play },
             { id: 'failure', label: 'Failure Arena', icon: AlertTriangle },
             { id: 'graph', label: 'DAG Graph', icon: GitBranch },
@@ -223,8 +225,12 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
         </div>
       </header>
 
-      {/* Main Split Layout: Sidebar + Active Stage OR Fullscreen Universe */}
-      {activeStudioView === 'universe' ? (
+      {/* Main Split Layout: Sidebar + Active Stage OR Fullscreen Universe OR Capstones */}
+      {activeStudioView === 'capstones' ? (
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          <StandardCapstoneHubView initialAcademy="terraform" />
+        </div>
+      ) : activeStudioView === 'universe' ? (
         <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
           <TerraformConceptsUniverseView onSelectLesson={handleSelectLesson} />
         </div>
