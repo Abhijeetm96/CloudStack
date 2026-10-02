@@ -7,11 +7,14 @@ export interface SyntaxToken {
 }
 
 export interface ConceptVariation {
+  command?: string;
   syntax?: string;
   title: string;
   whatItDoes?: string;
   whenToUse?: string;
   whenNotToUse?: string;
+  risk?: string;
+  expectedResult?: string;
   example?: string;
   warning?: string;
   flag?: string;
@@ -37,10 +40,13 @@ export interface ScenarioQuestion {
 
 export interface ConceptTerm {
   term: string;
+  slug?: string;
   simple: string;
   technical: string;
   analogy?: string;
+  example?: string;
   related?: string[];
+  commonConfusion?: string;
 }
 
 export interface InternalStep {
@@ -55,6 +61,7 @@ export interface CommonMistake {
   mistake: string;
   whyWrong: string;
   correctWay: string;
+  dangerousConsequence?: string;
 }
 
 export interface BlockDiagramNode {
@@ -103,7 +110,111 @@ export interface UniversalDockerConcept {
   whyDoYouNeedIt: string;
   realWorldAnalogy: string;
 
-  // Extended Teaching Sequence Fields
+  // Exhaustive 17-Section Lesson Architecture Fields
+  definition?: string;
+  simpleExplanation?: string;
+  technicalExplanation?: string;
+
+  why?: {
+    problem: string;
+    beforeDocker: string;
+    dockerSolution: string;
+    result: string;
+  };
+
+  scenario?: {
+    title: string;
+    setup: string;
+    problem: string;
+    solution: string;
+    productionContext?: string;
+  };
+
+  mentalModel?: {
+    metaphor: string;
+    analogy: string;
+    keyInsight: string;
+  };
+
+  architectureDiagram?: BlockDiagramData;
+
+  stateBefore?: {
+    images?: string | number;
+    containers?: string | number;
+    volumes?: string | number;
+    networks?: string | number;
+    details: string[];
+  };
+
+  stateAfter?: {
+    images?: string | number;
+    containers?: string | number;
+    volumes?: string | number;
+    networks?: string | number;
+    details: string[];
+    highlightedChanges: string[];
+  };
+
+  stateUnchanged?: string[];
+
+  expectedOutput?: {
+    line: string;
+    type?: 'header' | 'data' | 'info' | 'success' | 'warning';
+    explanation: string;
+    whyItAppears: string;
+    whatToLookAt: string;
+  }[];
+
+  safeFailure?: {
+    mistakeCommand: string;
+    mistakeTitle: string;
+    consequence: string;
+    diagnosticQuestion: string;
+    diagnosticAnswer: string;
+  };
+
+  recoverySteps?: {
+    hint1_conceptual: string;
+    hint2_object: string;
+    hint3_commandFamily: string;
+    hint4_syntaxStructure: string;
+    hint5_exactCommand: string;
+  };
+
+  simulatorConfig?: {
+    mode: 'lifecycle' | 'layers' | 'volumes' | 'networking' | 'compose' | 'build' | 'registry' | 'security' | 'k8s' | 'default';
+    initialObjects: {
+      images?: string[];
+      containers?: { name: string; image: string; status: string; ports?: string; volumes?: string }[];
+      volumes?: string[];
+      networks?: string[];
+    };
+    actionPrompt: string;
+    predictionOptions: {
+      text: string;
+      isCorrect: boolean;
+      explanation: string;
+    }[];
+    stateTransition: {
+      triggerCommand: string;
+      visualConsequence: string;
+      explanation: string;
+    };
+  };
+
+  challengeComprehensive?: {
+    title: string;
+    objective: string;
+    scenario: string;
+    requirements: string[];
+    startingState?: string;
+    solutionCommand: string;
+    validationRegex?: string;
+    hints: string[];
+    explanation: string;
+  };
+
+  // Extended Teaching Sequence Fields (Preserved for compatibility)
   withoutVsWith?: WithoutVsWithData;
   blockDiagram?: BlockDiagramData;
   terms?: ConceptTerm[];

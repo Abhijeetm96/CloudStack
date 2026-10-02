@@ -227,28 +227,309 @@ export const TOPIC_03_04_CONCEPTS: Record<string, UniversalDockerConcept> = {
     topicNumber: '04',
     topicTitle: 'Basics of Docker',
     subtitle: 'Creating, initializing, and starting container instances from images in foreground or background mode.',
-    badges: ['Beginner', 'Essential', 'CLI'],
+    badges: ['Beginner', 'Essential', 'CLI', 'Core'],
     quote: 'docker run is the most important command in Docker — it pulls, creates, and boots up a container in one step.',
     difficulty: 'Beginner',
 
     whatIsIt:
-      '`docker run` combines `docker create` and `docker start`. It pulls the specified image (if not already local), allocates namespaces, assigns an IP address, sets up port bindings, and executes the default command.',
+      '`docker run` creates an isolated container writable layer from an image and starts its default executable process.',
     inSimpleWords:
       'It\'s the "Play Button" for container images. Give it an image name (like `nginx`), and Docker instantly turns that blueprint into a live running process.',
+    definition:
+      '`docker run` combines `docker create` and `docker start` to instantiate an isolated container process from an image.',
+    simpleExplanation:
+      'It\'s the master "Start" button of Docker. You choose an image (like `nginx`), and Docker pulls it, builds an isolated sandbox, configures virtual networking, and starts the program immediately.',
+    technicalExplanation:
+      '`docker run` is the composite execution of `docker create` followed by `docker start`. The Docker daemon invokes containerd via gRPC to request an OCI bundle unpack. containerd calls runc, which configures Linux kernel namespaces (PID, NET, MNT, IPC, UTS), creates a cgroup slice under /sys/fs/cgroup with CPU/memory limits, mounts an Overlay2 union filesystem (lower read-only image layers + upper writable container layer), sets up veth virtual ethernet pairs attached to the bridge network with iptables DNAT rules, and executes the image ENTRYPOINT/CMD as PID 1 inside the container rootfs.',
+
     whyDoYouNeedIt:
       'It is the primary way developers start web servers, databases, queue workers, and diagnostic apps.',
+    why: {
+      problem:
+        'Installing applications directly on the host machine causes dependency conflicts ("works on my machine" syndrome), dirty filesystems, and complex manual service management.',
+      beforeDocker:
+        'Engineers had to provision heavyweight 20GB virtual machines with separate guest OS kernels, taking 5-10 minutes to boot and wasting gigabytes of RAM.',
+      dockerSolution:
+        '`docker run` packages the entire userspace filesystem into a standardized image, boots an isolated container in 200 milliseconds, and shares the host Linux kernel.',
+      result:
+        '100% reproducible environments across developer laptops, testing pipelines, and production servers.',
+    },
+    whenToUse: [
+      '✓ Starting a new web server or backend API locally',
+      '✓ Spinning up temporary databases (PostgreSQL, Redis, MySQL) for development',
+      '✓ Running one-off scripts, compilers, or test suites in clean sandboxes',
+      '✓ Testing an application package in an isolated Linux environment',
+    ],
+    whenNotToUse: [
+      '✕ Restarting an already stopped container (use `docker start <name>` instead to avoid creating duplicates)',
+      '✕ Managing complex multi-container stacks (use `docker compose up` instead)',
+      '✕ Editing files inside a running container permanently (use bind mounts or rebuild the image)',
+    ],
+
+    developerScenario: {
+      title: 'Spawning an Isolated Local Web Server',
+      setup: 'You just joined a backend team developing a microservice API that communicates with an Nginx reverse proxy.',
+      problem: 'You do not want to install and configure Nginx system packages on your personal laptop, and you need port 8080 open for testing without root conflicts.',
+      solution: 'You run `docker run -d --name web -p 8080:80 nginx`. In less than 2 seconds, Nginx is live at http://localhost:8080 without touching your host system files.',
+    },
+    scenario: {
+      title: 'Spawning an Isolated Local Web Server',
+      setup: 'You just joined a backend team developing a microservice API that communicates with an Nginx reverse proxy.',
+      problem: 'You do not want to install and configure Nginx system packages on your personal laptop, and you need port 8080 open for testing without root conflicts.',
+      solution: 'You run `docker run -d --name web -p 8080:80 nginx`. In less than 2 seconds, Nginx is live at http://localhost:8080 without touching your host system files.',
+      productionContext: 'In production, CI/CD runners and orchestrators like Kubernetes or Docker Swarm use this exact container creation mechanism to spawn microservices at scale.',
+    },
+
     realWorldAnalogy:
       'Inserting a game cartridge into a gaming console and pressing the power button.',
+    mentalModel: {
+      metaphor: 'IMAGE = Recipe, CONTAINER = Running meal, VOLUME = Storage room, NETWORK = Private road, REGISTRY = Warehouse',
+      analogy: 'Plugging a game cartridge into a gaming console and pressing the power button. The cartridge (image) remains untouched, while your live gameplay (container) runs in memory.',
+      keyInsight: 'The image is 100% read-only and immutable. `docker run` only creates a thin ephemeral writable layer on top where changes occur.',
+    },
 
-    syntaxCode: 'docker run -d --name my-web -p 8080:80 -e ENV=prod nginx:1.25-alpine',
+    syntaxCode: 'docker run -d --name web -p 8080:80 -e ENV=prod nginx:1.25-alpine',
     syntaxTokens: [
-      { token: 'docker run', role: 'Command', explanation: 'Creates and starts container.' },
-      { token: '-d', role: 'Flag', explanation: 'Detached mode: keeps container running in background.' },
-      { token: '--name my-web', role: 'Flag', explanation: 'Assigns friendly name.' },
-      { token: '-p 8080:80', role: 'Flag', explanation: 'Maps host port 8080 -> container port 80.' },
-      { token: '-e ENV=prod', role: 'Flag', explanation: 'Passes environment variable inside container.' },
-      { token: 'nginx:1.25-alpine', role: 'Image', explanation: 'Source image tag.' },
+      { token: 'docker', role: 'Binary', explanation: 'The Docker CLI client executable.' },
+      { token: 'run', role: 'Subcommand', explanation: 'Combines "create" and "start" to launch an active container.' },
+      { token: '-d', role: 'Flag', explanation: 'Detached mode: runs the container in the background and frees your shell prompt.' },
+      { token: '--name web', role: 'Option', explanation: 'Assigns a human-friendly name ("web") instead of a random generated UUID.' },
+      { token: '-p 8080:80', role: 'Option', explanation: 'Publishes port: forwards host port 8080 -> container port 80.' },
+      { token: '-e ENV=prod', role: 'Option', explanation: 'Injects an environment variable into the container process runtime.' },
+      { token: 'nginx:1.25-alpine', role: 'Image', explanation: 'The target repository and tag blueprint from which to create the container.' },
     ],
+
+    variations: [
+      {
+        command: 'docker run nginx',
+        title: 'Foreground Mode (Interactive Logging)',
+        whatItDoes: 'Runs container attached to terminal stdout/stderr stream',
+        whenToUse: 'Debugging startup crashes and viewing real-time logs',
+        whenNotToUse: 'Running background web servers or persistent services',
+        risk: 'Closing the terminal or pressing Ctrl+C immediately sends SIGINT and kills the container',
+        expectedResult: 'Terminal locks up and streams Nginx startup logs',
+      },
+      {
+        command: 'docker run -d nginx',
+        title: 'Detached Background Mode',
+        whatItDoes: 'Runs container in the background and prints the 64-character container ID',
+        whenToUse: 'Everyday background services, databases, and APIs',
+        whenNotToUse: 'When you need to interactively input terminal commands',
+        risk: 'You must use "docker logs" to view errors if the app fails to start',
+        expectedResult: 'Outputs container ID and returns your shell prompt immediately',
+      },
+      {
+        command: 'docker run -d --name web -p 8080:80 nginx',
+        title: 'Background Service with Port Publishing',
+        whatItDoes: 'Runs named container with host port 8080 forwarded to container port 80',
+        whenToUse: 'Web applications and APIs that need to be reachable from host browser',
+        whenNotToUse: 'Internal backend databases that should NOT be accessible to the public host',
+        risk: 'Port 8080 on the host will conflict if another process is already listening on it',
+        expectedResult: 'http://localhost:8080 immediately renders the Nginx welcome page',
+      },
+      {
+        command: 'docker run --rm -it alpine sh',
+        title: 'Interactive Disposable Sandbox',
+        whatItDoes: 'Attaches pseudo-TTY shell and automatically deletes container upon exit',
+        whenToUse: 'One-off diagnostic scripts, compiling code, or exploring tools',
+        whenNotToUse: 'Persistent databases or applications where data must be retained',
+        risk: 'All files written inside the container are permanently destroyed when you type "exit"',
+        expectedResult: 'Terminal drops into "/ # " shell; container vanishes when exiting',
+      },
+    ],
+
+    stateBefore: {
+      images: 1,
+      containers: 0,
+      volumes: 0,
+      networks: 1,
+      details: [
+        'Image "nginx" present in local image cache',
+        'Zero active or stopped container processes',
+        'Default "bridge" network active',
+      ],
+    },
+    stateAfter: {
+      images: 1,
+      containers: 1,
+      volumes: 0,
+      networks: 1,
+      details: [
+        'Container "web" instantiated in running state (Status: Up)',
+        'Container allocated virtual IP address (e.g. 172.17.0.2)',
+        'iptables DNAT forwarding rule established: 0.0.0.0:8080 -> 80/tcp',
+        'Process PID 1 executing "nginx -g daemon off;" inside isolated namespaces',
+      ],
+      highlightedChanges: [
+        '+1 Running Container (web)',
+        'Port Forwarding Active: 8080 -> 80',
+        'Assigned IP: 172.17.0.2 on bridge network',
+      ],
+    },
+
+    stateUnchanged: [
+      'The underlying "nginx" image is NOT modified in any way; images are strictly immutable.',
+      'Running a container does NOT automatically create a persistent volume; all written files are stored in the temporary writable container layer.',
+      'Running a container does NOT publish any ports to the host browser unless the "-p" flag is explicitly specified.',
+      'Running a container does NOT make the application publicly accessible on the internet without host firewall/router forwarding.',
+    ],
+
+    expectedOutput: [
+      {
+        line: "Unable to find image 'nginx:latest' locally",
+        type: 'info',
+        explanation: 'Docker first checks the local engine cache; if missing, it automatically reaches out to Docker Hub.',
+        whyItAppears: 'Image is not present on the first run.',
+        whatToLookAt: 'Confirm that the image name and tag are spelled correctly.',
+      },
+      {
+        line: 'latest: Pulling from library/nginx',
+        type: 'info',
+        explanation: 'Connecting to the official Docker Hub repository for Nginx.',
+        whyItAppears: 'Initiating download streams for image layers.',
+        whatToLookAt: 'Repository path and version tag.',
+      },
+      {
+        line: 'a2abf6c4d29e: Pull complete',
+        type: 'data',
+        explanation: 'An individual image layer downloaded, unpacked, and verified via SHA256 checksum.',
+        whyItAppears: 'Layer-by-layer progress tracking.',
+        whatToLookAt: 'All layers finishing with "Pull complete".',
+      },
+      {
+        line: 'Digest: sha256:7c9e13a48e28f321a5d481f337f90e549a',
+        type: 'data',
+        explanation: 'Immutable cryptographic content digest identifying this exact image build.',
+        whyItAppears: 'Security and integrity verification.',
+        whatToLookAt: 'Sha256 hash prefix.',
+      },
+      {
+        line: 'Status: Downloaded newer image for nginx:latest',
+        type: 'success',
+        explanation: 'All layers committed to host storage engine.',
+        whyItAppears: 'Download complete notification.',
+        whatToLookAt: 'Green success confirmation.',
+      },
+      {
+        line: 'a3f2c1d4e5f67890abcdef1234567890abcdef1234567890abcdef1234567890',
+        type: 'success',
+        explanation: 'The full 64-character unique container ID printed because "-d" (detached mode) was specified.',
+        whyItAppears: 'Background process successfully initialized.',
+        whatToLookAt: 'Save this ID or use the container name for docker stop/rm.',
+      },
+    ],
+
+    commonMistakes: [
+      {
+        mistake: 'Forgetting the -p flag when running a web server',
+        whyWrong: 'The container runs and listens on port 80 internally, but no port forwarding exists from the host machine.',
+        dangerousConsequence: 'Your browser at http://localhost:8080 fails with ERR_CONNECTION_REFUSED, leaving you wondering why it does not work.',
+        correctWay: 'Always specify `-p <host_port>:<container_port>` (e.g. `docker run -d -p 8080:80 nginx`).',
+      },
+      {
+        mistake: 'Forgetting the -d flag for background services',
+        whyWrong: 'Without -d, the container locks your active shell prompt to stream stdout logs. Pressing Ctrl+C sends SIGINT and halts the container.',
+        dangerousConsequence: 'The container terminates as soon as you close your terminal or try to type another command.',
+        correctWay: 'Pass `-d` for background services: `docker run -d --name web nginx`.',
+      },
+      {
+        mistake: 'Re-running "docker run" to start a stopped container',
+        whyWrong: '`docker run` always creates a brand new container instance. If you used `--name web`, Docker throws a container name conflict error.',
+        dangerousConsequence: 'Creates orphaned stopped duplicate containers cluttering your disk.',
+        correctWay: 'Use `docker start <name>` to resume an existing stopped container.',
+      },
+    ],
+
+    safeFailure: {
+      mistakeCommand: 'docker run -d --name web nginx',
+      mistakeTitle: 'Running without Port Publishing (-p)',
+      consequence: 'The container is running, but opening http://localhost:8080 in your browser fails with ERR_CONNECTION_REFUSED!',
+      diagnosticQuestion: 'Why can\'t you access the web server from your browser even though "docker ps" shows it is Up?',
+      diagnosticAnswer: 'Because container port 80 is isolated inside its own network namespace. Without "-p 8080:80", Docker never created an iptables port-forwarding rule on your host computer.',
+    },
+
+    recoverySteps: {
+      hint1_conceptual: 'Think about network boundaries. Is the container port connected to your host laptop?',
+      hint2_object: 'Inspect the container network status by running "docker ps" and looking at the PORTS column.',
+      hint3_commandFamily: 'Look at the "docker run" port options. Which option forwards host traffic to the container?',
+      hint4_syntaxStructure: 'Use the format: -p <HOST_PORT>:<CONTAINER_PORT>',
+      hint5_exactCommand: 'docker stop web && docker rm web && docker run -d --name web -p 8080:80 nginx',
+    },
+
+    simulatorConfig: {
+      mode: 'lifecycle',
+      initialObjects: {
+        images: ['nginx:1.25-alpine'],
+        containers: [],
+        volumes: [],
+        networks: ['bridge'],
+      },
+      actionPrompt: 'Before starting Nginx in detached mode with port 8080 mapped to 80, what do you think will happen to your terminal and host ports?',
+      predictionOptions: [
+        {
+          text: 'The terminal locks up displaying streaming HTTP access logs from Nginx.',
+          isCorrect: false,
+          explanation: 'Almost! That only happens in foreground mode without "-d". Detached mode (-d) runs quietly in the background and returns your terminal prompt immediately.',
+        },
+        {
+          text: 'A background container starts, frees your terminal prompt, and maps host port 8080 to container port 80.',
+          isCorrect: true,
+          explanation: 'Spot on! -d releases your terminal and -p 8080:80 configures the iptables rule so http://localhost:8080 immediately reaches Nginx.',
+        },
+        {
+          text: 'Docker creates a virtual machine and prompts you to choose an admin password.',
+          isCorrect: false,
+          explanation: 'Incorrect. Docker containers are not VMs; they are lightweight Linux processes that start instantly without OS setup.',
+        },
+      ],
+      stateTransition: {
+        triggerCommand: 'docker run -d --name web -p 8080:80 nginx',
+        visualConsequence: 'Container "web" appears in active running state. Port bridge 8080 -> 80 glows green.',
+        explanation: 'Nginx is now running in its isolated PID namespace with port 8080 forwarded.',
+      },
+    },
+
+    sandbox: {
+      initialCommands: [],
+      targetTask: 'Run an Nginx container named "webserver" in detached mode mapping host port 8080 to container port 80.',
+      solutionCommands: ['docker run -d -p 8080:80 --name webserver nginx', 'docker run -d --name webserver -p 8080:80 nginx'],
+      guidedSteps: [
+        {
+          instruction: 'Execute docker run with detached mode (-d), name "webserver", and port mapping 8080:80 for nginx',
+          command: 'docker run -d --name webserver -p 8080:80 nginx',
+          hint: 'Type: docker run -d --name webserver -p 8080:80 nginx',
+        },
+      ],
+    },
+
+    challenge: {
+      question: 'If you want to run an Nginx web server in the background and map it to your machine\'s port 8080, what command do you use?',
+      options: [
+        { label: 'docker run nginx -p 8080', isCorrect: false, explanation: 'Incorrect syntax and missing detached flag.' },
+        { label: 'docker run -d -p 8080:80 nginx', isCorrect: true, explanation: 'Correctly specifies detached mode and maps host 8080 to container 80.' },
+        { label: 'docker start nginx -p 8080:80', isCorrect: false, explanation: 'docker start resumes an existing container; you need docker run.' },
+      ],
+    },
+    challengeComprehensive: {
+      title: 'Deploy a Production-Ready Background Nginx Service',
+      objective: 'Run an official Nginx container in detached mode named "webserver" with host port 8080 mapped to container port 80.',
+      scenario: 'Your QA team needs to access a web server on http://localhost:8080. If you run in foreground mode, the server will terminate when you close your laptop terminal.',
+      requirements: [
+        'Run in detached background mode (-d)',
+        'Set the container name to "webserver" (--name webserver)',
+        'Map host port 8080 to container port 80 (-p 8080:80)',
+        'Use the official "nginx" image',
+      ],
+      solutionCommand: 'docker run -d --name webserver -p 8080:80 nginx',
+      validationRegex: 'docker\\s+run\\s+.*-d.*--name\\s+webserver.*-p\\s+8080:80.*nginx',
+      hints: [
+        'Remember the flag for detached background execution: -d',
+        'Specify the custom container name using: --name webserver',
+        'Publish the port using: -p 8080:80',
+        'Combine them: docker run -d --name webserver -p 8080:80 nginx',
+      ],
+      explanation: 'This command instructs the Docker daemon to spawn an isolated container in the background, assign the alias "webserver", establish an iptables DNAT rule forwarding host port 8080 to container port 80, and boot Nginx.',
+    },
 
     actionStage: {
       before: {
@@ -270,12 +551,6 @@ export const TOPIC_03_04_CONCEPTS: Record<string, UniversalDockerConcept> = {
         details: ['Container ID: c-nginx-prod', 'Status: Up 2 hours', 'Logs streaming to stdout'],
       },
     },
-
-    variations: [
-      { title: 'Detached Background Mode', syntax: 'docker run -d nginx', whatItDoes: 'Runs in background and outputs container ID' },
-      { title: 'Interactive Shell TTY', syntax: 'docker run -it ubuntu bash', whatItDoes: 'Hooks terminal input/output into container bash shell' },
-      { title: 'Auto-Remove Container on Exit', syntax: 'docker run --rm alpine echo "Done"', whatItDoes: 'Deletes container metadata instantly upon command exit' },
-    ],
 
     scenarios: [
       {
@@ -306,9 +581,6 @@ export const TOPIC_03_04_CONCEPTS: Record<string, UniversalDockerConcept> = {
       { term: "Port Publishing (-p)", simple: "Map network ports", technical: "Creates an iptables DNAT rule forwarding host traffic to the container.", analogy: "A receptionist forwarding outside calls to your office extension." },
       { term: "Container Name (--name)", simple: "Friendly identifier", technical: "Assigns a custom string alias in Docker's internal DNS and metadata.", analogy: "Giving your pet a name instead of calling it 'Dog #42'." }
     ],
-    whenToUse: ["✓ Starting a new database instance locally", "✓ Running a quick one-off script", "✓ Booting up a web server for testing"],
-    whenNotToUse: ["✕ Restarting an already stopped container (use docker start)", "✕ Running complex multi-container apps (use docker-compose)"],
-    developerScenario: { title: "Local Database Setup", setup: "A developer needs PostgreSQL for their backend API.", problem: "Installing Postgres on their OS might conflict with existing tools.", solution: "They use 'docker run -d -p 5432:5432 postgres' to instantly boot an isolated database." },
     internalFlow: [
       { step: 1, title: "Check Local Image", desc: "Daemon checks cache.", why: "To avoid unnecessary downloads.", techDetail: "Looks for image digest locally." },
       { step: 2, title: "Pull Image (if missing)", desc: "Downloads from registry.", why: "Image is required to create container.", techDetail: "API call to Docker Hub." },
@@ -316,19 +588,7 @@ export const TOPIC_03_04_CONCEPTS: Record<string, UniversalDockerConcept> = {
       { step: 4, title: "Allocate Network", desc: "Assigns IP and maps ports.", why: "To allow communication.", techDetail: "Creates veth pair and iptables rules." },
       { step: 5, title: "Start Process", desc: "Executes the main command.", why: "To run the app.", techDetail: "Spawns PID 1 inside namespaces." }
     ],
-    commonMistakes: [
-      { mistake: "Forgetting the -d flag for web servers", whyWrong: "The terminal becomes locked, and pressing Ctrl+C kills the server.", correctWay: "Use 'docker run -d' for background services." },
-      { mistake: "Re-running 'docker run' when a container is stopped", whyWrong: "Creates a brand new container duplicate, throwing a name conflict error.", correctWay: "Use 'docker start <name>' to resume an existing container." }
-    ],
     recapChecklist: ["docker run combines 'create' and 'start'.", "Use -d to run in the background.", "Use -p HOST:CONTAINER to expose ports.", "Use --name for easy referencing."],
-    challenge: { question: "If you want to run an Nginx web server in the background and map it to your machine's port 8080, what command do you use?", options: [ { label: "docker run nginx -p 8080", isCorrect: false, explanation: "Incorrect syntax and missing detached flag." }, { label: "docker run -d -p 8080:80 nginx", isCorrect: true, explanation: "Correctly specifies detached mode and maps host 8080 to container 80." }, { label: "docker start nginx -p 8080:80", isCorrect: false, explanation: "docker start resumes an existing container; you need docker run." } ] },
-    sandbox: {
-      initialCommands: [],
-      targetTask: "Run a container in the background.",
-      solutionCommands: ["docker run -d -p 8080:80 --name webserver nginx"],
-      guidedSteps: [ { instruction: "Run an Nginx container named 'webserver' in detached mode mapping port 8080 to 80", command: "docker run -d -p 8080:80 --name webserver nginx", hint: "Run docker run -d -p 8080:80 --name webserver nginx" } ]
-    },
-
     reference: {
       syntaxCheatSheet: [
         'docker run -d -p [HOST]:[CONTAINER] [IMAGE]',

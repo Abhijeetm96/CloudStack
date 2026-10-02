@@ -1,6 +1,6 @@
 import React from 'react';
 import { UniversalDockerConcept } from '../../data/unifiedDockerData';
-import { ConceptTeachingEngine } from './ConceptTeachingEngine';
+import { UniversalDockerLessonView } from './UniversalDockerLessonView';
 
 interface UniversalTeachingShellProps {
   concept: UniversalDockerConcept;
@@ -14,5 +14,5 @@ interface UniversalTeachingShellProps {
 }
 
 export const UniversalTeachingShell: React.FC<UniversalTeachingShellProps> = (props) => {
-  return <ConceptTeachingEngine {...props} />;
+  return <UniversalDockerLessonView {...props} />;
 };

@@ -4,6 +4,7 @@ import { Container, DockerImage, DockerVolume, DockerNetwork, DockerCommandResul
 import { DOCKER_14_TOPICS, DOCKER_UNIVERSAL_CONCEPTS, UniversalDockerConcept } from '../data/unifiedDockerData';
 import { ensureFullConceptData } from '../data/conceptDataEnricher';
 import { ProgressManager } from '../../progress/ProgressManager';
+import { DockForgeProgressStore } from '../progress/dockerProgress';
 import { parseCurrentRoute, syncUrlWithMode } from '../../platform/routing/urlRouter';
 
 export type DockMode = 'academy' | 'universe' | 'practice' | 'labs' | 'ide' | 'visualizer' | 'reference' | 'lesson' | 'guided-lesson';
@@ -176,6 +177,7 @@ volumes:
 
   const markConceptComplete = useCallback((id: string) => {
     progressManager.completeLesson('docker', id);
+    DockForgeProgressStore.getInstance().markLessonComplete(id);
   }, [progressManager]);
 
   const executeCommand = useCallback(
