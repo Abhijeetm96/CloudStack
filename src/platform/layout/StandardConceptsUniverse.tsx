@@ -121,7 +121,7 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
-  const [pageSize, setPageSize] = useState<number | 'all'>(50);
+  const [pageSize, setPageSize] = useState<number | 'all'>(totalConceptCount <= 100 ? 'all' : 50);
   const [currentPage, setCurrentPage] = useState<number>(1);
   const [collapsedMap, setCollapsedMap] = useState<Record<string, boolean>>({});
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, number>>({});
@@ -929,12 +929,68 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
               width: '100%',
             }}
           >
-            {paginatedConcepts.map((concept) => {
+            {paginatedConcepts.map((concept, idx) => {
               const isCollapsed = collapsedMap[concept.id] !== undefined ? collapsedMap[concept.id] : true;
+              const prevConcept = idx > 0 ? paginatedConcepts[idx - 1] : null;
+              const isNewChapter = !prevConcept || prevConcept.topicId !== concept.topicId;
+              const chapterCount = topicConceptCountMap[concept.topicId] || 0;
 
               return (
-                <div
-                  key={concept.id}
+                <React.Fragment key={concept.id}>
+                  {isNewChapter && (
+                    <div
+                      style={{
+                        gridColumn: '1 / -1',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.85rem 1.25rem',
+                        marginTop: idx > 0 ? '1.5rem' : '0.25rem',
+                        marginBottom: '0.25rem',
+                        background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)',
+                        border: '1px solid var(--border-color)',
+                        borderLeft: `4px solid ${accentColor}`,
+                        borderRadius: '10px',
+                        flexWrap: 'wrap',
+                        gap: '0.5rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            color: accentColor,
+                            background: `${accentColor}18`,
+                            border: `1px solid ${accentColor}35`,
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '5px',
+                            fontFamily: 'var(--font-mono)',
+                          }}
+                        >
+                          Chapter {concept.topicNumber}
+                        </span>
+                        <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>
+                          {concept.topicTitle}
+                        </h2>
+                      </div>
+                      <span
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          color: 'var(--text-muted)',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          padding: '0.15rem 0.55rem',
+                          borderRadius: '999px',
+                        }}
+                      >
+                        {chapterCount} {chapterCount === 1 ? 'Sub-chapter' : 'Sub-chapters'}
+                      </span>
+                    </div>
+                  )}
+
+                  <div
+                    key={concept.id}
                   style={{
                     gridColumn: isCollapsed ? 'auto' : '1 / -1',
                     background: isCollapsed
@@ -995,14 +1051,16 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                         <span
                           style={{
                             fontSize: '0.68rem',
-                            fontWeight: 700,
-                            color: '#94a3b8',
-                            background: 'rgba(255, 255, 255, 0.05)',
-                            padding: '0.1rem 0.4rem',
+                            fontWeight: 800,
+                            color: accentColor,
+                            background: `${accentColor}15`,
+                            border: `1px solid ${accentColor}35`,
+                            padding: '0.1rem 0.45rem',
                             borderRadius: '4px',
+                            fontFamily: 'var(--font-mono)',
                           }}
                         >
-                          {concept.subChapterNumber}
+                          Sub-chapter {concept.subChapterNumber}
                         </span>
                       )}
                       <span
@@ -1024,8 +1082,21 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                   {/* Card Body */}
                   <div style={{ padding: '1rem 1.15rem', display: 'flex', flexDirection: 'column', flex: 1, gap: '0.6rem' }}>
                     <div>
-                      <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.3 }}>
-                        {concept.title}
+                      <div style={{ fontSize: '0.96rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.3, display: 'flex', alignItems: 'baseline', gap: '0.4rem' }}>
+                        {concept.subChapterNumber && (
+                          <span
+                            style={{
+                              fontSize: '0.86rem',
+                              fontFamily: 'var(--font-mono)',
+                              color: accentColor,
+                              fontWeight: 800,
+                              flexShrink: 0,
+                            }}
+                          >
+                            {concept.subChapterNumber}
+                          </span>
+                        )}
+                        <span>{concept.title}</span>
                       </div>
                       <div style={{ fontSize: '0.73rem', color: 'var(--text-muted)', marginTop: '0.15rem' }}>
                         Chapter {concept.topicNumber}: {concept.topicTitle}
@@ -1434,6 +1505,7 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                     </button>
                   </div>
                 </div>
+                </React.Fragment>
               );
             })}
           </div>
@@ -1442,12 +1514,67 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
         {/* VIEW MODE 2: CARDS STREAM VIEW (Full Width Expandable Cards) */}
         {viewMode === 'cards' && filteredConcepts.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1.15rem' }}>
-            {paginatedConcepts.map((concept) => {
+            {paginatedConcepts.map((concept, idx) => {
               const isCollapsed = collapsedMap[concept.id] !== undefined ? collapsedMap[concept.id] : true;
+              const prevConcept = idx > 0 ? paginatedConcepts[idx - 1] : null;
+              const isNewChapter = !prevConcept || prevConcept.topicId !== concept.topicId;
+              const chapterCount = topicConceptCountMap[concept.topicId] || 0;
 
               return (
-                <div
-                  key={concept.id}
+                <React.Fragment key={concept.id}>
+                  {isNewChapter && (
+                    <div
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        padding: '0.85rem 1.25rem',
+                        marginTop: idx > 0 ? '1.5rem' : '0.25rem',
+                        marginBottom: '0.25rem',
+                        background: 'linear-gradient(90deg, rgba(255, 255, 255, 0.04) 0%, rgba(255, 255, 255, 0.01) 100%)',
+                        border: '1px solid var(--border-color)',
+                        borderLeft: `4px solid ${accentColor}`,
+                        borderRadius: '10px',
+                        flexWrap: 'wrap',
+                        gap: '0.5rem',
+                      }}
+                    >
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
+                        <span
+                          style={{
+                            fontSize: '0.72rem',
+                            fontWeight: 800,
+                            color: accentColor,
+                            background: `${accentColor}18`,
+                            border: `1px solid ${accentColor}35`,
+                            padding: '0.15rem 0.5rem',
+                            borderRadius: '5px',
+                            fontFamily: 'var(--font-mono)',
+                          }}
+                        >
+                          Chapter {concept.topicNumber}
+                        </span>
+                        <h2 style={{ margin: 0, fontSize: '1.05rem', fontWeight: 800, color: '#f8fafc', letterSpacing: '-0.01em' }}>
+                          {concept.topicTitle}
+                        </h2>
+                      </div>
+                      <span
+                        style={{
+                          fontSize: '0.72rem',
+                          fontWeight: 700,
+                          color: 'var(--text-muted)',
+                          background: 'rgba(255, 255, 255, 0.05)',
+                          padding: '0.15rem 0.55rem',
+                          borderRadius: '999px',
+                        }}
+                      >
+                        {chapterCount} {chapterCount === 1 ? 'Sub-chapter' : 'Sub-chapters'}
+                      </span>
+                    </div>
+                  )}
+
+                  <div
+                    key={concept.id}
                   style={{
                     background: 'var(--bg-card)',
                     border: '1px solid var(--border-color)',
@@ -1493,20 +1620,27 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                       <div style={{ minWidth: 0 }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                           <span style={{ fontSize: '0.96rem', fontWeight: 800, color: '#f8fafc', lineHeight: 1.2 }}>
+                            {concept.subChapterNumber && (
+                              <span style={{ color: accentColor, marginRight: '0.4rem', fontFamily: 'var(--font-mono)' }}>
+                                {concept.subChapterNumber}
+                              </span>
+                            )}
                             {concept.title}
                           </span>
                           {concept.subChapterNumber && (
                             <span
                               style={{
                                 fontSize: '0.68rem',
-                                fontWeight: 700,
-                                color: '#94a3b8',
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                padding: '0.1rem 0.4rem',
+                                fontWeight: 800,
+                                color: accentColor,
+                                background: `${accentColor}15`,
+                                border: `1px solid ${accentColor}35`,
+                                padding: '0.1rem 0.45rem',
                                 borderRadius: '4px',
+                                fontFamily: 'var(--font-mono)',
                               }}
                             >
-                              {concept.subChapterNumber}
+                              Sub-chapter {concept.subChapterNumber}
                             </span>
                           )}
                         </div>
@@ -1827,6 +1961,7 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                     </div>
                   )}
                 </div>
+                </React.Fragment>
               );
             })}
           </div>
@@ -1855,9 +1990,34 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                   </tr>
                 </thead>
                 <tbody>
-                  {paginatedConcepts.map((concept, idx) => (
-                    <tr
-                      key={concept.id}
+                  {paginatedConcepts.map((concept, idx) => {
+                    const prevConcept = idx > 0 ? paginatedConcepts[idx - 1] : null;
+                    const isNewChapter = !prevConcept || prevConcept.topicId !== concept.topicId;
+                    const chapterCount = topicConceptCountMap[concept.topicId] || 0;
+
+                    return (
+                      <React.Fragment key={concept.id}>
+                        {isNewChapter && (
+                          <tr style={{ background: 'rgba(255, 255, 255, 0.04)', borderBottom: '1px solid var(--border-color)', borderTop: idx > 0 ? '2px solid rgba(255, 255, 255, 0.08)' : 'none' }}>
+                            <td colSpan={6} style={{ padding: '0.65rem 1rem' }}>
+                              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem' }}>
+                                  <span style={{ fontSize: '0.72rem', fontWeight: 800, color: accentColor, background: `${accentColor}18`, border: `1px solid ${accentColor}35`, padding: '0.12rem 0.45rem', borderRadius: '4px', fontFamily: 'var(--font-mono)' }}>
+                                    Chapter {concept.topicNumber}
+                                  </span>
+                                  <span style={{ fontWeight: 800, color: '#f8fafc', fontSize: '0.86rem' }}>
+                                    {concept.topicTitle}
+                                  </span>
+                                </div>
+                                <span style={{ fontSize: '0.7rem', color: 'var(--text-muted)', fontWeight: 600 }}>
+                                  {chapterCount} {chapterCount === 1 ? 'Sub-chapter' : 'Sub-chapters'}
+                                </span>
+                              </div>
+                            </td>
+                          </tr>
+                        )}
+                        <tr
+                          key={concept.id}
                       style={{
                         borderBottom: '1px solid rgba(255, 255, 255, 0.04)',
                         background: idx % 2 === 0 ? 'transparent' : 'rgba(255, 255, 255, 0.01)',
@@ -1897,7 +2057,14 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                         </div>
                       </td>
                       <td style={{ padding: '0.75rem 1rem' }}>
-                        <div style={{ fontWeight: 700, color: '#f8fafc' }}>{concept.title}</div>
+                        <div style={{ fontWeight: 700, color: '#f8fafc' }}>
+                          {concept.subChapterNumber && (
+                            <span style={{ color: accentColor, marginRight: '0.4rem', fontFamily: 'var(--font-mono)' }}>
+                              {concept.subChapterNumber}
+                            </span>
+                          )}
+                          {concept.title}
+                        </div>
                         {concept.subtitle && (
                           <div style={{ fontSize: '0.74rem', color: 'var(--text-muted)', marginTop: '0.1rem', maxWidth: '420px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                             {concept.subtitle}
@@ -1945,7 +2112,9 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                         </button>
                       </td>
                     </tr>
-                  ))}
+                    </React.Fragment>
+                  );
+                })}
                 </tbody>
               </table>
             </div>
@@ -2081,6 +2250,11 @@ export const StandardConceptsUniverse: React.FC<StandardConceptsUniverseProps> =
                 <div style={{ minWidth: 0 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
                     <h2 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 900, color: '#f8fafc', lineHeight: 1.2 }}>
+                      {modalConcept.subChapterNumber && (
+                        <span style={{ color: accentColor, marginRight: '0.4rem', fontFamily: 'var(--font-mono)' }}>
+                          {modalConcept.subChapterNumber}
+                        </span>
+                      )}
                       {modalConcept.title}
                     </h2>
                     {modalConcept.subChapterNumber && (
