@@ -242,17 +242,35 @@ export const TerraformSidebar: React.FC<TerraformSidebarProps> = ({
                   </span>
                 </div>
 
-                <span
-                  style={{
-                    fontSize: '0.65rem',
-                    color: isChapterFullyComplete ? '#10b981' : '#64748b',
-                    padding: '0.1rem 0.35rem',
-                    borderRadius: '4px',
-                    background: isChapterFullyComplete ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.03)'
-                  }}
-                >
-                  {ch.subchapters.length}
-                </span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+                  {ch.number === 50 && (
+                    <span
+                      style={{
+                        fontSize: '0.62rem',
+                        fontWeight: 800,
+                        color: '#fbbf24',
+                        background: 'rgba(245, 158, 11, 0.18)',
+                        border: '1px solid rgba(245, 158, 11, 0.4)',
+                        padding: '0.1rem 0.4rem',
+                        borderRadius: '4px',
+                        letterSpacing: '0.04em',
+                      }}
+                    >
+                      🏆 CAPSTONES
+                    </span>
+                  )}
+                  <span
+                    style={{
+                      fontSize: '0.65rem',
+                      color: isChapterFullyComplete ? '#10b981' : '#64748b',
+                      padding: '0.1rem 0.35rem',
+                      borderRadius: '4px',
+                      background: isChapterFullyComplete ? 'rgba(16, 185, 129, 0.15)' : 'rgba(255, 255, 255, 0.03)'
+                    }}
+                  >
+                    {ch.subchapters.length}
+                  </span>
+                </div>
               </div>
 
               {/* Subchapters Nested List */}
