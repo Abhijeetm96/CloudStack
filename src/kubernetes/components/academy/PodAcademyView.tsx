@@ -74,6 +74,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
           id: c.id,
           command: c.commandPill || `kubectl get ${c.id.replace('c-k8s-', '')}`,
           title: c.title,
+          subChapterNumber: c.number,
           shortDesc: c.description,
           icon: getConceptIcon(c.id),
         })),
@@ -340,7 +341,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
                   }}
                 >
                   {React.createElement(getChapterIcon(currentChapter.number), { size: 13, color: '#38bdf8' })}
-                  <span>{currentChapter.title}</span>
+                  <span>Chapter {String(currentChapter.number).padStart(2, '0')}: {currentChapter.title}</span>
                 </button>
 
                 <ChevronRight size={12} color="#475569" />
