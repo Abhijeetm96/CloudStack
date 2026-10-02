@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDocker } from '../../context/DockerContext';
+import { ALL_DOCKER_LESSONS } from '../../data';
 import { useApp } from '../../../context/AppContext';
 import { StandardAcademyHeaderNav } from '../../../platform/layout/StandardAcademyHeaderNav';
 import { Container } from 'lucide-react';
@@ -50,14 +51,14 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ onSwitchToSuite }) => {
       activeMode={activeTabId}
       onSelectMode={handleSelectMode}
       onSwitchToSuite={onSwitchToSuite}
-      universeConceptCount={42}
+      universeConceptCount={ALL_DOCKER_LESSONS.length /* universeConceptCount={42} */}
       statusPill={{
         label: 'Daemon Active (v27.0)',
         dotColor: '#22c55e',
       }}
       masteredPill={{
         count: completedConceptIds.length,
-        total: 42,
+        total: ALL_DOCKER_LESSONS.length,
       }}
       onOpenProblemSearch={() => rootApp?.setShowProblemSearch(true)}
       theme={rootApp?.theme || 'dark'}
