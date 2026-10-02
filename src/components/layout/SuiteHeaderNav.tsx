@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../../context/AppContext';
 import { useProgress } from '../../progress';
-import { Boxes, Sparkles, Search, Database, Menu, X } from 'lucide-react';
+import { Boxes, Sparkles, Search, Database, Menu, X, Trophy } from 'lucide-react';
 import {
   GitOfficialIcon,
   DockerOfficialIcon,
@@ -169,6 +169,22 @@ export const SuiteHeaderNav: React.FC = () => {
           <RoadmapOfficialIcon size={22} />
           <span className="suite-nav-text">Roadmap</span>
         </button>
+
+        <button
+          onClick={() => setMode('capstone')}
+          className="suite-nav-btn"
+          style={{
+            background: mode === 'capstone' ? 'rgba(56, 189, 248, 0.28)' : 'rgba(56, 189, 248, 0.1)',
+            border: mode === 'capstone' ? '1px solid rgba(56, 189, 248, 0.7)' : '1px solid rgba(56, 189, 248, 0.25)',
+            boxShadow: mode === 'capstone' ? '0 0 16px rgba(56, 189, 248, 0.4)' : 'none',
+          }}
+          title="Capstone Project System (31 Real-World Projects)"
+          aria-label="Capstone Projects"
+        >
+          <Trophy size={20} color="#38bdf8" />
+          <span className="suite-nav-text">Capstones</span>
+          <span style={{ fontSize: '0.65rem', background: 'rgba(56, 189, 248, 0.2)', color: '#38bdf8', padding: '0.1rem 0.35rem', borderRadius: '4px', fontWeight: 800 }}>31</span>
+        </button>
       </div>
 
       {/* Right Controls */}
@@ -321,6 +337,21 @@ export const SuiteHeaderNav: React.FC = () => {
             <div>
               <div style={{ color: '#facc15', fontWeight: 700 }}>Cloud &amp; DevOps Roadmap</div>
               <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>9-Stage Engineering Curriculum</div>
+            </div>
+          </button>
+
+          <button
+            onClick={() => {
+              setMode('capstone');
+              setMobileMenuOpen(false);
+            }}
+            className="suite-mobile-item"
+            style={{ borderLeft: '3px solid #38bdf8' }}
+          >
+            <Trophy size={20} color="#38bdf8" />
+            <div>
+              <div style={{ color: '#38bdf8', fontWeight: 700 }}>Capstone Project System</div>
+              <div style={{ fontSize: '0.72rem', color: 'var(--text-muted)' }}>31 Real-World Capstone Projects</div>
             </div>
           </button>
 
