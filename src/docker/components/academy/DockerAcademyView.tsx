@@ -1,21 +1,15 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { useDocker } from '../../context/DockerContext';
 import { ALL_DOCKER_CHAPTERS, ALL_DOCKER_LESSONS, getDockerLessonById } from '../../data';
 import { DockerSubchapterLesson } from '../../types/dockerCurriculumTypes';
 import { DockForgeProgressStore } from '../../progress/dockerProgress';
-import { DockerLessonView } from '../../../components/docker/DockerLessonView';
-import { DockerConceptView } from '../../../components/docker/DockerConceptView';
-import { DockerContainerSimulator } from '../../../components/docker/DockerContainerSimulator';
-import { DockerImageSimulator } from '../../../components/docker/DockerImageSimulator';
-import { DockerNetworkSimulator } from '../../../components/docker/DockerNetworkSimulator';
-import { DockerVolumeSimulator } from '../../../components/docker/DockerVolumeSimulator';
-import { DockerComposeSimulator } from '../../../components/docker/DockerComposeSimulator';
-import { DockerBuildSimulator } from '../../../components/docker/DockerBuildSimulator';
-import { DockerSecuritySimulator } from '../../../components/docker/DockerSecuritySimulator';
-import { DockerDebugSimulator } from '../../../components/docker/DockerDebugSimulator';
-import { DockerTerminal } from '../../../components/docker/DockerTerminal';
+import { UniversalTeachingShell } from '../simulators/UniversalTeachingShell';
+import {
+  adaptDockerLessonToUniversalConcept,
+  resolveDockerLessonId,
+} from '../../data/dockerLessonAdapter';
 import { DockerSearchModal } from '../search/DockerSearchModal';
-
+import { parseCurrentRoute, syncUrlWithMode } from '../../../platform/routing/urlRouter';
 import {
   StandardAcademySidebar,
   StandardTopicItem,
@@ -23,54 +17,13 @@ import {
 import { StandardAcademyBottomBar } from '../../../platform/layout/StandardAcademyBottomBar';
 import {
   Container,
-  Box,
-  Cpu,
-  Download,
-  Play,
-  Database,
-  Package,
-  Hammer,
-  Cloud,
-  Sliders,
-  Activity,
-  Terminal,
-  ShieldCheck,
-  Workflow,
-  Zap,
   ChevronDown,
   Sparkles,
-  LucideIcon,
-  Layers,
   Search,
-  FileCode,
-  Boxes,
-  UploadCloud,
-  TerminalSquare,
-  ListOrdered,
-  BarChart2,
-  XCircle,
-  ScrollText,
-  Network,
-  RefreshCw,
-  Bug,
-  Shield
 } from 'lucide-react';
 
-type StudioTab =
-  | 'lesson'
-  | 'concept'
-  | 'container'
-  | 'image'
-  | 'network'
-  | 'volume'
-  | 'compose'
-  | 'build'
-  | 'security'
-  | 'debug'
-  | 'terminal';
-
 export const DockerAcademyView: React.FC = () => {
-  const { setMode } = useDocker();
+  const { executeCommand } = useDocker();
 
   // Progress store
   const progressStore = DockForgeProgressStore.getInstance();
@@ -84,22 +37,42 @@ export const DockerAcademyView: React.FC = () => {
     });
   }, [progressStore]);
 
-  // Active lesson selection
+  // Active lesson selection initialized from URL route or stored progress
   const [activeLessonId, setActiveLessonId] = useState<string>(() => {
+    try {
+      const { conceptId } = parseCurrentRoute();
+      if (conceptId) {
+        return resolveDockerLessonId(conceptId);
+      }
+    } catch {}
     const saved = progressStore.getState().lastVisitedLesson;
     if (saved && getDockerLessonById(saved)) return saved;
     return ALL_DOCKER_LESSONS[0]?.id || 'dk01-01-what-is-a-container';
   });
 
-  const [activeStudioTab, setActiveStudioTab] = useState<StudioTab>('lesson');
+  // Watch URL route changes (e.g. browser back/forward or deep-link navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      try {
+        const { conceptId } = parseCurrentRoute();
+        if (conceptId) {
+          const resolved = resolveDockerLessonId(conceptId);
+          setActiveLessonId(resolved);
+        }
+      } catch {}
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   const [showSearchModal, setShowSearchModal] = useState(false);
   const [showMobileTopicsDrawer, setShowMobileTopicsDrawer] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  const showToast = (msg: string) => {
+  const showToast = useCallback((msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage((curr) => (curr === msg ? null : curr)), 2500);
-  };
+  }, []);
 
   const currentLesson: DockerSubchapterLesson = useMemo(() => {
     return getDockerLessonById(activeLessonId) || ALL_DOCKER_LESSONS[0];
@@ -126,30 +99,27 @@ export const DockerAcademyView: React.FC = () => {
   // Linear previous / next navigation across 1,038 lessons
   const currentIdx = ALL_DOCKER_LESSONS.findIndex((l) => l.id === activeLessonId);
   const prevLesson = currentIdx > 0 ? ALL_DOCKER_LESSONS[currentIdx - 1] : null;
-  const nextLesson = currentIdx >= 0 && currentIdx < ALL_DOCKER_LESSONS.length - 1 ? ALL_DOCKER_LESSONS[currentIdx + 1] : null;
+  const nextLesson =
+    currentIdx >= 0 && currentIdx < ALL_DOCKER_LESSONS.length - 1
+      ? ALL_DOCKER_LESSONS[currentIdx + 1]
+      : null;
 
-  const handleSelectLesson = (lessonId: string) => {
-    setActiveLessonId(lessonId);
-    progressStore.setLastVisitedLesson(lessonId);
-    setActiveStudioTab('lesson');
-  };
+  const handleSelectLesson = useCallback((lessonId: string) => {
+    const resolved = resolveDockerLessonId(lessonId);
+    setActiveLessonId(resolved);
+    progressStore.setLastVisitedLesson(resolved);
+    syncUrlWithMode('docker', resolved);
+  }, [progressStore]);
 
-  const handleToggleComplete = (id: string) => {
+  const handleToggleComplete = useCallback((id: string) => {
     const isNowDone = progressStore.toggleLessonComplete(id);
     showToast(isNowDone ? 'Lesson completed! Great job!' : 'Lesson marked as uncompleted.');
-  };
+  }, [progressStore, showToast]);
 
-  const handleOpenSimulatorFromLesson = (simType: string) => {
-    if (simType === 'container') setActiveStudioTab('container');
-    else if (simType === 'image') setActiveStudioTab('image');
-    else if (simType === 'network') setActiveStudioTab('network');
-    else if (simType === 'volume') setActiveStudioTab('volume');
-    else if (simType === 'compose') setActiveStudioTab('compose');
-    else if (simType === 'security') setActiveStudioTab('security');
-    else if (simType === 'build') setActiveStudioTab('build');
-    else if (simType === 'debug') setActiveStudioTab('debug');
-    else setActiveStudioTab('terminal');
-  };
+  // Adapt current lesson into UniversalTeachingShell concept data
+  const universalConcept = useMemo(() => {
+    return adaptDockerLessonToUniversalConcept(currentLesson);
+  }, [currentLesson]);
 
   return (
     <div
@@ -165,7 +135,7 @@ export const DockerAcademyView: React.FC = () => {
       }}
     >
       {/* ================================================================ */}
-      {/* COLUMN 1: LEFT SIDEBAR (Standard 240px Accordion Sidebar)       */}
+      {/* COLUMN 1: LEFT SIDEBAR (Standard 260px Accordion Sidebar)       */}
       {/* ================================================================ */}
       <aside
         className="academy-sidebar-desktop"
@@ -197,7 +167,7 @@ export const DockerAcademyView: React.FC = () => {
       </aside>
 
       {/* ================================================================ */}
-      {/* COLUMN 2: CENTER MAIN STAGE (Studio & 35-Item Lesson View)       */}
+      {/* COLUMN 2: CENTER MAIN STAGE (Universal Docker Teaching Experience) */}
       {/* ================================================================ */}
       <main
         className="academy-center-main"
@@ -273,144 +243,7 @@ export const DockerAcademyView: React.FC = () => {
           </button>
         </div>
 
-        {/* Studio Top Control Strip (Switch between Lesson, Concept, and 8 Simulators) */}
-        <div className="bg-slate-900 border-b border-slate-800 px-4 py-1.5 flex items-center justify-between shrink-0 overflow-x-auto gap-2">
-          <div className="flex items-center gap-1 font-mono text-xs overflow-x-auto py-0.5">
-            <button
-              onClick={() => setActiveStudioTab('lesson')}
-              className={`px-3 py-1.5 rounded-lg flex items-center gap-1.5 font-semibold transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'lesson'
-                  ? 'bg-blue-600 text-white shadow-sm'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <FileCode className="w-3.5 h-3.5" /> Lesson Curriculum
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('concept')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'concept'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Cpu className="w-3.5 h-3.5" /> Concept Model
-            </button>
-
-            <span className="text-slate-700 mx-1">|</span>
-
-            <button
-              onClick={() => setActiveStudioTab('container')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'container'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Play className="w-3.5 h-3.5" /> Container Simulator
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('image')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'image'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Package className="w-3.5 h-3.5" /> Image & Layers
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('network')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'network'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Network className="w-3.5 h-3.5" /> Networks & DNS
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('volume')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'volume'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Database className="w-3.5 h-3.5" /> Volumes & Mounts
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('compose')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'compose'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Layers className="w-3.5 h-3.5" /> Compose
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('security')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'security'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5" /> Security
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('build')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'build'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Hammer className="w-3.5 h-3.5" /> BuildKit
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('debug')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'debug'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Bug className="w-3.5 h-3.5" /> SRE Debugging
-            </button>
-
-            <button
-              onClick={() => setActiveStudioTab('terminal')}
-              className={`px-2.5 py-1.5 rounded-lg flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap ${
-                activeStudioTab === 'terminal'
-                  ? 'bg-blue-600 text-white'
-                  : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800'
-              }`}
-            >
-              <Terminal className="w-3.5 h-3.5" /> CLI Terminal
-            </button>
-          </div>
-
-          <button
-            onClick={() => setShowSearchModal(true)}
-            className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-mono rounded cursor-pointer shrink-0"
-          >
-            <Search className="w-3.5 h-3.5 text-blue-400" />
-            <span>Search</span>
-            <kbd className="px-1 py-0.2 bg-slate-900 rounded text-[10px] text-slate-400">⌘K</kbd>
-          </button>
-        </div>
-
-        {/* Center Dynamic Content Area */}
+        {/* Center Main Stage (Native Universal Docker Teaching Shell) */}
         <div
           style={{
             flex: '1 1 0%',
@@ -422,79 +255,16 @@ export const DockerAcademyView: React.FC = () => {
             flexDirection: 'column',
           }}
         >
-          {activeStudioTab === 'lesson' && (
-            <DockerLessonView
-              lesson={currentLesson}
-              isCompleted={completedLessonIds.includes(activeLessonId)}
-              onToggleComplete={handleToggleComplete}
-              onOpenSimulator={handleOpenSimulatorFromLesson}
-              onNextLesson={nextLesson ? () => handleSelectLesson(nextLesson.id) : undefined}
-              onPrevLesson={prevLesson ? () => handleSelectLesson(prevLesson.id) : undefined}
-            />
-          )}
-
-          {activeStudioTab === 'concept' && (
-            <div className="flex-1 p-6 overflow-y-auto">
-              <DockerConceptView
-                lesson={currentLesson}
-                onOpenSimulator={() => handleOpenSimulatorFromLesson(currentLesson.recommendedSimulator || 'container')}
-              />
-            </div>
-          )}
-
-          {activeStudioTab === 'container' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerContainerSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'image' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerImageSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'network' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerNetworkSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'volume' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerVolumeSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'compose' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerComposeSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'build' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerBuildSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'security' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerSecuritySimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'debug' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerDebugSimulator />
-            </div>
-          )}
-
-          {activeStudioTab === 'terminal' && (
-            <div className="flex-1 p-4 overflow-hidden">
-              <DockerTerminal />
-            </div>
-          )}
+          <UniversalTeachingShell
+            concept={universalConcept}
+            completedConceptIds={completedLessonIds}
+            markConceptComplete={handleToggleComplete}
+            executeCommand={executeCommand}
+            showToast={showToast}
+            prevConcept={prevLesson ? { id: prevLesson.id, title: prevLesson.subchapterTitle } : null}
+            nextConcept={nextLesson ? { id: nextLesson.id, title: nextLesson.subchapterTitle } : null}
+            onSelectConcept={handleSelectLesson}
+          />
         </div>
 
         {/* Standard Pinned Bottom Bar (Matching Git, K8s, Linux, Terraform Academies) */}
