@@ -5,7 +5,9 @@ import {
   Flame,
   CheckCircle2,
   AlertTriangle,
+  Rocket,
 } from 'lucide-react';
+import { StandardCapstoneHubView } from '../../../platform/capstones/StandardCapstoneHubView';
 
 interface LabScenario {
   id: string;
@@ -74,10 +76,59 @@ const KUBE_LABS: LabScenario[] = [
 
 export const PodLabsHubView: React.FC = () => {
   const { engine, executeCommand } = useApp();
+  const [activeMode, setActiveMode] = useState<'capstones' | 'labs'>('capstones');
   const [selectedLabId, setSelectedLabId] = useState<string>('crashloop');
   const [labState, setLabState] = useState<'normal' | 'disaster' | 'cured'>('normal');
 
   const currentLab = KUBE_LABS.find((l) => l.id === selectedLabId) || KUBE_LABS[0];
+
+  if (activeMode === 'capstones') {
+    return (
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', height: '100%', width: '100%', overflow: 'hidden' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', padding: '0.75rem 1.5rem', background: '#0a101d', borderBottom: '1px solid rgba(56, 189, 248, 0.2)' }}>
+          <button
+            onClick={() => setActiveMode('capstones')}
+            style={{
+              background: 'rgba(56, 189, 248, 0.2)',
+              border: '1px solid #38bdf8',
+              color: '#38bdf8',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '6px',
+              fontWeight: 700,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <Rocket size={15} /> 6 Kubernetes Capstone Projects (K8S-01 to K8S-06)
+          </button>
+          <button
+            onClick={() => setActiveMode('labs')}
+            style={{
+              background: 'none',
+              border: '1px solid rgba(71, 85, 105, 0.5)',
+              color: '#94a3b8',
+              padding: '0.4rem 0.85rem',
+              borderRadius: '6px',
+              fontWeight: 600,
+              fontSize: '0.85rem',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+            }}
+          >
+            <FlaskConical size={15} /> Cluster Hospital Labs
+          </button>
+        </div>
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>
+          <StandardCapstoneHubView initialAcademy="kubernetes" />
+        </div>
+      </div>
+    );
+  }
 
   const handleTriggerDisaster = () => {
     if (currentLab.id === 'crashloop') {
