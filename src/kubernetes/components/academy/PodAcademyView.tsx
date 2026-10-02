@@ -29,10 +29,14 @@ import {
   Compass,
   ChevronDown,
   Sparkles,
+  Play,
 } from 'lucide-react';
 
 import { ViewMode } from '../../../context/AppContext';
 import { conceptRequiresVisualizer } from '../../data/topics/visualizerScope';
+import { KUBERNETES_CAPSTONES } from '../../../platform/capstones/data/kubernetesCapstones';
+import { StandardCapstoneRunnerModal } from '../../../platform/capstones/StandardCapstoneRunnerModal';
+import { CapstoneProject } from '../../../platform/capstones/types';
 
 type AcademyTab = 'learn' | 'diagram' | 'spec' | 'practice' | 'visualize' | 'pitfalls' | 'quiz';
 
@@ -44,6 +48,7 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
   const { activeConcept, setActiveConceptId, completedConcepts, markConceptComplete, setMode } = useApp();
   const [activeTab, setActiveTab] = useState<AcademyTab>('learn');
   const [showMobileTopicsDrawer, setShowMobileTopicsDrawer] = useState<boolean>(false);
+  const [activeCapstone, setActiveCapstone] = useState<CapstoneProject | null>(null);
 
   const currentChapter = KUBE_CHAPTERS.find((ch) => ch.concepts.some((c) => c.id === activeConcept.id));
 
@@ -65,10 +70,11 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
   const sidebarTopics: StandardTopicItem[] = useMemo(() => {
     return KUBE_CHAPTERS.map((ch) => {
       const IconComponent = getChapterIcon(ch.number);
+      const isCapstoneChapter = ch.number === 15;
       return {
         id: ch.id,
         number: String(ch.number).padStart(2, '0'),
-        title: ch.title,
+        title: isCapstoneChapter ? `${ch.title} 🏆 CAPSTONES` : ch.title,
         icon: IconComponent,
         concepts: ch.concepts.map((c) => ({
           id: c.id,
@@ -501,6 +507,128 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
               </div>
             )}
 
+            {/* Chapter 15: Dedicated Real-World Capstone Projects Section */}
+            {currentChapter?.number === 15 && (
+              <div
+                style={{
+                  background: 'linear-gradient(135deg, rgba(30, 64, 175, 0.25) 0%, rgba(56, 189, 248, 0.15) 100%)',
+                  border: '1.5px solid rgba(56, 189, 248, 0.45)',
+                  borderRadius: '14px',
+                  padding: '1.35rem 1.6rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '1.15rem',
+                  boxShadow: '0 10px 30px rgba(50, 108, 229, 0.18)',
+                }}
+              >
+                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
+                    <div
+                      style={{
+                        width: '42px',
+                        height: '42px',
+                        borderRadius: '12px',
+                        background: 'linear-gradient(135deg, #326ce5, #38bdf8)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        boxShadow: '0 0 18px rgba(56, 189, 248, 0.4)',
+                      }}
+                    >
+                      <Award size={24} color="#fff" />
+                    </div>
+                    <div>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                        <h3 style={{ margin: 0, fontSize: '1.15rem', fontWeight: 900, color: '#f8fafc' }}>
+                          Kubernetes Academy Capstone Projects (Chapter 15)
+                        </h3>
+                        <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#38bdf8', background: 'rgba(56, 189, 248, 0.2)', border: '1px solid rgba(56, 189, 248, 0.4)', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
+                          6 REAL-WORLD LABS
+                        </span>
+                      </div>
+                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.82rem', color: '#cbd5e1' }}>
+                        The final capstone challenge of Kubernetes Academy: Architect, containerize, deploy, auto-scale, observe, secure, and troubleshoot enterprise distributed clusters in simulated production environments.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(290px, 1fr))', gap: '0.85rem' }}>
+                  {KUBERNETES_CAPSTONES.map((cap) => (
+                    <div
+                      key={cap.id}
+                      onClick={() => setActiveCapstone(cap)}
+                      style={{
+                        background: 'rgba(15, 23, 42, 0.85)',
+                        border: '1px solid rgba(255, 255, 255, 0.1)',
+                        borderRadius: '10px',
+                        padding: '1rem',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        justifyContent: 'space-between',
+                        gap: '0.75rem',
+                        cursor: 'pointer',
+                        transition: 'all 0.15s ease',
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(56, 189, 248, 0.6)';
+                        e.currentTarget.style.transform = 'translateY(-2px)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                      }}
+                    >
+                      <div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
+                          <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#38bdf8', fontFamily: 'monospace' }}>
+                            {cap.code}
+                          </span>
+                          <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(56, 189, 248, 0.15)', color: '#7dd3fc' }}>
+                            {cap.difficulty}
+                          </span>
+                        </div>
+                        <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.3rem' }}>
+                          {cap.title}
+                        </div>
+                        <div style={{ fontSize: '0.76rem', color: '#94a3b8', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                          {cap.overview}
+                        </div>
+                      </div>
+
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.6rem' }}>
+                        <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
+                          {cap.tasks.length} Tasks · {cap.estimatedTime}
+                        </span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setActiveCapstone(cap);
+                          }}
+                          style={{
+                            background: 'linear-gradient(135deg, #2563eb, #0284c7)',
+                            border: 'none',
+                            color: '#fff',
+                            padding: '0.35rem 0.75rem',
+                            borderRadius: '6px',
+                            fontSize: '0.76rem',
+                            fontWeight: 800,
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.35rem',
+                          }}
+                        >
+                          <Play size={12} fill="#fff" />
+                          <span>Launch Capstone</span>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Sub-Tabs Navigation Strip with Glowing Underline */}
             <div
               className="academy-subtabs-bar"
@@ -660,6 +788,15 @@ export const PodAcademyView: React.FC<PodAcademyViewProps> = ({ onSwitchToSuite 
             />
           </div>
         </div>
+      )}
+
+      {/* Capstone Runner Modal */}
+      {activeCapstone && (
+        <StandardCapstoneRunnerModal
+          project={activeCapstone}
+          isOpen={true}
+          onClose={() => setActiveCapstone(null)}
+        />
       )}
     </div>
   );
