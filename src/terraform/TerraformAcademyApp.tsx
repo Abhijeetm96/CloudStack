@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import {
   Layers, Search, CheckCircle2, Play, GitBranch, Database, Terminal,
-  AlertTriangle, BookOpen, RotateCcw, Home
+  AlertTriangle, BookOpen, RotateCcw, Home, Sparkles
 } from 'lucide-react';
 import { ALL_TERRAFORM_LESSONS, getTerraformLessonById, getNextTerraformLesson, getPrevTerraformLesson } from './data';
 import { TerraformLessonView } from './components/TerraformLessonView';
 import { TerraformSidebar } from './components/TerraformSidebar';
 import { TerraformSearchModal } from './components/search/TerraformSearchModal';
+import { TerraformConceptsUniverseView } from './components/universe/TerraformConceptsUniverseView';
 import { TerraformSimulator } from './components/simulators/TerraformSimulator';
 import { TerraformFailureArena } from './components/simulators/TerraformFailureArena';
 import { TerraformGraphVisualizer } from './components/simulators/TerraformGraphVisualizer';
@@ -36,7 +37,7 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
     return ALL_TERRAFORM_LESSONS[0]?.id || 'ch01-01-what-is-infrastructure';
   });
 
-  const [activeStudioView, setActiveStudioView] = useState<'lesson' | 'simulator' | 'failure' | 'graph' | 'state' | 'terminal'>('lesson');
+  const [activeStudioView, setActiveStudioView] = useState<'lesson' | 'universe' | 'simulator' | 'failure' | 'graph' | 'state' | 'terminal'>('lesson');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   useEffect(() => {
@@ -157,6 +158,7 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
         <div style={{ display: 'flex', gap: '0.35rem', overflowX: 'auto' }}>
           {[
             { id: 'lesson', label: 'Curriculum', icon: BookOpen },
+            { id: 'universe', label: '694 Concepts', icon: Sparkles },
             { id: 'simulator', label: 'Execution Engine', icon: Play },
             { id: 'failure', label: 'Failure Arena', icon: AlertTriangle },
             { id: 'graph', label: 'DAG Graph', icon: GitBranch },
@@ -221,24 +223,29 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
         </div>
       </header>
 
-      {/* Main Split Layout: Sidebar + Active Stage */}
-      <div style={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' }}>
-        <TerraformSidebar
-          activeLessonId={activeLesson.id}
-          onSelectLesson={handleSelectLesson}
-          completedLessonIds={progress.completedLessons}
-        />
+      {/* Main Split Layout: Sidebar + Active Stage OR Fullscreen Universe */}
+      {activeStudioView === 'universe' ? (
+        <div style={{ flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          <TerraformConceptsUniverseView onSelectLesson={handleSelectLesson} />
+        </div>
+      ) : (
+        <div style={{ flex: 1, display: 'flex', minHeight: 0, overflow: 'hidden' }}>
+          <TerraformSidebar
+            activeLessonId={activeLesson.id}
+            onSelectLesson={handleSelectLesson}
+            completedLessonIds={progress.completedLessons}
+          />
 
-        <main style={{ flex: 1, minWidth: 0, height: '100%', overflowY: 'auto' }}>
-          {activeStudioView === 'lesson' && (
-            <TerraformLessonView
-              lesson={activeLesson}
-              isCompleted={progress.completedLessons.includes(activeLesson.id)}
-              onToggleComplete={handleToggleComplete}
-              onNavigatePrev={prevLesson ? () => handleSelectLesson(prevLesson.id) : undefined}
-              onNavigateNext={nextLesson ? () => handleSelectLesson(nextLesson.id) : undefined}
-            />
-          )}
+          <main style={{ flex: 1, minWidth: 0, height: '100%', overflowY: 'auto' }}>
+            {activeStudioView === 'lesson' && (
+              <TerraformLessonView
+                lesson={activeLesson}
+                isCompleted={progress.completedLessons.includes(activeLesson.id)}
+                onToggleComplete={handleToggleComplete}
+                onNavigatePrev={prevLesson ? () => handleSelectLesson(prevLesson.id) : undefined}
+                onNavigateNext={nextLesson ? () => handleSelectLesson(nextLesson.id) : undefined}
+              />
+            )}
 
           {activeStudioView === 'simulator' && (
             <div style={{ padding: '2rem' }}>
@@ -271,6 +278,7 @@ export const TerraformAcademyApp: React.FC<TerraformAcademyAppProps> = ({
           )}
         </main>
       </div>
+    )}
 
       {/* Search Modal */}
       <TerraformSearchModal
