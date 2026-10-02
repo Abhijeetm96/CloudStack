@@ -19,6 +19,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ onSwitchToSuite }) => {
     else if (newMode === 'universe') setMode('universe');
     else if (newMode === 'practice') setMode('practice');
     else if (newMode === 'reference') setMode('reference');
+    else if (newMode === 'capstones') setMode('capstones');
     else setMode(newMode as any);
   };
 
@@ -31,6 +32,8 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ onSwitchToSuite }) => {
       ? 'practice'
       : mode === 'reference'
       ? 'reference'
+      : mode === 'capstones'
+      ? 'capstones'
       : 'learn';
 
   return (
@@ -61,6 +64,7 @@ export const HeaderNav: React.FC<HeaderNavProps> = ({ onSwitchToSuite }) => {
           isUniverse: true,
           conceptCount: TOTAL_LINUX_CONCEPTS,
         },
+        { id: 'capstones', label: 'Capstones (5)' },
         { id: 'practice', label: 'Practice' },
         { id: 'reference', label: 'Reference' },
       ]}
