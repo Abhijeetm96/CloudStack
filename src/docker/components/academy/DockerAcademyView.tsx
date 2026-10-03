@@ -21,6 +21,8 @@ import {
   Sparkles,
   Search,
 } from 'lucide-react';
+import { StandardCapstoneProjectView } from '../../../platform/capstones/StandardCapstoneProjectView';
+import { DOCKER_CAPSTONES } from '../../../platform/capstones/data/dockerCapstones';
 
 export const DockerAcademyView: React.FC = () => {
   const { executeCommand } = useDocker();
@@ -87,17 +89,32 @@ export const DockerAcademyView: React.FC = () => {
         number: String(ch.number).padStart(2, '0'),
         title: isCapstoneChapter ? `${ch.title} 🏆 CAPSTONES` : ch.title,
         icon: Container,
-        concepts: ch.lessons.map((lesson) => ({
-          id: lesson.id,
-          command: lesson.syntax.split('\n')[0] || `docker ${lesson.subchapterTitle.toLowerCase()}`,
-          title: lesson.subchapterTitle,
-          shortDesc: lesson.definition,
-          subChapterNumber: lesson.subchapterNumber,
-          icon: Container,
-        })),
+        concepts: isCapstoneChapter
+          ? DOCKER_CAPSTONES.map((cap, idx) => ({
+              id: cap.id,
+              command: cap.code || `DOCKER-${String(idx + 1).padStart(2, '0')}`,
+              title: cap.title,
+              shortDesc: cap.overview || cap.projectOverview?.shortDescription || '',
+              subChapterNumber: `68.${idx + 1}`,
+              icon: Container,
+            }))
+          : ch.lessons.map((lesson) => ({
+              id: lesson.id,
+              command: lesson.syntax.split('\n')[0] || `docker ${lesson.subchapterTitle.toLowerCase()}`,
+              title: lesson.subchapterTitle,
+              shortDesc: lesson.definition,
+              subChapterNumber: lesson.subchapterNumber,
+              icon: Container,
+            })),
       };
     });
   }, []);
+
+  // Check if active view is a Chapter 68 production capstone project
+  const isCapstoneMode =
+    currentLesson?.chapterNumber === 68 ||
+    activeLessonId.startsWith('dk68') ||
+    activeLessonId.startsWith('docker-');
 
   // Linear previous / next navigation across 1,038 lessons
   const currentIdx = ALL_DOCKER_LESSONS.findIndex((l) => l.id === activeLessonId);
@@ -246,40 +263,63 @@ export const DockerAcademyView: React.FC = () => {
           </button>
         </div>
 
-        {/* Center Main Stage (Native Universal Docker Teaching Shell) */}
-        <div
-          style={{
-            flex: '1 1 0%',
-            minHeight: 0,
-            width: '100%',
-            maxWidth: '100%',
-            overflow: 'hidden',
-            display: 'flex',
-            flexDirection: 'column',
-          }}
-        >
-          <UniversalTeachingShell
-            concept={universalConcept}
-            completedConceptIds={completedLessonIds}
-            markConceptComplete={handleToggleComplete}
-            executeCommand={executeCommand}
-            showToast={showToast}
-            prevConcept={prevLesson ? { id: prevLesson.id, title: prevLesson.subchapterTitle } : null}
-            nextConcept={nextLesson ? { id: nextLesson.id, title: nextLesson.subchapterTitle } : null}
-            onSelectConcept={handleSelectLesson}
-          />
-        </div>
+        {/* Center Main Stage (Native Universal Docker Teaching Shell or Capstone Workspace) */}
+        {isCapstoneMode ? (
+          <div
+            style={{
+              flex: '1 1 0%',
+              minHeight: 0,
+              width: '100%',
+              maxWidth: '100%',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <StandardCapstoneProjectView
+              academy="docker"
+              initialProjectId={activeLessonId}
+              isFullPage={true}
+              onExitToCurriculum={() => handleSelectLesson('dk67-01-container-orchestration-summary')}
+            />
+          </div>
+        ) : (
+          <div
+            style={{
+              flex: '1 1 0%',
+              minHeight: 0,
+              width: '100%',
+              maxWidth: '100%',
+              overflow: 'hidden',
+              display: 'flex',
+              flexDirection: 'column',
+            }}
+          >
+            <UniversalTeachingShell
+              concept={universalConcept}
+              completedConceptIds={completedLessonIds}
+              markConceptComplete={handleToggleComplete}
+              executeCommand={executeCommand}
+              showToast={showToast}
+              prevConcept={prevLesson ? { id: prevLesson.id, title: prevLesson.subchapterTitle } : null}
+              nextConcept={nextLesson ? { id: nextLesson.id, title: nextLesson.subchapterTitle } : null}
+              onSelectConcept={handleSelectLesson}
+            />
+          </div>
+        )}
 
         {/* Standard Pinned Bottom Bar (Matching Git, K8s, Linux, Terraform Academies) */}
-        <StandardAcademyBottomBar
-          prevConcept={prevLesson ? { id: prevLesson.id, title: prevLesson.subchapterTitle } : null}
-          nextConcept={nextLesson ? { id: nextLesson.id, title: nextLesson.subchapterTitle } : null}
-          onNavigate={handleSelectLesson}
-          isCompleted={completedLessonIds.includes(activeLessonId)}
-          onToggleComplete={() => handleToggleComplete(activeLessonId)}
-          accentGradient="linear-gradient(135deg, rgba(14, 165, 233, 0.45) 0%, rgba(2, 132, 199, 0.45) 100%)"
-          accentColor="#38bdf8"
-        />
+        {!isCapstoneMode && (
+          <StandardAcademyBottomBar
+            prevConcept={prevLesson ? { id: prevLesson.id, title: prevLesson.subchapterTitle } : null}
+            nextConcept={nextLesson ? { id: nextLesson.id, title: nextLesson.subchapterTitle } : null}
+            onNavigate={handleSelectLesson}
+            isCompleted={completedLessonIds.includes(activeLessonId)}
+            onToggleComplete={() => handleToggleComplete(activeLessonId)}
+            accentGradient="linear-gradient(135deg, rgba(14, 165, 233, 0.45) 0%, rgba(2, 132, 199, 0.45) 100%)"
+            accentColor="#38bdf8"
+          />
+        )}
 
         {/* Toast Notification Banner */}
         {toastMessage && (
