@@ -6,6 +6,7 @@ import {
 import { UniversalTerraformLesson } from '../types/terraformTypes';
 import { TERRAFORM_CAPSTONES } from '../../platform/capstones/data/terraformCapstones';
 import { StandardCapstoneRunnerModal } from '../../platform/capstones/StandardCapstoneRunnerModal';
+import { StandardCapstoneProjectView } from '../../platform/capstones/StandardCapstoneProjectView';
 import { CapstoneProject } from '../../platform/capstones/types';
 import { markLessonCompleted, markExerciseCompleted, recordQuizScore } from '../progress/terraformProgress';
 import { TerraformSimulator } from './simulators/TerraformSimulator';
@@ -191,123 +192,8 @@ export const TerraformLessonView: React.FC<TerraformLessonViewProps> = ({
 
       {/* Chapter 50: Dedicated Real-World Capstone Projects Section */}
       {(lesson.chapterNumber === 50 || lesson.id.startsWith('ch50')) && (
-        <div
-          style={{
-            background: 'linear-gradient(135deg, rgba(132, 79, 186, 0.18) 0%, rgba(99, 102, 241, 0.14) 100%)',
-            border: '1.5px solid rgba(192, 132, 252, 0.4)',
-            borderRadius: '14px',
-            padding: '1.35rem 1.6rem',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '1.15rem',
-            boxShadow: '0 10px 30px rgba(132, 79, 186, 0.15)',
-          }}
-        >
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '0.75rem' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-              <div
-                style={{
-                  width: '38px',
-                  height: '38px',
-                  borderRadius: '10px',
-                  background: 'linear-gradient(135deg, #f59e0b, #ec4899)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  boxShadow: '0 0 15px rgba(245, 158, 11, 0.4)',
-                }}
-              >
-                <Award size={22} color="#fff" />
-              </div>
-              <div>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <h3 style={{ margin: 0, fontSize: '1.1rem', fontWeight: 900, color: '#f8fafc' }}>
-                    Terraform Academy Capstone Projects (Chapter 50)
-                  </h3>
-                  <span style={{ fontSize: '0.68rem', fontWeight: 800, color: '#fbbf24', background: 'rgba(245, 158, 11, 0.2)', border: '1px solid rgba(245, 158, 11, 0.4)', padding: '0.15rem 0.5rem', borderRadius: '4px' }}>
-                    5 REAL-WORLD LABS
-                  </span>
-                </div>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#cbd5e1' }}>
-                  The culmination of the 50-chapter curriculum: Build cloud infrastructure from scratch, modularize architectures, deploy multi-environment state, triage catastrophic state drift, and automate GitOps CI/CD.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.85rem' }}>
-            {TERRAFORM_CAPSTONES.map((cap) => (
-              <div
-                key={cap.id}
-                onClick={() => setActiveCapstone(cap)}
-                style={{
-                  background: 'rgba(15, 23, 42, 0.75)',
-                  border: '1px solid rgba(255, 255, 255, 0.1)',
-                  borderRadius: '10px',
-                  padding: '1rem',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  justifyContent: 'space-between',
-                  gap: '0.75rem',
-                  cursor: 'pointer',
-                  transition: 'all 0.15s ease',
-                }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(192, 132, 252, 0.6)';
-                  e.currentTarget.style.transform = 'translateY(-2px)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                  e.currentTarget.style.transform = 'translateY(0)';
-                }}
-              >
-                <div>
-                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.4rem' }}>
-                    <span style={{ fontSize: '0.75rem', fontWeight: 900, color: '#c084fc', fontFamily: 'monospace' }}>
-                      {cap.code}
-                    </span>
-                    <span style={{ fontSize: '0.68rem', fontWeight: 800, padding: '0.15rem 0.45rem', borderRadius: '4px', background: 'rgba(132, 79, 186, 0.25)', color: '#d8b4fe' }}>
-                      {cap.difficulty}
-                    </span>
-                  </div>
-                  <div style={{ fontSize: '0.92rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.3rem' }}>
-                    {cap.title}
-                  </div>
-                  <div style={{ fontSize: '0.76rem', color: '#94a3b8', lineHeight: 1.45, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                    {cap.overview}
-                  </div>
-                </div>
-
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.6rem' }}>
-                  <span style={{ fontSize: '0.72rem', color: '#64748b' }}>
-                    {cap.tasks.length} Tasks · {cap.estimatedTime}
-                  </span>
-                  <button
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setActiveCapstone(cap);
-                    }}
-                    style={{
-                      background: 'linear-gradient(135deg, #844fba, #6366f1)',
-                      border: 'none',
-                      color: '#fff',
-                      padding: '0.35rem 0.75rem',
-                      borderRadius: '6px',
-                      fontSize: '0.76rem',
-                      fontWeight: 800,
-                      cursor: 'pointer',
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '0.35rem',
-                    }}
-                  >
-                    <span>Launch</span>
-                    <Play size={12} fill="#fff" />
-                  </button>
-                </div>
-              </div>
-            ))}
-          </div>
+        <div style={{ marginBottom: '1.5rem', width: '100%' }}>
+          <StandardCapstoneProjectView academy="terraform" initialProjectId={lesson.id} isEmbedded={true} />
         </div>
       )}
 
