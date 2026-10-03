@@ -164,7 +164,6 @@ export function getDockerLessonById(id: string): DockerSubchapterLesson | undefi
       return {
         id: cap.id,
         chapterNumber: 68,
-        chapterId: 'ch-68',
         chapterTitle: 'DOCKER CAPSTONE',
         subchapterNumber: `68.${idx + 1}`,
         subchapterTitle: cap.title,

@@ -69,6 +69,7 @@ export interface CapstoneArchitecture {
     name: string;
     role: string;
     technologies: string[];
+    description?: string;
   }>;
 }
 

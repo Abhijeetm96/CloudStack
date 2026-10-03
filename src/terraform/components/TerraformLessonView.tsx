@@ -847,6 +847,7 @@ export const TerraformLessonView: React.FC<TerraformLessonViewProps> = ({
       {/* Capstone Project Runner Modal */}
       {activeCapstone && (
         <StandardCapstoneRunnerModal
+          isOpen={true}
           project={activeCapstone}
           onClose={() => setActiveCapstone(null)}
         />
