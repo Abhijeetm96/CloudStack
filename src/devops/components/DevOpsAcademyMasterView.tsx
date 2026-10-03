@@ -13,6 +13,7 @@ import { useApp } from '../../context/AppContext';
 import { StandardCapstoneHubView } from '../../platform/capstones/StandardCapstoneHubView';
 import { DEVOPS_CAPSTONES } from '../../platform/capstones/data/devopsCapstones';
 import { StandardCapstoneRunnerModal } from '../../platform/capstones/StandardCapstoneRunnerModal';
+import { StandardCapstoneProjectView } from '../../platform/capstones/StandardCapstoneProjectView';
 import { CapstoneProject } from '../../platform/capstones/types';
 import {
   Terminal,
@@ -838,116 +839,8 @@ export const DevOpsAcademyMasterView: React.FC = () => {
                         }}
                       >
                         {ch.number === 29 && (
-                          <div
-                            style={{
-                              marginBottom: '1.25rem',
-                              background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.12) 100%)',
-                              border: '1.5px solid rgba(245, 158, 11, 0.45)',
-                              borderRadius: '12px',
-                              padding: '1.2rem',
-                              display: 'flex',
-                              flexDirection: 'column',
-                              gap: '1rem',
-                            }}
-                          >
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                              <div
-                                style={{
-                                  width: '36px',
-                                  height: '36px',
-                                  borderRadius: '10px',
-                                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  justifyContent: 'center',
-                                  boxShadow: '0 0 14px rgba(245, 158, 11, 0.4)',
-                                }}
-                              >
-                                <Award size={20} color="#fff" />
-                              </div>
-                              <div>
-                                <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, color: '#f8fafc' }}>
-                                  DevOps Academy Capstone Projects (Chapter 29)
-                                </h4>
-                                <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: '#cbd5e1' }}>
-                                  Synthesize everything: End-to-end GitOps pipelines, multi-cloud landing zones, SRE observability, DevSecOps supply chain security, and multi-region disaster recovery.
-                                </p>
-                              </div>
-                            </div>
-
-                            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '0.75rem' }}>
-                              {DEVOPS_CAPSTONES.map((cap) => (
-                                <div
-                                  key={cap.id}
-                                  onClick={() => setActiveCapstone(cap)}
-                                  style={{
-                                    background: 'rgba(15, 23, 42, 0.85)',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    borderRadius: '10px',
-                                    padding: '0.9rem',
-                                    display: 'flex',
-                                    flexDirection: 'column',
-                                    justifyContent: 'space-between',
-                                    gap: '0.65rem',
-                                    cursor: 'pointer',
-                                    transition: 'all 0.15s ease',
-                                  }}
-                                  onMouseEnter={(e) => {
-                                    e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.6)';
-                                    e.currentTarget.style.transform = 'translateY(-2px)';
-                                  }}
-                                  onMouseLeave={(e) => {
-                                    e.currentTarget.style.borderColor = 'rgba(255, 255, 255, 0.1)';
-                                    e.currentTarget.style.transform = 'translateY(0)';
-                                  }}
-                                >
-                                  <div>
-                                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.35rem' }}>
-                                      <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'monospace' }}>
-                                        {cap.code}
-                                      </span>
-                                      <span style={{ fontSize: '0.66rem', fontWeight: 800, padding: '0.12rem 0.4rem', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: '#fde047' }}>
-                                        {cap.difficulty}
-                                      </span>
-                                    </div>
-                                    <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.25rem' }}>
-                                      {cap.title}
-                                    </div>
-                                    <div style={{ fontSize: '0.74rem', color: '#94a3b8', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                                      {cap.overview}
-                                    </div>
-                                  </div>
-
-                                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderTop: '1px solid rgba(255, 255, 255, 0.08)', paddingTop: '0.5rem' }}>
-                                    <span style={{ fontSize: '0.7rem', color: '#64748b' }}>
-                                      {cap.tasks.length} Tasks · {cap.estimatedTime}
-                                    </span>
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        setActiveCapstone(cap);
-                                      }}
-                                      style={{
-                                        background: 'linear-gradient(135deg, #d97706, #b45309)',
-                                        border: 'none',
-                                        color: '#fff',
-                                        padding: '0.3rem 0.65rem',
-                                        borderRadius: '6px',
-                                        fontSize: '0.74rem',
-                                        fontWeight: 800,
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        gap: '0.3rem',
-                                      }}
-                                    >
-                                      <Play size={11} fill="#fff" />
-                                      <span>Launch Capstone</span>
-                                    </button>
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
+                          <div style={{ marginBottom: '1.5rem', width: '100%' }}>
+                            <StandardCapstoneProjectView academy="devops" isEmbedded={true} />
                           </div>
                         )}
 
@@ -1428,107 +1321,8 @@ export const DevOpsAcademyMasterView: React.FC = () => {
 
               {/* Chapter 29 Capstones inside Syllabus Modal */}
               {inspectedChapter.number === 29 && (
-                <div
-                  style={{
-                    background: 'linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(217, 119, 6, 0.12) 100%)',
-                    border: '1.5px solid rgba(245, 158, 11, 0.45)',
-                    borderRadius: '12px',
-                    padding: '1.2rem',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '1rem',
-                  }}
-                >
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.65rem' }}>
-                    <div
-                      style={{
-                        width: '36px',
-                        height: '36px',
-                        borderRadius: '10px',
-                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        boxShadow: '0 0 14px rgba(245, 158, 11, 0.4)',
-                      }}
-                    >
-                      <Award size={20} color="#fff" />
-                    </div>
-                    <div>
-                      <h4 style={{ margin: 0, fontSize: '1rem', fontWeight: 900, color: '#f8fafc' }}>
-                        DevOps Academy Capstone Projects (Chapter 29)
-                      </h4>
-                      <p style={{ margin: '0.2rem 0 0', fontSize: '0.78rem', color: '#cbd5e1' }}>
-                        5 interactive real-world capstones with automated grading and terminal sandboxes:
-                      </p>
-                    </div>
-                  </div>
-
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '0.75rem' }}>
-                    {DEVOPS_CAPSTONES.map((cap) => (
-                      <div
-                        key={cap.id}
-                        onClick={() => {
-                          setInspectedChapter(null);
-                          setActiveCapstone(cap);
-                        }}
-                        style={{
-                          background: 'rgba(15, 23, 42, 0.85)',
-                          border: '1px solid rgba(255, 255, 255, 0.1)',
-                          borderRadius: '10px',
-                          padding: '0.9rem',
-                          display: 'flex',
-                          flexDirection: 'column',
-                          justifyContent: 'space-between',
-                          gap: '0.65rem',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        <div>
-                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.3rem' }}>
-                            <span style={{ fontSize: '0.72rem', fontWeight: 900, color: '#fbbf24', fontFamily: 'monospace' }}>
-                              {cap.code}
-                            </span>
-                            <span style={{ fontSize: '0.66rem', fontWeight: 800, padding: '0.1rem 0.4rem', borderRadius: '4px', background: 'rgba(245, 158, 11, 0.15)', color: '#fde047' }}>
-                              {cap.difficulty}
-                            </span>
-                          </div>
-                          <div style={{ fontSize: '0.88rem', fontWeight: 800, color: '#f8fafc', marginBottom: '0.25rem' }}>
-                            {cap.title}
-                          </div>
-                          <div style={{ fontSize: '0.74rem', color: '#94a3b8', lineHeight: 1.4, display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
-                            {cap.overview}
-                          </div>
-                        </div>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setInspectedChapter(null);
-                            setActiveCapstone(cap);
-                          }}
-                          style={{
-                            background: 'linear-gradient(135deg, #d97706, #b45309)',
-                            border: 'none',
-                            color: '#fff',
-                            padding: '0.35rem 0.65rem',
-                            borderRadius: '6px',
-                            fontSize: '0.74rem',
-                            fontWeight: 800,
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            gap: '0.35rem',
-                            marginTop: '0.4rem',
-                          }}
-                        >
-                          <Play size={11} fill="#fff" />
-                          <span>Launch Interactive Capstone</span>
-                        </button>
-                      </div>
-                    ))}
-                  </div>
+                <div style={{ marginBottom: '1.5rem', width: '100%' }}>
+                  <StandardCapstoneProjectView academy="devops" isEmbedded={true} />
                 </div>
               )}
 
