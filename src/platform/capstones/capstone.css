@@ -541,10 +541,18 @@
   padding-right: 0.25rem;
 }
 
+.capstone-row-grid-2,
 .capstone-row-grid-3 {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.15rem;
+}
+
+@media (max-width: 960px) {
+  .capstone-row-grid-2,
+  .capstone-row-grid-3 {
+    grid-template-columns: 1fr;
+  }
 }
 
 .capstone-card-box {
@@ -654,94 +662,250 @@
   background: #0f172a;
   border: 1px solid rgba(51, 65, 85, 0.65);
   border-radius: 12px;
-  padding: 1rem;
+  padding: 1rem 1.15rem;
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: 0.85rem;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
 }
 
+.capstone-sidebar-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #e2e8f0;
+}
+
+.capstone-sidebar-title svg {
+  color: #94a3b8;
+}
+
+/* Primary Button (Start Project / Resume Project) */
+.capstone-btn-start,
 .capstone-btn-primary-blue {
   background: #2563eb;
   color: #ffffff;
   border: none;
   border-radius: 8px;
-  padding: 0.55rem 0.85rem;
-  font-size: 0.78rem;
+  height: 38px;
+  padding: 0 1rem;
+  font-size: 0.82rem;
   font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.3);
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.35);
   width: 100%;
+  box-sizing: border-box;
 }
 
+.capstone-btn-start:hover,
 .capstone-btn-primary-blue:hover {
   background: #1d4ed8;
+  box-shadow: 0 6px 18px rgba(37, 99, 235, 0.45);
 }
 
+.capstone-btn-start:active,
+.capstone-btn-primary-blue:active {
+  transform: translateY(1px);
+}
+
+/* Secondary Button (Mark as Completed / Mark In Progress) */
+.capstone-btn-completed,
 .capstone-btn-secondary-dark {
-  background: #1e293b;
-  color: #e2e8f0;
-  border: 1px solid rgba(71, 85, 105, 0.7);
+  background: rgba(15, 23, 42, 0.6);
+  color: #cbd5e1;
+  border: 1px solid rgba(71, 85, 105, 0.8);
   border-radius: 8px;
-  padding: 0.5rem 0.85rem;
-  font-size: 0.76rem;
-  font-weight: 700;
+  height: 36px;
+  padding: 0 1rem;
+  font-size: 0.8rem;
+  font-weight: 600;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.45rem;
+  gap: 0.5rem;
   cursor: pointer;
   transition: all 0.15s ease;
   width: 100%;
+  box-sizing: border-box;
 }
 
+.capstone-btn-completed:hover,
 .capstone-btn-secondary-dark:hover {
-  background: #334155;
+  background: #1e293b;
+  border-color: #94a3b8;
   color: #ffffff;
 }
 
-.capstone-progression-item {
+.capstone-btn-completed:active,
+.capstone-btn-secondary-dark:active {
+  transform: translateY(1px);
+}
+
+/* Technology List Rows */
+.capstone-tech-row {
   display: flex;
   align-items: center;
   gap: 0.65rem;
-  padding: 0.35rem 0.5rem;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  padding: 0.35rem 0.25rem;
+  font-size: 0.82rem;
+  color: #cbd5e1;
+  font-weight: 600;
+  transition: color 0.15s ease;
 }
 
+.capstone-tech-row:hover {
+  color: #ffffff;
+}
+
+/* Difficulty Progression List */
+.capstone-prog-row,
+.capstone-prog-item,
+.capstone-progression-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 0.55rem;
+  border-radius: 8px;
+  cursor: pointer;
+  background: transparent;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  text-decoration: none;
+}
+
+.capstone-prog-row:hover,
+.capstone-prog-item:hover,
 .capstone-progression-item:hover {
   background: rgba(30, 41, 59, 0.6);
 }
 
+.capstone-prog-row.active,
+.capstone-prog-item.active,
 .capstone-progression-item.active {
   background: rgba(126, 34, 206, 0.2);
-  border: 1px solid rgba(168, 85, 247, 0.35);
+  border: 1px solid rgba(168, 85, 247, 0.4);
 }
 
+.capstone-prog-circle,
 .capstone-progression-circle {
-  width: 24px;
-  height: 24px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.72rem;
+  font-size: 0.74rem;
   font-weight: 800;
   flex-shrink: 0;
   background: #1e293b;
   color: #94a3b8;
   border: 1px solid #334155;
+  transition: all 0.15s ease;
 }
 
+.capstone-prog-row.active .capstone-prog-circle,
+.capstone-prog-item.active .capstone-prog-circle,
 .capstone-progression-circle.active {
   background: #7e22ce;
   color: #ffffff;
   border: 2px solid #c084fc;
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5);
+  box-shadow: 0 0 10px rgba(168, 85, 247, 0.6);
 }
+
+/* ========================================================================= */
+/* EMBEDDED & FULLPAGE WORKSPACE CONTAINERS                                  */
+/* ========================================================================= */
+.capstone-fullpage-window {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  flex: 1;
+  background: #090d16;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.capstone-fullscreen-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 99999;
+  background: #090d16;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+.capstone-embedded-container {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 860px;
+  max-height: 85vh;
+  background: #090d16;
+  border: 1.5px solid rgba(56, 189, 248, 0.3);
+  border-radius: 16px;
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5), 0 0 25px rgba(56, 189, 248, 0.08);
+  overflow: hidden;
+  box-sizing: border-box;
+  margin-bottom: 2rem;
+}
+
+.capstone-btn-header-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(71, 85, 105, 0.6);
+  color: #94a3b8;
+  font-size: 0.76rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.capstone-btn-header-action:hover {
+  color: #ffffff;
+  border-color: #38bdf8;
+  background: rgba(30, 41, 59, 0.9);
+}
+
+.capstone-btn-curriculum-exit {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 8px;
+  background: rgba(56, 189, 248, 0.12);
+  border: 1px solid rgba(56, 189, 248, 0.35);
+  color: #38bdf8;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.capstone-btn-curriculum-exit:hover {
+  background: rgba(56, 189, 248, 0.22);
+  border-color: #38bdf8;
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+}
+
+
