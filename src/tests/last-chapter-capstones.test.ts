@@ -118,57 +118,57 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
 
   it('Verifies UI components directly embed Capstones in the last chapter for all 6 sections', () => {
     // 1. Kubernetes Chapter 15
+    expect(KUBERNETES_CAPSTONES.length).toBe(10);
     const kubeFile = fs.readFileSync(
       path.resolve(__dirname, '../kubernetes/components/academy/PodAcademyView.tsx'),
       'utf-8'
     );
-    expect(kubeFile).toContain('KUBERNETES_CAPSTONES');
-    expect(kubeFile).toContain('currentChapter?.number === 15');
-    expect(kubeFile).toContain('Kubernetes Academy Capstone Projects (Chapter 15)');
+    expect(kubeFile).toContain('StandardCapstoneProjectView');
+    expect(kubeFile).toContain('academy="kubernetes"');
 
     // 2. Terraform Chapter 50
     const tfFile = fs.readFileSync(
       path.resolve(__dirname, '../terraform/components/TerraformLessonView.tsx'),
       'utf-8'
     );
-    expect(tfFile).toContain('TERRAFORM_CAPSTONES');
     expect(tfFile).toContain('lesson.chapterNumber === 50');
-    expect(tfFile).toContain('Terraform Academy Capstone Projects (Chapter 50)');
+    expect(tfFile).toContain('StandardCapstoneProjectView');
+    expect(tfFile).toContain('academy="terraform"');
 
     // 3. Docker Chapter 68
     const dockerFile = fs.readFileSync(
       path.resolve(__dirname, '../docker/components/simulators/UniversalDockerLessonView.tsx'),
       'utf-8'
     );
-    expect(dockerFile).toContain('DOCKER_CAPSTONES');
     expect(dockerFile).toContain("concept.topicNumber === '68'");
-    expect(dockerFile).toContain('Docker Academy Capstone Projects (Chapter 68)');
+    expect(dockerFile).toContain('StandardCapstoneProjectView');
+    expect(dockerFile).toContain('academy="docker"');
 
     // 4. Linux Chapter 30
     const linuxFile = fs.readFileSync(
       path.resolve(__dirname, '../linuxforge/components/academy/LinuxTeachingEngine.tsx'),
       'utf-8'
     );
-    expect(linuxFile).toContain('LINUX_CAPSTONES');
     expect(linuxFile).toContain("concept.topicNumber === '30'");
-    expect(linuxFile).toContain('Linux Academy Capstone Projects (Chapter 30)');
+    expect(linuxFile).toContain('StandardCapstoneProjectView');
+    expect(linuxFile).toContain('academy="linux"');
 
     // 5. Git Chapter 35
     const gitFile = fs.readFileSync(
       path.resolve(__dirname, '../git/components/academy/UniversalConceptView.tsx'),
       'utf-8'
     );
-    expect(gitFile).toContain('GIT_CAPSTONES');
     expect(gitFile).toContain('chNum === 35');
-    expect(gitFile).toContain('Git Academy Capstone Projects (Chapter 35)');
+    expect(gitFile).toContain('StandardCapstoneProjectView');
+    expect(gitFile).toContain('academy="git"');
 
     // 6. DevOps Chapter 29
     const devopsFile = fs.readFileSync(
       path.resolve(__dirname, '../devops/components/DevOpsAcademyMasterView.tsx'),
       'utf-8'
     );
-    expect(devopsFile).toContain('DEVOPS_CAPSTONES');
     expect(devopsFile).toContain('ch.number === 29');
-    expect(devopsFile).toContain('DevOps Academy Capstone Projects (Chapter 29)');
+    expect(devopsFile).toContain('StandardCapstoneProjectView');
+    expect(devopsFile).toContain('academy="devops"');
   });
 });
