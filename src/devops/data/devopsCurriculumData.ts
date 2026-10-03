@@ -1884,3 +1884,145 @@ export function GET_DEVOPS_STATS() {
     totalTracks: DEVOPS_10_TRACKS.length,
   };
 }
+
+// ==========================================
+// 50-CHAPTER EXHAUSTIVE DEVOPS CURRICULUM
+// ==========================================
+import { ALL_DEVOPS_50_CHAPTERS } from './chapters';
+import {
+  DevOpsChapter as DevOps50Chapter,
+  DevOpsLesson,
+  DevOpsLevel,
+  DevOpsLevelId,
+} from '../types/devopsCurriculumTypes';
+
+export const DEVOPS_50_CHAPTERS: DevOps50Chapter[] = ALL_DEVOPS_50_CHAPTERS;
+
+export const DEVOPS_10_LEVELS: DevOpsLevel[] = [
+  {
+    id: 'level-01-foundation',
+    levelNumber: 1,
+    name: 'FOUNDATION',
+    subtitle: 'Linux, Networking, Source Control & Build Automation',
+    chapterRange: 'Chapters 1-6',
+    chapterNumbers: [1, 2, 3, 4, 5, 6],
+    color: '#06b6d4',
+    iconName: 'Terminal',
+  },
+  {
+    id: 'level-02-ci',
+    levelNumber: 2,
+    name: 'CONTINUOUS INTEGRATION',
+    subtitle: 'Pipelines, Automated Testing, Runners & Artifacts',
+    chapterRange: 'Chapters 7-11',
+    chapterNumbers: [7, 8, 9, 10, 11],
+    color: '#38bdf8',
+    iconName: 'Workflow',
+  },
+  {
+    id: 'level-03-containers',
+    levelNumber: 3,
+    name: 'CONTAINERIZED DELIVERY',
+    subtitle: 'Docker Delivery, Zero-Downtime Rollouts & Releases',
+    chapterRange: 'Chapters 12, 17, 18',
+    chapterNumbers: [12, 17, 18],
+    color: '#3b82f6',
+    iconName: 'Container',
+  },
+  {
+    id: 'level-04-cloud-orchestration',
+    levelNumber: 4,
+    name: 'CLOUD + ORCHESTRATION',
+    subtitle: 'Terraform IaC, Ansible, Cloud VPCs, Kubernetes & GitOps',
+    chapterRange: 'Chapters 13-16, 19',
+    chapterNumbers: [13, 14, 15, 16, 19],
+    color: '#a855f7',
+    iconName: 'Boxes',
+  },
+  {
+    id: 'level-05-devsecops',
+    levelNumber: 5,
+    name: 'DEVSECOPS',
+    subtitle: 'Shift-Left Security, Vault Secrets & Supply Chain Verification',
+    chapterRange: 'Chapters 20-21',
+    chapterNumbers: [20, 21],
+    color: '#ec4899',
+    iconName: 'ShieldCheck',
+  },
+  {
+    id: 'level-06-observability-sre',
+    levelNumber: 6,
+    name: 'OBSERVABILITY + SRE',
+    subtitle: 'Prometheus Metrics, OpenTelemetry, SLIs/SLOs & Incident Recovery',
+    chapterRange: 'Chapters 22-28',
+    chapterNumbers: [22, 23, 24, 25, 26, 27, 28],
+    color: '#f59e0b',
+    iconName: 'Activity',
+  },
+  {
+    id: 'level-07-platform-engineering',
+    levelNumber: 7,
+    name: 'PLATFORM ENGINEERING',
+    subtitle: 'FinOps, Internal Developer Platforms, Backstage & Microservice Meshes',
+    chapterRange: 'Chapters 29-36',
+    chapterNumbers: [29, 30, 31, 32, 33, 34, 35, 36],
+    color: '#10b981',
+    iconName: 'Layers',
+  },
+  {
+    id: 'level-08-advanced-devops',
+    levelNumber: 8,
+    name: 'ADVANCED DEVOPS',
+    subtitle: 'Policy as Code (OPA), Multi-Cloud, Multi-Env, Troubleshooting & Patterns',
+    chapterRange: 'Chapters 37-45',
+    chapterNumbers: [37, 38, 39, 40, 41, 42, 43, 44, 45],
+    color: '#8b5cf6',
+    iconName: 'Code2',
+  },
+  {
+    id: 'level-09-enterprise-devops',
+    levelNumber: 9,
+    name: 'ENTERPRISE DEVOPS',
+    subtitle: 'DORA Metrics, Living Documentation, Production Readiness & Architecture',
+    chapterRange: 'Chapters 46-49',
+    chapterNumbers: [46, 47, 48, 49],
+    color: '#6366f1',
+    iconName: 'Award',
+  },
+  {
+    id: 'level-10-production-devops',
+    levelNumber: 10,
+    name: 'PRODUCTION DEVOPS',
+    subtitle: 'Full End-to-End Enterprise Production Synthesis & Ultimate Capstone',
+    chapterRange: 'Chapter 50',
+    chapterNumbers: [50],
+    color: '#ef4444',
+    iconName: 'Zap',
+  },
+];
+
+export const ALL_DEVOPS_LESSONS: DevOpsLesson[] = DEVOPS_50_CHAPTERS.flatMap(ch =>
+  ch.subchapters.map(sub => sub.lesson)
+);
+
+export function getDevOpsLessonById(id: string): DevOpsLesson | undefined {
+  return ALL_DEVOPS_LESSONS.find(l => l.id === id);
+}
+
+export function getDevOpsChapterByNumber(num: number): DevOps50Chapter | undefined {
+  return DEVOPS_50_CHAPTERS.find(ch => ch.number === num);
+}
+
+export function getDevOpsLevelById(levelId: DevOpsLevelId): DevOpsLevel | undefined {
+  return DEVOPS_10_LEVELS.find(l => l.id === levelId);
+}
+
+export function getAdjacentDevOpsLessons(lessonId: string): { prev?: DevOpsLesson; next?: DevOpsLesson } {
+  const index = ALL_DEVOPS_LESSONS.findIndex(l => l.id === lessonId);
+  if (index === -1) return {};
+  return {
+    prev: index > 0 ? ALL_DEVOPS_LESSONS[index - 1] : undefined,
+    next: index < ALL_DEVOPS_LESSONS.length - 1 ? ALL_DEVOPS_LESSONS[index + 1] : undefined,
+  };
+}
+

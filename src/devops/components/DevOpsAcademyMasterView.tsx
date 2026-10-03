@@ -8,6 +8,13 @@ import {
   TOTAL_DEVOPS_CHAPTERS,
   TOTAL_DEVOPS_SUBMODULES,
   TOTAL_DEVOPS_TOPICS,
+  DEVOPS_50_CHAPTERS,
+  DEVOPS_10_LEVELS,
+  ALL_DEVOPS_LESSONS,
+  getDevOpsLessonById,
+  getDevOpsChapterByNumber,
+  getDevOpsLevelById,
+  getAdjacentDevOpsLessons,
 } from '../data/devopsCurriculumData';
 import { useApp } from '../../context/AppContext';
 import { StandardCapstoneHubView } from '../../platform/capstones/StandardCapstoneHubView';
@@ -15,6 +22,10 @@ import { DEVOPS_CAPSTONES } from '../../platform/capstones/data/devopsCapstones'
 import { StandardCapstoneRunnerModal } from '../../platform/capstones/StandardCapstoneRunnerModal';
 import { StandardCapstoneProjectView } from '../../platform/capstones/StandardCapstoneProjectView';
 import { CapstoneProject } from '../../platform/capstones/types';
+import { DevOpsAcademySidebar } from './academy/DevOpsAcademySidebar';
+import { DevOpsLessonView } from './academy/DevOpsLessonView';
+import { DevOpsInteractiveSimulator, SimulatorType } from './simulators/DevOpsInteractiveSimulator';
+import { DevOpsProgressStore } from '../progress/devopsProgress';
 import {
   Terminal,
   Container,
@@ -85,11 +96,54 @@ const PIPELINE_STAGES: PipelineStage[] = [
   { id: 'stage-triage', name: 'Troubleshoot', shortDesc: '3 AM Incident Solver', trackId: 'track-career', icon: Flame, color: '#ef4444', tools: ['Post-Mortem', 'Incident Lab'] },
 ];
 
+const ALL_SIMULATORS: { id: SimulatorType; title: string; category: string; description: string; tech: string[] }[] = [
+  { id: 'ci-pipeline', title: 'Continuous Integration (CI) Pipeline', category: 'Level 02: CI', description: 'Simulates webhook ingestion, runner provisioning, deterministic dependency hydration, automated testing, and coverage gating.', tech: ['GitHub Actions', 'Jest', 'ESLint', 'Gitleaks'] },
+  { id: 'cd-pipeline', title: 'Continuous Delivery (CD) Pipeline', category: 'Level 02: CI', description: 'Simulates artifact promotion across environments with automated smoke gates and approval controls.', tech: ['Cosign', 'Staging Gate', 'Kubectl', 'OPA'] },
+  { id: 'build-pipeline', title: 'Hermetic Build & Package', category: 'Level 01: Foundation', description: 'Deterministic build execution with BuildKit caching, isolated compilation sandboxes, and reproducible digest hashing.', tech: ['BuildKit', 'Docker', 'SOURCE_DATE_EPOCH'] },
+  { id: 'deployment-pipeline', title: 'Enterprise Deployment Pipeline DAG', category: 'Level 02: CI', description: 'Full multi-stage pipeline with branch conditions, matrix parallelism, and dynamic credential exchange.', tech: ['OIDC', 'AWS STS', 'Matrix Buildx', 'Argo CD'] },
+  { id: 'blue-green', title: 'Blue-Green Zero-Downtime Deployment', category: 'Level 03: Containers', description: 'Maintains two identical environments (Blue and Green). Routes 100% traffic instantly at load balancer level after pre-flight warming.', tech: ['Blue/Green', 'ALB Switch', 'Readiness Probes'] },
+  { id: 'canary', title: 'Progressive Canary Rollout', category: 'Level 03: Containers', description: 'Increments traffic routed to new revision (10% -> 25% -> 50% -> 100%) while observing automated Prometheus error budgets.', tech: ['Canary', 'Istio VirtualService', 'Error Budget'] },
+  { id: 'rollback', title: 'Automated Rollback & Self-Healing', category: 'Level 03: Containers', description: 'Detects live production anomalies and triggers automatic traffic rollback to the previous known good revision.', tech: ['Alertmanager', 'PromQL', 'Rollback Gate'] },
+  { id: 'iac-provisioning', title: 'Terraform Infrastructure as Code', category: 'Level 04: Cloud & Orchestration', description: 'Simulates declarative cloud provisioning: remote state locking, plan generation, drift inspection, and resource apply.', tech: ['Terraform', 'DynamoDB Lock', 'S3 State', 'AWS VPC'] },
+  { id: 'gitops', title: 'GitOps Declarative Reconciliation', category: 'Level 04: Cloud & Orchestration', description: 'Declarative cluster management: Git commit triggers reconciliation loop, detects drift, and converges Kubernetes desired state.', tech: ['Argo CD', 'Git Single Source', 'Drift Sync'] },
+  { id: 'incident-response', title: 'Incident Response & Triage', category: 'Level 06: Observability & SRE', description: 'Simulates high-severity production incident: automated alert page, incident commander assignment, mitigation, and postmortem authoring.', tech: ['PagerDuty P1', 'Incident Commander', 'PgBouncer Runbook'] },
+  { id: 'monitoring-alerting', title: 'Prometheus & Alertmanager Telemetry', category: 'Level 06: Observability & SRE', description: 'Prometheus metrics evaluation, sliding window rate calculations, alert suppression, and notification routing.', tech: ['Prometheus', 'Alertmanager', 'Golden Signals'] },
+  { id: 'failure-recovery', title: 'Disaster Recovery Multi-Region Failover', category: 'Level 06: Observability & SRE', description: 'Simulates catastrophe in primary AWS region (us-east-1), automated Route 53 health failover to secondary (us-west-2), and DB replica promotion.', tech: ['Route 53 Failover', 'Aurora Global Replica', 'RPO/RTO'] },
+  { id: 'devsecops', title: 'DevSecOps Shift-Left Security Pipeline', category: 'Level 05: DevSecOps', description: 'Pipeline security: SAST static code analysis, Gitleaks secret scans, Trivy container CVE scans, and Cosign digital signatures.', tech: ['Semgrep SAST', 'Gitleaks', 'Trivy', 'Cosign SLSA'] },
+  { id: 'multi-env-deployment', title: 'Multi-Environment Promotion Pipeline', category: 'Level 08: Advanced DevOps', description: 'Safely promoting code across isolated development, QA, staging, and multi-region production tiers with drift validation.', tech: ['Dev/QA/Stage/Prod', 'Helm', 'Parity Gate'] },
+  { id: 'production-release', title: 'End-to-End Production Release Synthesis', category: 'Level 10: Production DevOps', description: 'The master workflow: Git push -> CI verification -> Container build -> Terraform check -> Kubernetes rolling rollout -> Prometheus verification.', tech: ['Full Enterprise Lifecycle', 'All Technologies'] },
+];
+
 export const DevOpsAcademyMasterView: React.FC = () => {
   const { setMode } = useApp();
 
-  // Primary Views: 'command-center' (dual-pane) | 'pipeline' (lifecycle) | 'matrix' (all 29 chapters) | 'capstones' (5 projects)
-  const [viewMode, setViewMode] = useState<'command-center' | 'pipeline' | 'matrix' | 'capstones'>('command-center');
+  // Primary Views: 'curriculum' (50 chapters) | 'simulators' (15 labs) | 'command-center' | 'pipeline' | 'matrix' | 'capstones'
+  const [viewMode, setViewMode] = useState<
+    'curriculum' | 'simulators' | 'command-center' | 'pipeline' | 'matrix' | 'capstones'
+  >('curriculum');
+  const progressStore = useMemo(() => DevOpsProgressStore.getInstance(), []);
+  const [, setProgressTick] = useState(0);
+  const [activeLessonId, setActiveLessonId] = useState<string>(() => {
+    return progressStore.getState().activeLessonId || 'devops-01-01';
+  });
+  const [activeSimulatorModal, setActiveSimulatorModal] = useState<SimulatorType | null>(null);
+
+  const activeLesson = useMemo(() => {
+    return getDevOpsLessonById(activeLessonId) || ALL_DEVOPS_LESSONS[0];
+  }, [activeLessonId]);
+
+  const activeChapter = useMemo(() => {
+    return getDevOpsChapterByNumber(activeLesson.chapterNumber) || DEVOPS_50_CHAPTERS[0];
+  }, [activeLesson]);
+
+  const activeLevel = useMemo(() => {
+    return getDevOpsLevelById(activeLesson.level);
+  }, [activeLesson]);
+
+  const adjacentLessons = useMemo(() => {
+    return getAdjacentDevOpsLessons(activeLesson.id);
+  }, [activeLesson]);
+
   const [activeTrackId, setActiveTrackId] = useState<string>('track-foundation');
   const [categoryFilter, setCategoryFilter] = useState<DevOpsTrackCategory | 'all'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -100,6 +154,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
     'ch04-docker': true,
     'ch06-kubernetes-fundamentals': true,
   });
+
 
   // Modal for deep chapter syllabus preview
   const [inspectedChapter, setInspectedChapter] = useState<DevOpsChapter | null>(null);
@@ -275,6 +330,69 @@ export const DevOpsAcademyMasterView: React.FC = () => {
             }}
           >
             <button
+              onClick={() => setViewMode('curriculum')}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '7px',
+                border: 'none',
+                background: viewMode === 'curriculum' ? 'rgba(6, 182, 212, 0.25)' : 'transparent',
+                color: viewMode === 'curriculum' ? '#38bdf8' : '#94a3b8',
+                fontWeight: 800,
+                fontSize: '0.76rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <BookOpen size={13} />
+              <span>Curriculum (50 Chapters)</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('simulators')}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '7px',
+                border: 'none',
+                background: viewMode === 'simulators' ? 'rgba(234, 179, 8, 0.2)' : 'transparent',
+                color: viewMode === 'simulators' ? '#facc15' : '#94a3b8',
+                fontWeight: 800,
+                fontSize: '0.76rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Zap size={13} />
+              <span>Interactive Labs (15)</span>
+            </button>
+
+            <button
+              onClick={() => setViewMode('capstones')}
+              style={{
+                padding: '0.4rem 0.85rem',
+                borderRadius: '7px',
+                border: 'none',
+                background: viewMode === 'capstones' ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
+                color: viewMode === 'capstones' ? '#c084fc' : '#94a3b8',
+                fontWeight: 800,
+                fontSize: '0.76rem',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.35rem',
+                transition: 'all 0.15s ease',
+              }}
+            >
+              <Award size={13} />
+              <span>Capstones</span>
+            </button>
+
+            <button
               onClick={() => setViewMode('command-center')}
               style={{
                 padding: '0.4rem 0.85rem',
@@ -292,7 +410,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
               }}
             >
               <Sliders size={13} />
-              <span>Command Center</span>
+              <span>Tracks Explorer</span>
             </button>
 
             <button
@@ -301,8 +419,8 @@ export const DevOpsAcademyMasterView: React.FC = () => {
                 padding: '0.4rem 0.85rem',
                 borderRadius: '7px',
                 border: 'none',
-                background: viewMode === 'pipeline' ? 'rgba(168, 85, 247, 0.2)' : 'transparent',
-                color: viewMode === 'pipeline' ? '#c084fc' : '#94a3b8',
+                background: viewMode === 'pipeline' ? 'rgba(16, 185, 129, 0.2)' : 'transparent',
+                color: viewMode === 'pipeline' ? '#34d399' : '#94a3b8',
                 fontWeight: 800,
                 fontSize: '0.76rem',
                 cursor: 'pointer',
@@ -313,7 +431,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
               }}
             >
               <Workflow size={13} />
-              <span>DevOps Pipeline</span>
+              <span>Lifecycle Pipeline</span>
             </button>
 
             <button
@@ -333,8 +451,8 @@ export const DevOpsAcademyMasterView: React.FC = () => {
                 transition: 'all 0.15s ease',
               }}
             >
-              <BookOpen size={13} />
-              <span>All 29 Chapters</span>
+              <Layers size={13} />
+              <span>Syllabus Matrix</span>
             </button>
 
             </div>
@@ -403,7 +521,136 @@ export const DevOpsAcademyMasterView: React.FC = () => {
       </nav>
 
       {/* ================================================================ */}
-      {/* 3. MAIN WORKSPACE: DUAL-PANE COMMAND CENTER                      */}
+      {/* 3A. CURRICULUM VIEW (50 Chapters & 895 Subchapters)              */}
+      {/* ================================================================ */}
+      {viewMode === 'curriculum' && (
+        <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
+          <DevOpsAcademySidebar
+            activeLessonId={activeLessonId}
+            onSelectLesson={(lessonId, chapterNum) => {
+              setActiveLessonId(lessonId);
+              progressStore.setActiveLesson(lessonId, chapterNum);
+              setProgressTick((t) => t + 1);
+            }}
+            progressStore={progressStore}
+            onProgressUpdate={() => setProgressTick((t) => t + 1)}
+          />
+          <DevOpsLessonView
+            lesson={activeLesson}
+            chapter={activeChapter}
+            level={activeLevel}
+            prevLesson={adjacentLessons.prev}
+            nextLesson={adjacentLessons.next}
+            onNavigateLesson={(lessonId, chapterNum) => {
+              setActiveLessonId(lessonId);
+              progressStore.setActiveLesson(lessonId, chapterNum);
+              setProgressTick((t) => t + 1);
+            }}
+            progressStore={progressStore}
+            onProgressUpdate={() => setProgressTick((t) => t + 1)}
+            onOpenCapstone={(capstoneId) => {
+              const cap = DEVOPS_CAPSTONES.find((c) => c.id === capstoneId);
+              if (cap) setActiveCapstone(cap);
+              else setViewMode('capstones');
+            }}
+          />
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* 3B. INTERACTIVE SIMULATORS LABS HUB (15 Simulators)              */}
+      {/* ================================================================ */}
+      {viewMode === 'simulators' && (
+        <div style={{ flex: 1, minHeight: 0, overflowY: 'auto', padding: '2rem' }} className="custom-scrollbar bg-slate-950">
+          <div style={{ maxWidth: '1200px', margin: '0 auto' }}>
+            <div style={{ marginBottom: '2rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
+                <div style={{ width: '36px', height: '36px', borderRadius: '10px', background: 'rgba(234, 179, 8, 0.15)', border: '1px solid rgba(234, 179, 8, 0.3)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#facc15' }}>
+                  <Zap size={20} />
+                </div>
+                <div>
+                  <h2 style={{ fontSize: '1.5rem', fontWeight: 800, color: '#fff', margin: 0 }}>
+                    DevOps Interactive Simulators Hub
+                  </h2>
+                  <p style={{ fontSize: '0.85rem', color: '#94a3b8', margin: 0 }}>
+                    15 industrial-grade pipeline, deployment, failure recovery, and GitOps simulations.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(360px, 1fr))', gap: '1.25rem' }}>
+              {ALL_SIMULATORS.map((sim) => (
+                <div
+                  key={sim.id}
+                  style={{
+                    background: 'rgba(15, 23, 42, 0.7)',
+                    border: '1px solid rgba(255, 255, 255, 0.08)',
+                    borderRadius: '12px',
+                    padding: '1.25rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'space-between',
+                  }}
+                  className="hover:border-cyan-500/40 transition group"
+                >
+                  <div>
+                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.75rem' }}>
+                      <span style={{ fontSize: '0.7rem', fontFamily: 'monospace', fontWeight: 700, padding: '0.2rem 0.6rem', borderRadius: '999px', background: 'rgba(6, 182, 212, 0.1)', color: '#38bdf8', border: '1px solid rgba(6, 182, 212, 0.2)' }}>
+                        {sim.category}
+                      </span>
+                      <span style={{ fontSize: '0.7rem', color: '#64748b' }}>Interactive Lab</span>
+                    </div>
+
+                    <h3 style={{ fontSize: '1.05rem', fontWeight: 700, color: '#fff', marginBottom: '0.5rem' }}>
+                      {sim.title}
+                    </h3>
+
+                    <p style={{ fontSize: '0.8rem', color: '#94a3b8', lineHeight: 1.5, marginBottom: '1rem' }}>
+                      {sim.description}
+                    </p>
+
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.4rem', marginBottom: '1.25rem' }}>
+                      {sim.tech.map((t, idx) => (
+                        <span key={idx} style={{ fontSize: '0.7rem', padding: '0.15rem 0.5rem', borderRadius: '4px', background: 'rgba(255, 255, 255, 0.04)', color: '#cbd5e1', border: '1px solid rgba(255, 255, 255, 0.08)' }}>
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setActiveSimulatorModal(sim.id)}
+                    style={{
+                      width: '100%',
+                      padding: '0.65rem 1rem',
+                      borderRadius: '8px',
+                      border: '1px solid rgba(6, 182, 212, 0.3)',
+                      background: 'rgba(6, 182, 212, 0.15)',
+                      color: '#06b6d4',
+                      fontWeight: 700,
+                      fontSize: '0.8rem',
+                      cursor: 'pointer',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      gap: '0.5rem',
+                      transition: 'all 0.2s',
+                    }}
+                    className="hover:bg-cyan-500 hover:text-white"
+                  >
+                    <Play size={14} />
+                    <span>Launch Simulator Lab</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================================================================ */}
+      {/* 3C. MAIN WORKSPACE: DUAL-PANE COMMAND CENTER                      */}
       {/* ================================================================ */}
       {viewMode === 'command-center' && (
         <div style={{ display: 'flex', flex: 1, minHeight: 0, overflow: 'hidden' }}>
@@ -1410,6 +1657,30 @@ export const DevOpsAcademyMasterView: React.FC = () => {
                 </button>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* Interactive Simulator Modal */}
+      {activeSimulatorModal && (
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0, 0, 0, 0.85)',
+            backdropFilter: 'blur(8px)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            padding: '1.5rem',
+          }}
+        >
+          <div style={{ maxWidth: '1020px', width: '100%', maxHeight: '92vh', overflowY: 'auto' }}>
+            <DevOpsInteractiveSimulator
+              simulatorType={activeSimulatorModal}
+              onClose={() => setActiveSimulatorModal(null)}
+            />
           </div>
         </div>
       )}
