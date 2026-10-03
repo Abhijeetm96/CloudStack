@@ -187,7 +187,7 @@ export function getTitleForMode(mode: ViewMode, conceptTitle?: string | null): s
   const prefix = conceptTitle ? `${conceptTitle} | ` : '';
   switch (mode) {
     case 'devops':
-      return `${prefix}DevOps Academy (29 Chapters) | CloudStack`;
+      return `${prefix}DevOps Academy (50 Chapters) | CloudStack`;
     case 'terraform':
       return `${prefix}Terraform Academy (50 Chapters) | CloudStack`;
     case 'kubernetes':

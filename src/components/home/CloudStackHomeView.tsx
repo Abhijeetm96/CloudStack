@@ -389,7 +389,7 @@ export const CloudStackHomeView: React.FC = () => {
                   <Activity size={12} />
                   <span>Interactive Cloud Lifecycle Pipeline</span>
                 </span>
-                <span style={{ fontFamily: 'var(--font-mono)', color: '#94a3b8' }}>29 Chapters &bull; 6 Tracks</span>
+                <span style={{ fontFamily: 'var(--font-mono)', color: '#94a3b8' }}>50 Chapters &bull; 10 Levels</span>
               </div>
               {/* Mini Visual Pipeline */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.45rem', fontFamily: 'var(--font-mono)', fontSize: '0.72rem', overflowX: 'auto', padding: '0.2rem 0' }}>
@@ -419,7 +419,7 @@ export const CloudStackHomeView: React.FC = () => {
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.65rem', marginBottom: '1.5rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', padding: '0.45rem 0.65rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.8rem', color: '#cbd5e1' }}>
                 <BookOpen size={15} color="#c084fc" />
-                <span><strong>29 Chapters</strong> &bull; 290 Topics</span>
+                <span><strong>50 Chapters</strong> &bull; 895 Lessons</span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.55rem', padding: '0.45rem 0.65rem', borderRadius: '8px', background: 'rgba(255, 255, 255, 0.03)', border: '1px solid rgba(255, 255, 255, 0.06)', fontSize: '0.8rem', color: '#cbd5e1' }}>
                 <Activity size={15} color="#c084fc" />

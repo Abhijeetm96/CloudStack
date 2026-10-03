@@ -352,7 +352,7 @@ export const HeaderNav: React.FC = () => {
                 {mode === 'linuxforge' && <div style={{ fontSize: '0.65rem', color: '#06b6d4', fontWeight: 700 }}>Active</div>}
               </button>
 
-              {/* Item 2.5: DevOps & Cloud Engineering Academy (29 Chapters) */}
+              {/* Item 2.5: DevOps & Cloud Engineering Academy (50 Chapters) */}
               <button
                 onClick={() => {
                   setShowSuiteMenu(false);
@@ -377,7 +377,7 @@ export const HeaderNav: React.FC = () => {
                 </div>
                 <div style={{ flex: 1 }}>
                   <div style={{ fontSize: '0.82rem', fontWeight: 700, color: '#fff' }}>DevOps Academy</div>
-                  <div style={{ fontSize: '0.68rem', color: '#f472b6' }}>29 Master Chapters • 10 Tracks</div>
+                  <div style={{ fontSize: '0.68rem', color: '#f472b6' }}>50 Master Chapters • 10 Levels</div>
                 </div>
                 {mode === 'devops' && <div style={{ fontSize: '0.65rem', color: '#f472b6', fontWeight: 700 }}>Active</div>}
               </button>

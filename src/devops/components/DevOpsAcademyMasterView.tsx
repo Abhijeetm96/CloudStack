@@ -281,7 +281,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
                   textTransform: 'uppercase',
                 }}
               >
-                ● 29 CHAPTERS • 10 TRACKS
+                ● 50 CHAPTERS • 10 LEVELS
               </span>
             </div>
             <p style={{ margin: 0, fontSize: '0.74rem', color: '#94a3b8' }}>
@@ -1318,7 +1318,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
                 <Search size={16} color="#38bdf8" />
                 <input
                   type="text"
-                  placeholder="Filter all 29 chapters by tech, keyword, or module..."
+                  placeholder="Filter chapters by tech, keyword, or module..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   style={{

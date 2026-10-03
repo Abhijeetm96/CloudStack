@@ -212,7 +212,7 @@ export const Footer: React.FC = () => {
                   onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--text-secondary)')}
                 >
                   <Sparkles size={14} color="#c084fc" />
-                  <span>DevOps Academy (29 Chapters)</span>
+                  <span>DevOps Academy (50 Chapters)</span>
                 </button>
               </li>
             </ul>

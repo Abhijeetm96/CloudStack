@@ -73,7 +73,7 @@ export const SuiteHeaderNav: React.FC = () => {
             border: mode === 'devops' ? '1px solid rgba(168, 85, 247, 0.65)' : '1px solid rgba(168, 85, 247, 0.25)',
             boxShadow: mode === 'devops' ? '0 0 14px rgba(168, 85, 247, 0.35)' : 'none',
           }}
-          title="DevOps Academy (29 Chapters)"
+          title="DevOps Academy (50 Chapters)"
           aria-label="DevOps Academy"
         >
           <DevOpsOfficialIcon size={22} />
