@@ -151,8 +151,80 @@ export const DOCKER_STATS = {
   expertLessons: ALL_DOCKER_LESSONS.filter(l => l.difficulty === 'Expert').length,
 };
 
+import { DOCKER_CAPSTONES } from '../../platform/capstones/data/dockerCapstones';
+
 export function getDockerLessonById(id: string): DockerSubchapterLesson | undefined {
-  return ALL_DOCKER_LESSONS.find(l => l.id === id);
+  const direct = ALL_DOCKER_LESSONS.find(l => l.id === id);
+  if (direct) return direct;
+
+  if (id.startsWith('docker-')) {
+    const cap = DOCKER_CAPSTONES.find(c => c.id.toLowerCase() === id.toLowerCase());
+    if (cap) {
+      const idx = DOCKER_CAPSTONES.indexOf(cap);
+      return {
+        id: cap.id,
+        chapterNumber: 68,
+        chapterId: 'ch-68',
+        chapterTitle: 'DOCKER CAPSTONE',
+        subchapterNumber: `68.${idx + 1}`,
+        subchapterTitle: cap.title,
+        category: 'Hands-on Projects',
+        trackGroup: 'Hands-on Projects',
+        difficulty: (cap.difficulty as any) || 'Expert',
+        definition: cap.overview || cap.projectOverview?.shortDescription || '',
+        beginnerExplanation: cap.overview || '',
+        technicalExplanation: cap.projectOverview?.shortDescription || cap.overview,
+        whyItExists: cap.scenario || '',
+        problemSolved: cap.problemStatement || '',
+        dockerRelevance: 'Production Capstone Lab',
+        analogy: '',
+        mentalModel: cap.projectOverview?.shortDescription || cap.overview,
+        terminology: [],
+        syntax: cap.code,
+        syntaxBreakdown: [],
+        variations: [],
+        simplestExample: `docker ${cap.id}`,
+        practicalExample: `docker ${cap.id}`,
+        realWorldExample: cap.scenario || '',
+        productionExample: cap.scenario || '',
+        whenToUse: cap.projectObjective || [],
+        whenNotToUse: [],
+        commonMistakes: [],
+        commonMisconceptions: [],
+        securityConsiderations: (Array.isArray(cap.requirements?.security) ? cap.requirements.security : []) as string[],
+        performanceConsiderations: [],
+        operationalConsiderations: [],
+        troubleshooting: [],
+        bestPractices: (Array.isArray(cap.requirements?.technical) ? cap.requirements.technical : []) as string[],
+        antiPatterns: [],
+        relatedConcepts: cap.tags || [],
+        relatedCommands: [],
+        expectedOutput: 'Production Capstone project loaded.',
+        outputExplanation: [],
+        guidedExercise: {
+          title: cap.title,
+          objective: cap.overview,
+          steps: cap.projectObjective || [],
+          initialSnippet: cap.code,
+          solution: cap.code,
+        },
+        challenge: {
+          scenario: cap.scenario || '',
+          goal: cap.title,
+          testVerification: 'verify',
+          hint: 'Follow the architecture blueprint',
+        },
+        knowledgeCheck: {
+          question: `What is the primary objective of ${cap.title}?`,
+          options: [cap.overview, 'Ignore best practices', 'Use legacy tools', 'None of the above'],
+          correctIndex: 0,
+          explanation: cap.overview,
+        },
+        summary: cap.overview,
+      };
+    }
+  }
+  return undefined;
 }
 
 export function searchDockerLessons(query: string): DockerSubchapterLesson[] {
