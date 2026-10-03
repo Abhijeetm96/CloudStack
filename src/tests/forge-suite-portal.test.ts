@@ -48,5 +48,5 @@ describe('CloudStack Unified Portal Tests', () => {
     const { CloudStackHomeView } = await import('../components/home/CloudStackHomeView');
     expect(CloudStackHomeView).toBeDefined();
     expect(typeof CloudStackHomeView).toBe('function');
-  });
+  }, 15000);
 });

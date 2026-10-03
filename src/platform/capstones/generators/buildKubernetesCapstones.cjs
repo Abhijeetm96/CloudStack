@@ -346,7 +346,7 @@ const remainingK8sCapstones = [
     overview: 'Decouple application configuration from container images using Kubernetes ConfigMaps and Secrets, implementing environment variable injection, mounted configuration files, and zero-restart live reload patterns.',
     tags: ['kubernetes', 'configmaps', 'secrets', 'configuration', '12-factor', 'security'],
     projectOverview: {
-      projectName: 'Application Configuration & Secrets Management',
+      projectName: 'Application Configuration & Secrets Management (ConfigMaps & Secrets)',
       academy: 'kubernetes',
       difficulty: 'Lower Intermediate',
       estimatedEffort: '8-10 hours',
@@ -513,7 +513,7 @@ const remainingK8sCapstones = [
     overview: 'Implement enterprise stateful storage architectures in Kubernetes using StorageClasses, PersistentVolumeClaims (PVCs), dynamic storage provisioning, and StatefulSets for ordered, persistent stateful database workloads.',
     tags: ['kubernetes', 'storage', 'pv', 'pvc', 'statefulsets', 'storageclass', 'persistence'],
     projectOverview: {
-      projectName: 'Persistent Storage with PVs, PVCs & StatefulSets',
+      projectName: 'Persistent Storage with PersistentVolumes, PVCs & StatefulSets',
       academy: 'kubernetes',
       difficulty: 'Intermediate',
       estimatedEffort: '8-12 hours',
