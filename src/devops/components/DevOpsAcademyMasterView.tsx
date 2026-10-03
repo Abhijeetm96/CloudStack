@@ -304,13 +304,13 @@ export const DevOpsAcademyMasterView: React.FC = () => {
             }}
           >
             <div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8' }}>{TOTAL_DEVOPS_CHAPTERS}</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#38bdf8' }}>{DEVOPS_50_CHAPTERS.length}</span>
               <span style={{ fontSize: '0.68rem', color: '#94a3b8', marginLeft: '0.3rem' }}>Chapters</span>
             </div>
             <span style={{ color: 'rgba(255, 255, 255, 0.15)' }}>•</span>
             <div>
-              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#10b981' }}>{TOTAL_DEVOPS_SUBMODULES}</span>
-              <span style={{ fontSize: '0.68rem', color: '#94a3b8', marginLeft: '0.3rem' }}>Modules</span>
+              <span style={{ fontSize: '0.85rem', fontWeight: 900, color: '#10b981' }}>{ALL_DEVOPS_LESSONS.length}</span>
+              <span style={{ fontSize: '0.68rem', color: '#94a3b8', marginLeft: '0.3rem' }}>Lessons</span>
             </div>
             <span style={{ color: 'rgba(255, 255, 255, 0.15)' }}>•</span>
             <div>
@@ -965,7 +965,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
                             </span>
                             <span style={{ color: '#475569' }}>•</span>
                             <span style={{ fontSize: '0.72rem', color: '#94a3b8' }}>
-                              Chapter {ch.number} of 29
+                              Chapter {ch.number} of {DEVOPS_29_CHAPTERS.length}
                             </span>
                             {ch.number === 29 && (
                               <span
@@ -1333,7 +1333,7 @@ export const DevOpsAcademyMasterView: React.FC = () => {
               </div>
 
               <div style={{ fontSize: '0.78rem', color: '#94a3b8' }}>
-                Showing <strong>{filteredChapters.length}</strong> of {TOTAL_DEVOPS_CHAPTERS} Chapters
+                Showing <strong>{filteredChapters.length}</strong> of {DEVOPS_29_CHAPTERS.length} Chapters
               </div>
             </div>
 

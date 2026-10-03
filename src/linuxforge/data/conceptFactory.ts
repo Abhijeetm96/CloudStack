@@ -300,7 +300,7 @@ export function buildLinuxConcept(input: LinuxConceptInput): UniversalLinuxConce
     mistake: m.mistake,
     whyWrong: m.whyWrong || (m as any).whyItHappens || 'Can lead to unexpected behavior or system instability.',
     correctWay: m.correctWay || (m as any).howToFix || 'Follow standard POSIX practices and double check arguments.',
-    safeRecovery: m.safeRecovery || (m as any).safeRecovery || 'Revert changes or inspect system logs in /var/log.'
+    safeRecovery: m.safeRecovery || (m as any).howToRecover || 'Revert changes or inspect system logs in /var/log.'
   }));
 
   const defaultSafeRecovery = typeof input.safeRecovery === 'object' && input.safeRecovery !== null
