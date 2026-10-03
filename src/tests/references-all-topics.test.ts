@@ -54,8 +54,7 @@ describe('References Section All Topics Quality & Completeness Audit', () => {
     expect(missingCommonErrors).toHaveLength(0);
   });
 
-  it('audits each of the 18 topics individually and logs complete references stats', () => {
-    console.log('\n=== REFERENCES COVERAGE AUDIT REPORT: 18 TOPICS / 75 CONCEPTS ===');
+  it('audits each of the 18 topics individually and validates complete references stats', () => {
     let totalConcepts = 0;
     let totalValid = 0;
 
@@ -79,14 +78,8 @@ describe('References Section All Topics Quality & Completeness Audit', () => {
       });
       totalConcepts += topic.concepts.length;
       totalValid += topicValid;
-
-      const paddedNum = String(topic.number).padStart(2, '0');
-      const paddedTitle = topic.title.padEnd(40, ' ');
-      const percent = Math.round((topicValid / topic.concepts.length) * 100);
-      console.log(`✓ Topic ${paddedNum}: ${paddedTitle} | ${topicValid}/${topic.concepts.length} concepts fully referenced [${percent}%]`);
     });
 
-    console.log(`TOTAL: 18 Topics, ${totalConcepts} Concepts — ${totalValid}/${totalConcepts} Fully Referenced (100%)\n`);
     expect(totalValid).toBe(75);
     expect(totalConcepts).toBe(75);
   });

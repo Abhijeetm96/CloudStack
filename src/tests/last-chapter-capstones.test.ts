@@ -28,10 +28,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     GIT_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
       expect(cap.code).toMatch(/^GIT-/);
-      expect(cap.tasks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.objectives.length).toBeGreaterThanOrEqual(3);
-      expect(cap.validationChecks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.failureScenarios.length).toBeGreaterThanOrEqual(2);
+      expect(cap.tasks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.objectives?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.validationChecks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.failureScenarios?.length || 0).toBeGreaterThanOrEqual(2);
       expect(cap.expectedOutcome).toBeDefined();
     });
   });
@@ -44,10 +44,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     LINUX_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
       expect(cap.code).toMatch(/^LINUX-/);
-      expect(cap.tasks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.objectives.length).toBeGreaterThanOrEqual(3);
-      expect(cap.validationChecks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.failureScenarios.length).toBeGreaterThanOrEqual(2);
+      expect(cap.tasks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.objectives?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.validationChecks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.failureScenarios?.length || 0).toBeGreaterThanOrEqual(2);
       expect(cap.expectedOutcome).toBeDefined();
     });
   });
@@ -60,10 +60,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     DOCKER_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
       expect(cap.code).toMatch(/^DOCKER-/);
-      expect(cap.tasks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.objectives.length).toBeGreaterThanOrEqual(3);
-      expect(cap.validationChecks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.failureScenarios.length).toBeGreaterThanOrEqual(2);
+      expect(cap.tasks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.objectives?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.validationChecks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.failureScenarios?.length || 0).toBeGreaterThanOrEqual(2);
       expect(cap.expectedOutcome).toBeDefined();
     });
   });
@@ -76,10 +76,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     DEVOPS_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
       expect(cap.code).toMatch(/^DEVOPS-/);
-      expect(cap.tasks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.objectives.length).toBeGreaterThanOrEqual(3);
-      expect(cap.validationChecks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.failureScenarios.length).toBeGreaterThanOrEqual(2);
+      expect(cap.tasks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.objectives?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.validationChecks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.failureScenarios?.length || 0).toBeGreaterThanOrEqual(2);
       expect(cap.expectedOutcome).toBeDefined();
     });
   });
@@ -92,10 +92,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     TERRAFORM_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
       expect(cap.code).toMatch(/^TERRAFORM-/);
-      expect(cap.tasks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.objectives.length).toBeGreaterThanOrEqual(3);
-      expect(cap.validationChecks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.failureScenarios.length).toBeGreaterThanOrEqual(2);
+      expect(cap.tasks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.objectives?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.validationChecks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.failureScenarios?.length || 0).toBeGreaterThanOrEqual(2);
       expect(cap.expectedOutcome).toBeDefined();
     });
   });
@@ -108,10 +108,10 @@ describe('Real-World Capstone Projects in Last Chapter of Every Section Audit', 
     KUBERNETES_CAPSTONES.forEach((cap) => {
       expect(cap.id).toBeDefined();
       expect(cap.code).toMatch(/^K8S-/);
-      expect(cap.tasks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.objectives.length).toBeGreaterThanOrEqual(3);
-      expect(cap.validationChecks.length).toBeGreaterThanOrEqual(3);
-      expect(cap.failureScenarios.length).toBeGreaterThanOrEqual(2);
+      expect(cap.tasks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.objectives?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.validationChecks?.length || 0).toBeGreaterThanOrEqual(3);
+      expect(cap.failureScenarios?.length || 0).toBeGreaterThanOrEqual(2);
       expect(cap.expectedOutcome).toBeDefined();
     });
   });

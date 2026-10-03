@@ -182,20 +182,13 @@ describe('Kubernetes Academy Master Architectural Flow & Block Diagram Integrity
     expect(missingDiagrams).toEqual([]);
   });
 
-  it('prints an architectural diagram coverage summary report', () => {
-    console.log('\n================ KUBERNETES ARCHITECTURAL DIAGRAM AUDIT REPORT ================');
-    const allConcepts = getAllConcepts();
-    console.log(`Audited ${allConcepts.length} Concepts across ${KUBE_CHAPTERS.length} Chapters:\n`);
-
+  it('validates architectural diagram coverage across all chapters', () => {
     KUBE_CHAPTERS.forEach((ch) => {
       const sample = ch.concepts[0];
       const diagram = getDiagramDataForConcept(sample);
-      console.log(`✓ Chapter ${String(ch.number).padStart(2, '0')}: ${ch.title.padEnd(42, ' ')}`);
-      console.log(`    ↳ Architecture: [${diagram.architectureType}]`);
-      console.log(`    ↳ Topology: ${diagram.blocks.length} Blocks, ${diagram.connections.length} Protocol Paths, ${diagram.steps.length} Lifecycle Stages`);
+      expect(diagram.architectureType).toBeTruthy();
+      expect(diagram.blocks.length).toBeGreaterThan(0);
     });
-
-    console.log('============================================================================\n');
   });
 
   it('detects diverse architectural archetypes across chapters so diagrams do not all look the same', async () => {

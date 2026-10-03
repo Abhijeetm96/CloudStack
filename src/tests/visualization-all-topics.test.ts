@@ -77,11 +77,5 @@ describe('Visualization Section All Topics Quality & Completeness Audit', () => 
     // Verify sum of concepts across 18 topics is 75
     const totalConcepts = report.reduce((sum, r) => sum + r.conceptCount, 0);
     expect(totalConcepts).toBe(75);
-
-    console.log('=== VISUALIZATION COVERAGE AUDIT REPORT: 18 TOPICS / 75 CONCEPTS ===');
-    report.forEach((r) => {
-      console.log(`✓ Topic ${r.topicNum}: ${r.topicTitle.padEnd(45)} | ${r.conceptCount} concepts visualized [100%]`);
-    });
-    console.log(`TOTAL: 18 Topics, 75 Concepts — 100% Populated and Verified`);
   });
 });

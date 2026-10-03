@@ -58,19 +58,13 @@ describe('Practice Section All Topics Quality & Completeness Audit', () => {
       expect(c.challenge.safeFailure?.recoveryExplanation, `${conceptId} safeFailure.recoveryExplanation`).toBeTruthy();
     });
 
-    console.log('Missing challenges:', missingChallenges);
-    console.log('Missing expectedCommands:', missingExpectedCommands);
-    console.log('Missing hints:', missingHints);
-    console.log('Missing safeFailures:', missingSafeFailures);
-
     expect(missingChallenges).toHaveLength(0);
     expect(missingExpectedCommands).toHaveLength(0);
     expect(missingHints).toHaveLength(0);
     expect(missingSafeFailures).toHaveLength(0);
   });
 
-  it('audits each of the 18 topics individually and logs complete practice stats', () => {
-    console.log('\n=== PRACTICE COVERAGE AUDIT REPORT: 18 TOPICS / 75 CONCEPTS ===');
+  it('audits each of the 18 topics individually and validates complete practice stats', () => {
     let totalConcepts = 0;
     let totalValid = 0;
 
@@ -92,14 +86,8 @@ describe('Practice Section All Topics Quality & Completeness Audit', () => {
       });
       totalConcepts += topic.concepts.length;
       totalValid += topicValid;
-
-      const paddedNum = String(topic.number).padStart(2, '0');
-      const paddedTitle = topic.title.padEnd(40, ' ');
-      const percent = Math.round((topicValid / topic.concepts.length) * 100);
-      console.log(`✓ Topic ${paddedNum}: ${paddedTitle} | ${topicValid}/${topic.concepts.length} challenges [${percent}%]`);
     });
 
-    console.log(`TOTAL: 18 Topics, ${totalConcepts} Concepts — ${totalValid}/${totalConcepts} Practice Labs Populated and Verified\n`);
     expect(totalValid).toBe(75);
     expect(totalConcepts).toBe(75);
   });

@@ -104,20 +104,19 @@ describe('Docker Academy Master Docker Curriculum & Interactive Pedagogy Audit',
     expect(missingDataIssues).toEqual([]);
   });
 
-  it('prints complete Docker beginner-to-expert curriculum coverage report', () => {
-    console.log('\n================ DOCKER MASTER CURRICULUM AUDIT REPORT ================');
+  it('validates complete Docker beginner-to-expert curriculum coverage', () => {
     const allConcepts = DOCKER_14_TOPICS.flatMap((t) => t.concepts);
-    console.log(`Total Topics: ${DOCKER_14_TOPICS.length} | Total Concepts: ${allConcepts.length}\n`);
+    expect(DOCKER_14_TOPICS.length).toBe(14);
+    expect(allConcepts.length).toBeGreaterThan(0);
 
     DOCKER_14_TOPICS.forEach((topic) => {
-      console.log(`✓ Topic ${topic.number}: ${topic.title.padEnd(38, ' ')} | ${topic.concepts.length} concepts`);
+      expect(topic.concepts.length).toBeGreaterThan(0);
       topic.concepts.forEach((c) => {
         const full = ensureFullConceptData(DOCKER_UNIVERSAL_CONCEPTS[c.id] || c as any);
-        console.log(`    ↳ [${full.difficulty.padEnd(12, ' ')}] ${c.title.padEnd(36, ' ')} (${c.command})`);
-        console.log(`        - Internal Flow: ${full.internalFlow?.length} steps | Nodes: ${full.blockDiagram?.nodes.length} | Mistakes: ${full.commonMistakes?.length}`);
+        expect(full.difficulty).toBeTruthy();
+        expect(full.title).toBeTruthy();
+        expect(full.command).toBeTruthy();
       });
     });
-
-    console.log('=======================================================================\n');
   });
 });

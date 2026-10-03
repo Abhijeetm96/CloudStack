@@ -183,7 +183,7 @@ describe('Complete Capstone Project System Audit (All 61 Production-Grade Projec
         // Section 5: What You Need To Build
         expect(p.whatYouNeedToBuild, `${p.code} must have whatYouNeedToBuild`).toBeDefined();
         expect(p.whatYouNeedToBuild!.description.length, `${p.code} whatYouNeedToBuild description`).toBeGreaterThan(15);
-        expect(p.whatYouNeedToBuild!.diagram.length, `${p.code} whatYouNeedToBuild diagram`).toBeGreaterThan(15);
+        expect(p.whatYouNeedToBuild!.diagram?.length, `${p.code} whatYouNeedToBuild diagram`).toBeGreaterThan(15);
 
         // Section 6: Requirements
         expect(p.requirements, `${p.code} must have requirements`).toBeDefined();

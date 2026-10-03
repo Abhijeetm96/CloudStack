@@ -144,11 +144,6 @@ describe('All 18 Topics Complete Curriculum Verification & Quality Audit', () =>
       }
     });
 
-    console.log('Missing commandComparisons count:', missingComparisons.length, missingComparisons);
-    console.log('Missing commonMistakes count:', missingMistakes.length, missingMistakes);
-    console.log('Missing rich variations count:', missingVariationsRich.length, missingVariationsRich);
-    console.log('Missing rich scenarios count:', missingScenariosRich.length, missingScenariosRich);
-
     expect(missingComparisons).toEqual([]);
     expect(missingMistakes).toEqual([]);
     expect(missingVariationsRich).toEqual([]);

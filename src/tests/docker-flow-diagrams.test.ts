@@ -90,8 +90,7 @@ describe('Docker Academy Master Architectural Flow & Block Diagram Integrity Aud
     expect(detectDockerArchetype(t13)).toBe('loop');
   });
 
-  it('prints a Docker architectural diagram coverage summary report', () => {
-    console.log('\n================ DOCKER ARCHITECTURAL DIAGRAM AUDIT REPORT ================');
+  it('validates Docker architectural diagram coverage across all topics', () => {
     DOCKER_14_TOPICS.forEach((topic) => {
       const sample = topic.concepts[0];
       const diagram = getDockerDiagramData({
@@ -100,10 +99,9 @@ describe('Docker Academy Master Architectural Flow & Block Diagram Integrity Aud
         topicNumber: topic.number,
       });
       const arch = detectDockerArchetype(diagram);
-      console.log(`✓ Topic ${topic.number}: ${topic.title.padEnd(42, ' ')} [Archetype: ${arch.toUpperCase()}]`);
-      console.log(`    ↳ Architecture: [${diagram.architectureType}]`);
-      console.log(`    ↳ Topology: ${diagram.blocks.length} Blocks, ${diagram.connections.length} Protocol Paths, ${diagram.steps.length} Lifecycle Stages`);
+      expect(arch).toBeTruthy();
+      expect(diagram.architectureType).toBeTruthy();
+      expect(diagram.blocks.length).toBeGreaterThan(0);
     });
-    console.log('==============================================================================\n');
   });
 });
